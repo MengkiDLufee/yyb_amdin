@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Table, Button } from 'antd';
+import { Table ,Button , Input , Row, Col ,Select } from 'antd';
 
-
+const { Option } = Select;
 
 const columns = [
     {
@@ -69,55 +69,76 @@ const columns = [
   }
 
 
-
+  function handleChange(value) {
+    console.log(`selected ${value}`);
+  }
 
 
 export default class TestData extends Component {
-
-    state = {
-        selectedRowKeys: [], // Check here to configure the default column
-        loading: false,
-      };
-    
-      start = () => {
-        this.setState({ loading: true });
-        // ajax request after empty completing
-        setTimeout(() => {
-          this.setState({
-            selectedRowKeys: [],
-            loading: false,
-          });
-        }, 1000);
-      };
-    
-      onSelectChange = selectedRowKeys => {
-        console.log('selectedRowKeys changed: ', selectedRowKeys);
-        this.setState({ selectedRowKeys });
-      };
 
 
 
     render() {
 
-        const { loading, selectedRowKeys } = this.state;
-        const rowSelection = {
-          selectedRowKeys,
-          onChange: this.onSelectChange,
-        };
-        const hasSelected = selectedRowKeys.length > 0;
-
-
         return (
-<div>
-        <div style={{ marginBottom: 16 }}>
-          <Button type="primary" onClick={this.start} disabled={!hasSelected} loading={loading}>
-            Reload
-          </Button>
-          <span style={{ marginLeft: 8 }}>
-            {hasSelected ? `Selected ${selectedRowKeys.length} items` : ''}
-          </span>
+      <div>
+        <div>测试人数：55</div>
+        <div style={{'margin':'10px 0'}} >
+        <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+          <Col span={3}>
+            <Input  placeholder="客户"  />
+          </Col>
+          <Col span={3}>
+            <Input  placeholder="姓名"  />
+          </Col>
+          <Col span={3}>
+            <Select placeholder="请选择试剂类型 " style={{width:'100%'}} onChange={handleChange}>
+              <Option value="reagent1">试剂1</Option>
+              <Option value="reagent2">试剂2</Option>
+              <Option value="reagent3">试剂3</Option>
+            </Select>
+          </Col>
+          <Col span={3}>
+            <Select placeholder="请选择测试阶段 " style={{width:'100%'}} onChange={handleChange}>
+              <Option value="stage1">阶段1</Option>
+              <Option value="stage2">阶段2</Option>
+              <Option value="stage3">阶段3</Option>
+            </Select>
+          </Col>
+          
+          <Col span={4}>
+            <Input  placeholder="测试时间"  />
+          </Col>
+          
+          <Col span={3}>
+            <Input  placeholder="设备号"  />
+          </Col>
+          <Col span={1.5}>
+            <Button type="primary" >搜索</Button>
+          </Col>
+          <Col span={1.5} >
+          <Button type="primary" >重置</Button>
+          </Col>
+          <Col span={2} >
+
+          </Col>
+        </Row>
         </div>
-        <Table rowSelection={rowSelection} columns={columns} dataSource={data} bordered={true} />
+        <div>
+          <Table 
+          columns={columns} 
+          dataSource={data} 
+          bordered={true} 
+          style={{margin:'20px 0'}}
+          pagination={{ 
+            position: ['bottomLeft'] ,
+            total:'data.length',
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true
+          }}
+          />
+        </div>
       </div>
         )
     }

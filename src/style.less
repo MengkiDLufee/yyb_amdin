@@ -3,24 +3,31 @@
     background: #f05d73;
     border-color: #f05d73;
 }
-
-
-// .ant-menu-submenu-title:hover {
-//     color: black;
-// }
-
-//  .ant-menu-item-selected {
-//     background-color: #f5a1ae;
+// .ant-menu-submenu-active, .ant-menu-submenu-title:hover {
 //     color: black;
 // }
 // .ant-menu-submenu-selected {
 //     color: black;
 // }
 
-// .ant-menu-inline .ant-menu-item::after {
-//     border-right: 3px solid black;
-// }
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
+    // color: black;
+    background-color: #f79ca9;
+}
 
 // .ant-menu-item:hover, .ant-menu-item-active, .ant-menu:not(.ant-menu-inline) .ant-menu-submenu-open, .ant-menu-submenu-active, .ant-menu-submenu-title:hover {
 //     color: black;
 // }
+
+//按钮选中时的样式
+.ant-btn-primary:hover, .ant-btn-primary:focus {
+    color: #fff;
+    background: #f05d73;
+    border-color: #ece3e3;
+}
+
+// checkbox选中时的样式
+.ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #f05d73;
+    border-color: #fff;
+}

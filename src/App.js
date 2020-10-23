@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter,  Route ,Switch, Redirect } from 'react-router-dom'
 
+
 import Login from './pages/login/login.jsx'
 import Admin from './pages/admin/admin.jsx'
 import './style.less'
