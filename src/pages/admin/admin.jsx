@@ -152,7 +152,7 @@ export default class Admin extends Component {
                     mode="inline"
                     theme="light"
                     style={{background:' #f05d73'}}
-                    inlineCollapsed={this.state.collapsed}
+                    
                     >
                       {/* 调用生成导航栏函数 */}
                        {this.getMenuNodes(menuList)}
@@ -243,7 +243,7 @@ export default class Admin extends Component {
                           <MinusOutlined rotate="90" style={{color:'green' ,fontSize:'18px',marginLeft:'20px'}} />
                           <span style={{fontSize:'18px'}}>{this.getTitle()}</span>
                       </span>
-                      <span  style={{float:'right'}}>
+                      <span  style={{float:'right',fontSize:'18px'}}>
                           {this.getTitleRight()}
                       </span>
                     </span>
@@ -252,8 +252,7 @@ export default class Admin extends Component {
 
               {/* 内容部分二级路由配置 */}
               <Content
-                className="site-layout-background"
-                style={{ margin: '24px 16px', padding: 24,  minHeight: 800, }}
+                style={{ margin: '24px 16px', padding: 24,background:'white'}}
               >
                 <Switch>
                   <Route path="/home" exact component={Home} />
