@@ -75,7 +75,21 @@ const columns = [
 
 
 export default class TestData extends Component {
+    state = {
+      paginationparams:{
+        current:1,
+        pageSzie:10,
+      }
+    }
 
+    handTablechange = (pagination) =>{
+      console.log(pagination)
+      this.setState({
+        current:pagination.current,
+        pageSzie:pagination.pageSzie,
+      })
+      console.log('表格参数',this.state.paginationparams)
+    }
 
 
     render() {
@@ -137,6 +151,7 @@ export default class TestData extends Component {
             showQuickJumper:true,
             showSizeChanger:true
           }}
+          onChange={this.handTablechange}
           />
         </div>
       </div>

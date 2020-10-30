@@ -143,7 +143,7 @@ export default class Admin extends Component {
 
     render() {
         return (
-            <Layout style={{height:'100%'}}>
+            <Layout className="layout">
               {/* 左侧导航栏 */}
             <Sider trigger={null} collapsible collapsed={this.state.collapsed}  className="left-nav"> 
               <div className="logo" ><h1 style={{color:'white',paddingTop:'5px'}}>logo</h1></div>
@@ -252,7 +252,7 @@ export default class Admin extends Component {
 
               {/* 内容部分二级路由配置 */}
               <Content
-                style={{ margin: '24px 16px', padding: 24,background:'white'}}
+                style={{ margin: '24px 16px', padding: 24,background:'white',minHeight:"800"}}
               >
                 <Switch>
                   <Route path="/home" exact component={Home} />

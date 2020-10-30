@@ -1,6 +1,13 @@
 import React, { Component } from 'react'
 import { Table ,Button , Input , Row, Col ,Select, Space ,Modal} from 'antd';
-import {ReloadOutlined, SearchOutlined ,PlusOutlined, CloudUploadOutlined, CloudDownloadOutlined} from '@ant-design/icons'
+import {ReloadOutlined,
+        SearchOutlined ,
+        PlusOutlined, 
+        CloudUploadOutlined, 
+        CloudDownloadOutlined,
+        CheckCircleOutlined,
+        CloseCircleTwoTone 
+        } from '@ant-design/icons'
 // import Column from 'antd/lib/table/Column';
 
 
@@ -17,21 +24,21 @@ const { Option } = Select;
       key: i,
       dev_code: `123123123${i}`,
       dev_num: `设备 ${i}`,
-      on: `已激活`,
-      used:`已用`,
-      type:`类型1`,
-      status :`启用 `,
-      share :`共享`,
+      on: 0,
+      used:0,
+      type:`正常`,
+      status :`测试通过 `,
+      share :0,
     });} else {
       data.push({
         key: i,
         dev_code: `123123123${i}`,
         dev_num: `设备 ${i}`,
-        on: `未激活`,
-        used:`未用`,
-        type:`类型2`,
+        on: 1,
+        used:1,
+        type:`异常`,
         status :`停用 `,
-        share :`未共享`,
+        share :1,
       });
     }
   }
@@ -50,36 +57,66 @@ export default class DeviceManagement extends Component {
       title: '设备码',
       dataIndex: 'dev_code',
       width: 150,
+      align:'center',
     },
     {
       title: '设备号',
       dataIndex: 'dev_num',
       width: 150,
+      align:'center',
     },
     {
       title: '激活',
+      key:'on',
       dataIndex: 'on',
       width: 100,
-    },
+      align:'center',
+      render: on =>{
+          if (on === 0) {
+            return (<CheckCircleOutlined style={{color:'#f05d73',fontSize:'23px',verticalAlign:'middle'}} />)
+          } else if(on === 1) {
+            return (<CloseCircleTwoTone   style={{fontSize:'25px',color:'white'}} twoToneColor="gary" />)
+          }
+        }
+      },
+
     {
       title: '已用',
       dataIndex: 'used',
       width: 100,
+      align:'center',
+      render: used =>{
+        if (used === 0) {
+          return (<CheckCircleOutlined style={{color:'#f05d73',fontSize:'23px',verticalAlign:'middle'}} />)
+        } else if(used === 1) {
+          return (<CloseCircleTwoTone   style={{fontSize:'25px',color:'white'}} twoToneColor="gary" />)
+        }
+      }
     },
     {
       title: '类型',
       dataIndex: 'type',
       width: 150,
+      align:'center',
     },
     {
       title: '状态',
       dataIndex: 'status',
       width: 150,
+      align:'center',
     },
     {
       title: '共享',
       dataIndex: 'share',
       width: 100,
+      align:'center',
+      render: share =>{
+        if (share === 0) {
+          return (<CheckCircleOutlined style={{color:'#f05d73',fontSize:'23px',verticalAlign:'middle'}} />)
+        } else if(share === 1) {
+          return (<CloseCircleTwoTone   style={{fontSize:'25px',color:'white'}} twoToneColor="gary" />)
+        }
+      }
     },
     {
       title: '操作',
@@ -193,6 +230,11 @@ export default class DeviceManagement extends Component {
     console.log('使用人员',record)
   };
 
+  handTablechange = (pagination) =>{
+    console.log(pagination)
+     
+  };
+
 
 
     render() {
@@ -260,6 +302,8 @@ export default class DeviceManagement extends Component {
                   rowSelection={rowSelection}
                   style={{margin:'20px 0',borderBottom:'1px,soild'}}
                   pagination={ this.paginationProps}
+                  onChange={this.handTablechange}
+                  
                   />
                 </div>
                 {/* 添加弹窗 */}
