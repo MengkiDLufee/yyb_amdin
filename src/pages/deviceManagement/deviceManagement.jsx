@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Table ,Button , Input , Row, Col ,Select, Space ,Modal} from 'antd';
+import { Table ,Button , Input , Select, Space ,Modal} from 'antd';
 import {ReloadOutlined,
         SearchOutlined ,
         PlusOutlined, 
@@ -8,7 +8,7 @@ import {ReloadOutlined,
         CheckCircleOutlined,
         CloseCircleTwoTone 
         } from '@ant-design/icons'
-// import Column from 'antd/lib/table/Column';
+import './index.less' //引入样式
 
 
 const { Option } = Select;
@@ -247,50 +247,91 @@ export default class DeviceManagement extends Component {
 
         return (
             <div style={{height:"100%"}}>
-                <div style={{'margin':'10px 0'}} >
-                <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
-                    <Col span={3}>
-                        <Input  placeholder="客户"  />
-                    </Col>
-                    <Col span={3}>
-                        <Select placeholder="请选择激活状态 " style={{width:'100%'}} onChange={handleChange}>
+                <div style={{'margin':'0 0 15px  0'}} >
+                <div justify="space-between" gutter="15" style={{display:"flex" }}  >
+                    
+                        <Input  placeholder="客户" className="input1" />
+                    
+                    
+                        <Select placeholder="请选择激活状态 "  onChange={handleChange} className="input1" >
                             <Option value="on">已激活</Option>
                             <Option value="close">未激活</Option>
                         </Select>
-                    </Col>
-                    <Col span={3}>
-                        <Select placeholder="请选择类型 " style={{width:'100%'}} onChange={handleChange}>
+                    
+                   
+                        <Select placeholder="请选择类型 "  onChange={handleChange} className="input1" >
                             <Option value="type1">类型1</Option>
                             <Option value="type2">类型2</Option>
                             <Option value="type3">类型3</Option>
                         </Select>
-                    </Col>
-                    <Col span={3}>
-                        <Select placeholder="请选择状态 " style={{width:'100%'}} onChange={handleChange}>
+                  
+                        <Select placeholder="请选择状态 " onChange={handleChange} className="input1" >
                             <Option value="status1">测试通过</Option>
                             <Option value="status2">测试未通过</Option>
                         </Select>
-                    </Col>
-                    <Col span={1.5}>
-                        <Button type="primary" icon={<SearchOutlined  style={{fontSize:'18px'}} onClick={this.search} />}>搜索</Button>
-                    </Col>
-                    <Col span={1.5} >
-                        <Button type="primary" icon={<ReloadOutlined style={{fontSize:'18px'}} onClick={this.reset} /> } >重置</Button>
-                    </Col>
-                    <Col span={1.5} >
-                        <Button type="primary" icon={<PlusOutlined style={{fontSize:'18px'}}  onClick={this.add} />} >添加</Button>
-                    </Col>
-                    <Col span={1.5} >
-                        <Button type="primary" icon={<CloudUploadOutlined style={{fontSize:'18px'}}  onClick={this.importStatic} />} >导入</Button>
-                    </Col>
-                    <Col span={1.5} >
-                        <Button type="primary" icon={<CloudDownloadOutlined style={{fontSize:'18px'}} onClick={this.exportChoose} />} >导出已选择数据</Button>
-                    </Col>
-                    <Col span={1.5} >
-                        <Button type="primary" icon={<CloudDownloadOutlined style={{fontSize:'18px'}}  onClick={this.exportSearch} />} >按检索条件导出</Button>
-                    </Col>
-                    <Col span={2} ></Col>
-                </Row>
+                    
+                    
+                        <Button 
+                          type="primary" 
+                          icon={<SearchOutlined className="icon1" />}
+                          onClick={this.search} 
+                          className="button1"
+                          >
+                          搜索
+                        </Button>
+                    
+                    
+                        <Button type="primary" 
+                          icon={<ReloadOutlined className="icon1" /> }
+                          onClick={this.reset} 
+                          className="button1"
+                         >
+                           重置
+                        </Button>
+                   
+                    
+                        <Button 
+                          type="primary" 
+                          icon={<PlusOutlined  className="icon1" />} 
+                          
+                          onClick={this.add}
+                          className="button1"
+                        >
+                          添加
+                        </Button>
+                    
+                    
+                        <Button 
+                          type="primary" 
+                          icon={<CloudUploadOutlined className="icon1" />} 
+                          onClick={this.importStatic}
+                          className="button1"
+                        >
+                          导入
+                        </Button>
+                 
+                        <Button 
+                          type="primary" 
+                          icon={<CloudDownloadOutlined className="icon1" />} 
+                          
+                          onClick={this.exportChoose}
+                          className="button2"
+                        >
+                          导出已选择数据
+                        </Button>
+                   
+                        <Button 
+                        type="primary" 
+                        icon={<CloudDownloadOutlined className="icon1" />} 
+                          
+                        onClick={this.exportSearch}
+                        className="button2"
+                        >
+                          按检索条件导出
+                        </Button>
+                   
+                    
+                </div>
                 </div>
 
                 {/* 表格 */}
