@@ -265,7 +265,7 @@ export default class Admin extends Component {
                   <Route path="/user/phone"  component={UserMobileMsgManagement} />
                   <Route path="/user/code"  component={VerificationSMSinquire} />
 
-                  <Route path="/test"  component={TestSet} />
+                  <Route path="/test/set"  component={TestSet} />
                   <Route path="/test/type"  component={TestType} />
                   <Route path="/reagent/type"  component={ReagentType} />
                   <Route path="/reagent/params"  component={ReagentJudgeParams} />
