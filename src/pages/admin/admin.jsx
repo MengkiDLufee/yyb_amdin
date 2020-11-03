@@ -264,8 +264,9 @@ export default class Admin extends Component {
                   <Route path="/user/msg"  component={UserSMSmanagement} />
                   <Route path="/user/phone"  component={UserMobileMsgManagement} />
                   <Route path="/user/code"  component={VerificationSMSinquire} />
-
-                  <Route path="/test/set"  component={TestSet} />
+                    {/*当location与Route的path匹配时渲染Route中的Component。如果有多个Route匹配，那么这些Route的Component都会被渲染。*/}
+                    {/*与Link类似，Route也有一个exact属性，作用也是要求location与Route的path绝对匹配。*/}
+                  <Route exact path="/test"  component={TestSet} />
                   <Route path="/test/type"  component={TestType} />
                   <Route path="/reagent/type"  component={ReagentType} />
                   <Route path="/reagent/params"  component={ReagentJudgeParams} />

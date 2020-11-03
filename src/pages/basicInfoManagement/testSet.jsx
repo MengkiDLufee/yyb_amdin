@@ -58,7 +58,7 @@ function handleChange(value) {
 }
 
 
-export default class TestData extends Component {
+export default class TestSet extends Component {
 
     state = {
         selectedRowKeys: [], // Check here to configure the default column
@@ -95,7 +95,6 @@ export default class TestData extends Component {
                         <Input  placeholder="测试集名称"/>
                     </Col>
                     <Col span={2}>
-
                         <Button type="primary" ><SearchOutlined />搜索</Button>
                     </Col>
                     <Col span={2} >

@@ -2,17 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/yyb_amdin.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/yyb_amdin.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/admin/admin.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/admin/admin.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/admin/index.less" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/admin/index.less" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/deviceManagement/deviceManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/deviceManagement/deviceManagement.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/yybHomeEditionStatistics/testData.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/yybHomeEditionStatistics/testData.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/style.less" beforeDir="false" afterPath="$PROJECT_DIR$/src/style.less" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +47,7 @@
       <updated>1604025604500</updated>
       <workItem from="1604025605748" duration="61000" />
       <workItem from="1604286820489" duration="9796000" />
+      <workItem from="1604401822615" duration="9416000" />
     </task>
     <servers />
   </component>
