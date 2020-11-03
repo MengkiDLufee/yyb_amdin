@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Table ,Button , Input , Select, Space ,Modal} from 'antd';
+import { Table ,Button , Input , Select, Space ,Modal,Form,Checkbox} from 'antd';
 import {ReloadOutlined,
         SearchOutlined ,
         PlusOutlined, 
@@ -16,7 +16,7 @@ const { Option } = Select;
 
 
 
-
+ //主页面表格数据
   const data = [];
   for (let i = 0; i < 46; i++) {
     if(i%2 !== 0)
@@ -42,7 +42,28 @@ const { Option } = Select;
       });
     }
   }
-
+//使用人员弹窗表格数据
+const data_user = [];
+for (let i = 0; i < 33; i++) {
+  if(i%2 !== 0)
+  {data_user.push({
+    key: i,
+    user_name: `123123123${i}`,
+    ed_type: `家庭版`,
+    on_use: '是',
+    bind_time:'2020-04-14',
+    stop_time:`2020-10-10`,
+  });} else {
+    data_user.push({
+      key: i,
+      user_name: `123123${i}`,
+      ed_type: `专业版`,
+      on_use: '否',
+      bind_time:'2019-11-11',
+      stop_time:`2020-11-11`,
+    });
+  }
+}
 
   
   function handleChange(value) {
@@ -51,6 +72,32 @@ const { Option } = Select;
 
 
 export default class DeviceManagement extends Component {
+
+    //参数设置
+    state = { visible_add: false ,
+      visible_modify :false,
+      visible_user :false,
+      selectedRowKeys: [], // Check here to configure the default column
+      paginationProps : {//分页栏参数
+        position: ['bottomLeft'] ,
+        total:'data.length',
+        showTotal:total => `共 ${total} 条`,
+        showQuickJumper:true,
+        showSizeChanger:true,
+      },
+      current:1,//当前页数
+      pageSize:10,//当前页面条数
+
+      paginationProps_user : {//使用人员分页栏参数
+        position: ['bottomLeft'] ,
+        total:'data.length',
+        showTotal:total => `共 ${total} 条`,
+        showQuickJumper:true,
+        showSizeChanger:true,
+      },
+      devCode:undefined,
+    };
+
 //表格栏
  columns = [
     {
@@ -133,19 +180,41 @@ export default class DeviceManagement extends Component {
       ),
     }
   ];
-  //参数设置
-  state = { visible_add: false ,
-            visible_modify :false,
-            selectedRowKeys: [], // Check here to configure the default column
-          };
-//表格下方分页属性
-  paginationProps = {
-    position: ['bottomLeft'] ,
-    total:'data.length',
-    showTotal:total => `共 ${total} 条`,
-    showQuickJumper:true,
-    showSizeChanger:true,
-  }
+  //使用人员表格栏
+columns_user = [
+  {
+    title: '用户名',
+    dataIndex: 'user_name',
+    width: 150,
+    align:'center',
+  },
+  {
+    title: '使用版本类型',
+    dataIndex: 'ed_type',
+    width: 150,
+    align:'center',
+  },
+  {
+    title: '正在使用',
+    dataIndex: 'on_use',
+    width: 150,
+    align:'center',
+  },
+  {
+    title: '绑定时间',
+    dataIndex: 'bind_time',
+    width: 150,
+    align:'center',
+  },
+  {
+    title: '终止时间',
+    dataIndex: 'stop_time',
+    width: 150,
+    align:'center',
+  },
+]
+
+
 
 
   start = () => {
@@ -158,9 +227,13 @@ export default class DeviceManagement extends Component {
     }, 1000);
   };
 
-  onSelectChange = selectedRowKeys => {
-    console.log('已选择的表格行', selectedRowKeys);
-    this.setState({ selectedRowKeys });
+  onSelectChange = selectedRowKeys1 => {
+
+    //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+    this.setState(
+      {selectedRowKeys:selectedRowKeys1},
+      ()=>{console.log('所选择行',this.state.selectedRowKeys)}
+    )
   };
   //搜索
   search = () =>{
@@ -169,6 +242,11 @@ export default class DeviceManagement extends Component {
   //重置
   reset = () => {
     console.log('重置')
+    this.setState(
+      {
+        selectedRowKeys:[],
+      }
+    )
   };
   //添加
   add =() =>{
@@ -226,13 +304,38 @@ export default class DeviceManagement extends Component {
   delete = (record) =>{
     console.log('删除',record)
   };
+  //使用人员按钮
   user = (record) => {
     console.log('使用人员',record)
+    this.setState({
+      visible_user:true,
+      devCode:record.dev_code,
+    })
   };
+  //使用人员弹窗关闭
+  handleCancel_user = () =>{
+    this.setState({
+      visible_user:false,
+      devCode:undefined,
+    })
+  }
 
+//表格翻页
   handTablechange = (pagination) =>{
     console.log(pagination)
-     
+    // this.state.paginationProps.current=pagination.current
+    // this.state.paginationProps.pageSize=pagination.pageSize
+    let C = pagination.current
+    let P = pagination.pageSize
+    this.setState = ({
+      current:C,
+      pageSize:P
+    })
+    console.log(this.state.current,this.state.pageSize,this.state)   
+  };
+  //使用人员表格变化
+  handTablechange_user = (pagination) =>{
+    console.log(pagination)
   };
 
 
@@ -247,18 +350,17 @@ export default class DeviceManagement extends Component {
 
         return (
             <div style={{height:"100%"}}>
-                <div style={{'margin':'0 0 15px  0'}} >
+              {/* 输入框等 */}
+              <div style={{'margin':'0 0 15px  0'}} >
                 <div justify="space-between" gutter="15" style={{display:"flex" }}  >
                     
                         <Input  placeholder="客户" className="input1" />
-                    
                     
                         <Select placeholder="请选择激活状态 "  onChange={handleChange} className="input1" >
                             <Option value="on">已激活</Option>
                             <Option value="close">未激活</Option>
                         </Select>
-                    
-                   
+
                         <Select placeholder="请选择类型 "  onChange={handleChange} className="input1" >
                             <Option value="type1">类型1</Option>
                             <Option value="type2">类型2</Option>
@@ -269,8 +371,7 @@ export default class DeviceManagement extends Component {
                             <Option value="status1">测试通过</Option>
                             <Option value="status2">测试未通过</Option>
                         </Select>
-                    
-                    
+
                         <Button 
                           type="primary" 
                           icon={<SearchOutlined className="icon1" />}
@@ -279,8 +380,7 @@ export default class DeviceManagement extends Component {
                           >
                           搜索
                         </Button>
-                    
-                    
+
                         <Button type="primary" 
                           icon={<ReloadOutlined className="icon1" /> }
                           onClick={this.reset} 
@@ -288,19 +388,16 @@ export default class DeviceManagement extends Component {
                          >
                            重置
                         </Button>
-                   
-                    
+
                         <Button 
                           type="primary" 
                           icon={<PlusOutlined  className="icon1" />} 
-                          
                           onClick={this.add}
                           className="button1"
                         >
                           添加
                         </Button>
-                    
-                    
+   
                         <Button 
                           type="primary" 
                           icon={<CloudUploadOutlined className="icon1" />} 
@@ -309,21 +406,19 @@ export default class DeviceManagement extends Component {
                         >
                           导入
                         </Button>
-                 
+
                         <Button 
                           type="primary" 
                           icon={<CloudDownloadOutlined className="icon1" />} 
-                          
                           onClick={this.exportChoose}
                           className="button2"
                         >
                           导出已选择数据
                         </Button>
-                   
+   
                         <Button 
                         type="primary" 
-                        icon={<CloudDownloadOutlined className="icon1" />} 
-                          
+                        icon={<CloudDownloadOutlined className="icon1" />}    
                         onClick={this.exportSearch}
                         className="button2"
                         >
@@ -332,7 +427,7 @@ export default class DeviceManagement extends Component {
                    
                     
                 </div>
-                </div>
+              </div>
 
                 {/* 表格 */}
                 <div style={{height:"100%"}}>
@@ -342,7 +437,7 @@ export default class DeviceManagement extends Component {
                   bordered={true} 
                   rowSelection={rowSelection}
                   style={{margin:'20px 0',borderBottom:'1px,soild'}}
-                  pagination={ this.paginationProps}
+                  pagination={ this.state.paginationProps}
                   onChange={this.handTablechange}
                   
                   />
@@ -356,10 +451,134 @@ export default class DeviceManagement extends Component {
                   okText="确定"
                   onCancel={this.handleCancel_add}
                   cancelText="关闭"
+                  className="modal1"
+                  width="600"
                 >
-                  <p>添加</p>
-                  <p>添加</p>
-                  <p>添加</p>
+                  <div className="ant-modal-body" >
+                    <div className="modal-body" style={{height:"600px"}}>
+                      <Form
+                        labelCol={{ span: 5 }}
+                        wrapperCol={{ span: 16 }}
+                        layout="horizontal"
+                      >
+                        
+                        <Form.Item label="检测机构">
+                          <Select defaultValue="henan">
+                            <Option value="henan">河南</Option>
+                            <Option value="sicuan">四川</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item label="经销商">
+                          <Select defaultValue="wsd">
+                            <Option value="wsd">维世达</Option>
+                            <Option value="jxs2">经销商2</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item label="设备名">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="设备码">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="硬件版本">
+                          <Input  defaultValue="1.0" />
+                        </Form.Item>
+                        <Form.Item label="软件版本">
+                          <Input  defaultValue="1.0" />
+                        </Form.Item>
+                        <Form.Item label="蓝牙密码">
+                          <Input  defaultValue="1234" />
+                        </Form.Item>
+                        <Form.Item  label="" style={{marginLeft:'150px'}}>
+                          <Checkbox.Group 
+                            options={['已用','激活']}
+                            defaultValue={['已用','激活']}
+                          />
+                        </Form.Item>
+                        <Form.Item label="归属用户">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="客户">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item  label="" style={{marginLeft:'150px'}}>
+                          <Checkbox.Group 
+                            options={['共享']}
+                            defaultValue={['共享']}
+                          />
+                        </Form.Item>
+                        <Form.Item label="套装价格">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="校正倍数">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="类型">
+                          <Select defaultValue="type1">
+                            <Option value="type1">正常</Option>
+                            <Option value="type2">测试</Option>
+                            <Option value="type3">优孕宝</Option>
+                            <Option value="type4">优孕宝测试</Option>
+                            <Option value="type5">专业正常</Option>
+                            <Option value="type6">专业测试</Option>
+                            <Option value="type7">研究</Option>
+                            <Option value="type8">其他</Option>
+                            <Option value="type9">其他测试</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item label="激活时间">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="绑定时间">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="状态">
+                          <Select defaultValue="state1">
+                            <Option value="state1">未测试</Option>
+                            <Option value="state2">测试通过</Option>
+                            <Option value="state3">测试未通过</Option>
+                            <Option value="state4">返修</Option>
+                            <Option value="state5">存在故障，完全无法使用</Option>
+                            <Option value="state6">存在故障，可用但影响测试值</Option>
+                            <Option value="state7">存在故障，可临时用</Option>
+                            <Option value="state8">测试通过</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item label="使用状态">
+                          <Select defaultValue="useState1">
+                            <Option value="useState1">无</Option>
+                            <Option value="useState2">购买</Option>
+                            <Option value="useState3">部分押金</Option>
+                            <Option value="useState4">部分押金（达到次数）</Option>
+                            <Option value="useState5">全部押金</Option>
+                            <Option value="useState6">其他</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item label="备注">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item  label="" style={{marginLeft:'150px'}}>
+                          <Checkbox.Group 
+                            options={['只安卓']}
+                            defaultValue={['只安卓']}
+                          />
+                        </Form.Item>
+                        <Form.Item label="返修时间">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="总押金">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="第一部分押金">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="剩余押金">
+                          <Input />
+                        </Form.Item>
+
+                      </Form>
+                    </div>
+                  </div>
                 </Modal>
                 {/* 修改弹窗 */}i
                 <Modal
@@ -371,7 +590,74 @@ export default class DeviceManagement extends Component {
                   onCancel={this.handleCancel_modify}
                   cancelText="关闭"
                 >
-                  <p>修改</p>
+                  <div className="ant-modal-body">
+                    <div className="modal-body" style={{height:"500px"}}>
+                      <Form
+                        labelCol={{ span: 5 }}
+                        wrapperCol={{ span: 16 }}
+                        layout="horizontal"
+                      >
+                        <Form.Item label="设备码">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="设备号">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item label="硬件版本">
+                          <Input defaultValue="1.0" />
+                        </Form.Item>
+                        <Form.Item label="软件版本">
+                          <Input defaultValue="1.0" />
+                        </Form.Item>
+                        <Form.Item label="软件更新时间">
+                          <Input defaultValue="1.0" />
+                        </Form.Item>
+                        <Form.Item label="蓝牙密码">
+                          <Input  defaultValue="1234" />
+                        </Form.Item>
+                        <Form.Item  label="是否可用" >
+                          <Checkbox.Group 
+                            options={['是','否']}  
+                          />
+                        </Form.Item>
+                        <Form.Item  label="是否激活" >
+                          <Checkbox.Group 
+                            options={['是','否']}  
+                          />
+                        </Form.Item>
+                        <Form.Item label="激活时间">
+                          <Input />
+                        </Form.Item>
+                      </Form>
+                    </div>
+                  </div>
+                </Modal>
+                 {/* 历史人员弹窗 */}i
+                 <Modal
+                  title="历史人员"
+                  centered
+                  visible={this.state.visible_user}
+                  onCancel={this.handleCancel_user}
+                  footer={null}
+                  width="800"
+                >
+                      <div className="ant-modal-body" style={{height:"100%"}}>
+                          <div style={{fontWeight:'bold',marginTop:"-20px"}}>
+                            <div>设备码：{this.state.devCode}</div>
+                            <div>历史连接人数：{data_user.length}</div>
+                          </div>
+                        <div style={{height:"100%",width:"100%"}}>
+                          <Table 
+                          columns={this.columns_user} 
+                          dataSource={data_user} 
+                          bordered={true}      
+                          style={{margin:'20px 0',borderBottom:'1px,soild'}}
+                          pagination={ this.state.paginationProps_user}
+                          onChange={this.handTablechange_user}
+                          size="small"
+                          />
+                        </div>
+                  </div>
                 </Modal>
             </div>
         )

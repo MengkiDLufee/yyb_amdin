@@ -96,7 +96,7 @@ export default class TestData extends Component {
 
         return (
       <div>
-        <div>测试人数：55</div>
+        <div>测试人数：{data.length}</div>
         <div style={{'margin':'10px 0'}} >
         <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
           <Col span={3}>
