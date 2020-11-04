@@ -46,7 +46,7 @@ const columns = [
         dataIndex: 'revisions',
         render: (text, record) => (
             <Space size="middle">
-                <Button type="link" style={{color:'#000000'}}>历史版本</Button>
+                <Button type="link" style={{color:'#0040FF'}}>历史版本</Button>
             </Space>
         ),
     },
