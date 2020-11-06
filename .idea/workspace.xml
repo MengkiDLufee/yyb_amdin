@@ -4,8 +4,6 @@
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,7 +22,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../vue/xsr/xsr" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />

@@ -1,53 +1,10 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Row, Col, Select, Space,Modal} from 'antd';
+import {Table, Button, Input, Row, Col, Select, Space,Modal,Form} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined,ExportOutlined,ImportOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
-const columns = [
-    {
-        title: '计划类型',
-        dataIndex: 'projectType',
-        sorter: (a,b) => a.projectType.length - b.projectType.length,
-        sortDirections: ['descend','ascend'],
-    },
-    {
-        title: '测试类型',
-        dataIndex: 'testType',
-        sorter: (a,b) => a.testType.length - b.testType.length,
-        sortDirections: ['descend','ascend'],
-    },
-    {
-        title: '计划类型名称',
-        dataIndex: 'projectTypeName',
-        sorter: (a,b) => a.projectTypeName.length - b.projectTypeName.length,
-        sortDirections: ['descend','ascend'],
-    },
-    {
-        title: '计划类型实际值',
-        dataIndex: 'projectTypeValue',
-        sorter: (a,b) => a.projectTypeValue - b.projectTypeValue,
-        sortDirections: ['descend','ascend'],
-    },
-    {
-        title: '超时时间',
-        dataIndex: 'timeout',
-        sorter: (a,b) => a.timeout - b.timeout,
-        sortDirections: ['descend','ascend'],
-    },
-    {
-        title: '操作',
-        dataIndex: 'operation',
-        render: (text, record) => (
-            <Space size="middle">
-                <Button>修改</Button>
-                <Button style={{
-                    backgroundColor:'#ec7259',
-                    color:'#FFFAFA'}}>删除</Button>
-            </Space>
-        ),
-    },
-];
+
 
 const data = [];
 
@@ -72,16 +29,24 @@ export default class ProjectType extends Component {
 
 constructor(props) {
     super(props);
-    this.state = {
+
+    this.handleAdd=this.handleAdd.bind(this);
+    this.handleModify=this.handleModify.bind(this);
+}
+    state = {
         selectedRowKeys: [], // Check here to configure the default column
         loading: false,
+        currentItem:{
+            key: null,
+            projectType: '',
+            testType: '',
+            projectTypeName:'',
+            projectTypeValue: '',
+            timeout:null,
+        },
 
     };
-    this.handleAdd=this.handleAdd.bind(this);
-}
-
-
-    start = () => {
+start = () => {
         this.setState({ loading: true });
         // ajax request after empty completing
         setTimeout(() => {
@@ -89,40 +54,100 @@ constructor(props) {
                 selectedRowKeys: [],
                 loading: false,
                 addVisible:false,
+                modifyVisible:false,
                 addConfirmLoading:false,
+                modifyConfirmLoading:false,
             });
         }, 1000);
     };
-
-    onSelectChange = selectedRowKeys => {
+onSelectChange = selectedRowKeys => {
         console.log('selectedRowKeys changed: ', selectedRowKeys);
         this.setState({ selectedRowKeys });
     };
-    handleAdd(){
+handleAdd(){
         this.setState({
             addVisible:true,
-
         });
     }
-
-    handleOk = e => {
+handleModify=record=>{
+        console.log(record)
+            this.setState({
+                modifyVisible:true,
+                currentItem:[
+                    {
+                        key: record.key,
+                        projectType: record.projectType,
+                        testType: record.testType,
+                        projectTypeName:record.projectTypeName,
+                        projectTypeValue: record.projectTypeValue,
+                        timeout:record.timeout,
+                    }
+                ],
+            });
+    }
+handleOk = e => {
         console.log(e);
         this.setState({ loading: true });
         setTimeout(() => {
             this.setState({
                 loading:false,
                 addVisible: false,
+                modifyVisible: false,
             });
         }, 1000);
     };
-
-    handleCancel = e => {
+handleCancel = e => {
         console.log(e);
         this.setState({
             addVisible: false,
+            modifyVisible: false,
+            currentItem:null,
         });
     };
-
+    columns = [
+        {
+            title: '计划类型',
+            dataIndex: 'projectType',
+            sorter: (a,b) => a.projectType.length - b.projectType.length,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '测试类型',
+            dataIndex: 'testType',
+            sorter: (a,b) => a.testType.length - b.testType.length,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '计划类型名称',
+            dataIndex: 'projectTypeName',
+            sorter: (a,b) => a.projectTypeName.length - b.projectTypeName.length,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '计划类型实际值',
+            dataIndex: 'projectTypeValue',
+            sorter: (a,b) => a.projectTypeValue - b.projectTypeValue,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '超时时间',
+            dataIndex: 'timeout',
+            sorter: (a,b) => a.timeout - b.timeout,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '操作',
+            dataIndex: 'operation',
+            render: (text, record) => (
+                <Space size="middle">
+                    <Button onClick={()=>this.handleModify(record)}>修改</Button>
+                    <Button style={{
+                        backgroundColor:'#ec7259',
+                        color:'#FFFAFA'}}>删除</Button>
+                </Space>
+            ),
+        },
+    ];
     render() {
         const { loading, selectedRowKeys } = this.state;
         const rowSelection = {
@@ -130,6 +155,26 @@ constructor(props) {
             onChange: this.onSelectChange,
         };
         const hasSelected = selectedRowKeys.length > 0;
+
+        const formItemLayout = {
+            labelCol: {
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 8,
+                },
+            },
+            wrapperCol: {
+                xs: {
+                    span: 24,
+                },
+                sm: {
+                    span: 16,
+                },
+            },
+        };
+
         return (
             <div>
                 <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
@@ -152,8 +197,9 @@ constructor(props) {
                 <div>
                     <Table
                         rowSelection={rowSelection}
-                        columns={columns}
+                        columns={this.columns}
                         dataSource={data}
+                        rowKey={record => record.key}
                         bordered={true}
                         style={{margin:'20px 0'}}
                         pagination={{
@@ -179,9 +225,83 @@ constructor(props) {
                         </Button>,
                     ]}
                 >
-                   <div>
-                       <Input />
-                   </div>
+                    <Form {...formItemLayout}>
+                        <Form.Item label="计划类型"
+                                   name="计划类型"
+                                   rules={[{required:true}]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label="计划类型"
+                                   name="计划类型"
+                                   rules={[{required:true}]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label="测试类型"
+                                   name="测试类型"
+                                   rules={[{required:true}]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label="计划类型名称"
+                                   name="计划类型名称"
+                                   rules={[{required:true}]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label="计划类型实际值"
+                                   name="计划类型实际值"
+                                   rules={[{required:true}]}>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item label="超时时间"
+                                   name="超时时间"
+                                   rules={[{required:true}]}>
+                            <Input />
+                        </Form.Item>
+                    </Form>
+                </Modal>
+                <Modal
+                    title="修改计划类型数据"
+                    visible={this.state.modifyVisible}
+                    onOk={this.handleOk}
+                    onCancel={this.handleCancel}
+                    footer={[
+                        <Button key="back" onClick={this.handleCancel}>
+                            取消
+                        </Button>,
+                        <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+                            修改
+                        </Button>,
+                    ]}
+                >
+                    <div>
+                        <Form {...formItemLayout}>
+                            <Form.Item label="计划类型"
+                                               name="计划类型"
+                                               rules={[{required:true}]}>
+                                <Input value={this.state.currentItem.projectType}/>
+                            </Form.Item>
+                            <Form.Item label="测试类型"
+                                               name="测试类型"
+                                               rules={[{required:true}]}>
+                                <Input value={this.state.currentItem.testType}/>
+                            </Form.Item>
+                            <Form.Item label="计划类型名称"
+                                               name="计划类型名称"
+                                               rules={[{required:true}]}>
+                                <Input value={this.state.currentItem.projectTypeName}/>
+                            </Form.Item>
+                            <Form.Item label="计划类型实际值"
+                                               name="计划类型实际值"
+                                               rules={[{required:true}]}>
+                                <Input value={this.state.currentItem.projectTypeValue}/>
+                            </Form.Item>
+                            <Form.Item label="超时时间"
+                                               name="超时时间"
+                                               rules={[{required:true}]}>
+                                <Input value={this.state.currentItem.timeout}/>
+                            </Form.Item>
+                        </Form>
+                    </div>
+
                 </Modal>
             </div>
         )
