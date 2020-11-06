@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {Table, Button, Input, Row, Col, Select, Space,Modal,Form} from 'antd';
-import {PlusSquareOutlined, ReloadOutlined, SearchOutlined,ExportOutlined,ImportOutlined } from "@ant-design/icons";
+import {PlusSquareOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 
@@ -24,86 +24,38 @@ function handleChange(value) {
     console.log(`selected ${value}`);
 }
 
+const currentItem={
+        key: null,
+        projectType: '',
+        testType: '',
+        projectTypeName:'',
+        projectTypeValue: '',
+        timeout:null,
+    }
 
 export default class ProjectType extends Component {
 
 constructor(props) {
     super(props);
 
-    this.handleAdd=this.handleAdd.bind(this);
-    this.handleModify=this.handleModify.bind(this);
-}
-    state = {
+    this.state = {
         selectedRowKeys: [], // Check here to configure the default column
         loading: false,
-        currentItem:{
-            key: null,
-            projectType: '',
-            testType: '',
-            projectTypeName:'',
-            projectTypeValue: '',
-            timeout:null,
-        },
+        key: this.props.key,
+        projectType: this.props.projectType,
+        testType: this.props.testType,
+        projectTypeName:this.props.projectTypeName,
+        projectTypeValue: this.props.projectTypeValue,
+        timeout:this.props.timeout,
+
 
     };
-start = () => {
-        this.setState({ loading: true });
-        // ajax request after empty completing
-        setTimeout(() => {
-            this.setState({
-                selectedRowKeys: [],
-                loading: false,
-                addVisible:false,
-                modifyVisible:false,
-                addConfirmLoading:false,
-                modifyConfirmLoading:false,
-            });
-        }, 1000);
-    };
-onSelectChange = selectedRowKeys => {
-        console.log('selectedRowKeys changed: ', selectedRowKeys);
-        this.setState({ selectedRowKeys });
-    };
-handleAdd(){
-        this.setState({
-            addVisible:true,
-        });
-    }
-handleModify=record=>{
-        console.log(record)
-            this.setState({
-                modifyVisible:true,
-                currentItem:[
-                    {
-                        key: record.key,
-                        projectType: record.projectType,
-                        testType: record.testType,
-                        projectTypeName:record.projectTypeName,
-                        projectTypeValue: record.projectTypeValue,
-                        timeout:record.timeout,
-                    }
-                ],
-            });
-    }
-handleOk = e => {
-        console.log(e);
-        this.setState({ loading: true });
-        setTimeout(() => {
-            this.setState({
-                loading:false,
-                addVisible: false,
-                modifyVisible: false,
-            });
-        }, 1000);
-    };
-handleCancel = e => {
-        console.log(e);
-        this.setState({
-            addVisible: false,
-            modifyVisible: false,
-            currentItem:null,
-        });
-    };
+
+    this.handleAdd=this.handleAdd.bind(this);
+    this.inputOnChange=this.inputOnChange.bind(this);
+    //this.handleModify=this.handleModify.bind(this);
+}
+
     columns = [
         {
             title: '计划类型',
@@ -148,6 +100,70 @@ handleCancel = e => {
             ),
         },
     ];
+start = () => {
+        this.setState({ loading: true });
+        // ajax request after empty completing
+        setTimeout(() => {
+            this.setState({
+                selectedRowKeys: [],
+                loading: false,
+                addVisible:false,
+                modifyVisible:false,
+                addConfirmLoading:false,
+                modifyConfirmLoading:false,
+            });
+        }, 1000);
+    };
+onSelectChange = selectedRowKeys => {
+        console.log('selectedRowKeys changed: ', selectedRowKeys);
+        this.setState({ selectedRowKeys });
+    };
+handleAdd(){
+        this.setState({
+            addVisible:true,
+        });
+    }
+handleModify=(record)=>{
+        console.log(record)
+        this.setState({
+            modifyVisible:true,
+        });
+        currentItem.key=record.key;
+        currentItem.projectType=record.projectType;
+        currentItem.testType=record.testType;
+        currentItem.projectTypeName=record.projectTypeName;
+        currentItem.projectTypeValue=record.projectTypeValue;
+        currentItem.timeout=record.timeout;
+
+
+    }
+
+handleOk = e => {
+        console.log(e);
+        this.setState({ loading: true });
+        setTimeout(() => {
+            this.setState({
+                loading:false,
+                addVisible: false,
+                modifyVisible: false,
+            });
+        }, 1000);
+    };
+handleCancel = e => {
+        console.log(e);
+        this.setState({
+            addVisible: false,
+            modifyVisible: false,
+            currentItem:null,
+        });
+    };
+
+inputOnChange(e){
+    this.setState({
+        [e.target.name]:e.target.value
+    })
+}
+
     render() {
         const { loading, selectedRowKeys } = this.state;
         const rowSelection = {
@@ -277,27 +293,33 @@ handleCancel = e => {
                             <Form.Item label="计划类型"
                                                name="计划类型"
                                                rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.projectType}/>
+                                <Input value={this.state.projectType}
+                                       name="projectType"
+                                       onChange={this.inputOnChange}/>
                             </Form.Item>
                             <Form.Item label="测试类型"
                                                name="测试类型"
                                                rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.testType}/>
+                                <Input value={this.state.testType}
+                                       name="testType"/>
                             </Form.Item>
                             <Form.Item label="计划类型名称"
                                                name="计划类型名称"
                                                rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.projectTypeName}/>
+                                <Input value={this.state.projectTypeName}
+                                       name="projectTypeName"/>
                             </Form.Item>
                             <Form.Item label="计划类型实际值"
                                                name="计划类型实际值"
                                                rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.projectTypeValue}/>
+                                <Input value={this.state.projectTypeValue}
+                                       name="projectTypeValue"/>
                             </Form.Item>
                             <Form.Item label="超时时间"
                                                name="超时时间"
                                                rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.timeout}/>
+                                <Input value={this.state.timeout}
+                                       name="timeout"/>
                             </Form.Item>
                         </Form>
                     </div>
