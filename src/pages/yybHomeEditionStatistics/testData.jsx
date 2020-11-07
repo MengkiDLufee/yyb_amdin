@@ -76,25 +76,26 @@ const columns = [
 
 export default class TestData extends Component {
     state = {
-      paginationparams:{
         current:1,
-        pageSzie:10,
-      }
+        pageSize:10,
     }
 
     handTablechange = (pagination) =>{
       console.log(pagination)
+      console.log(pagination.pageSize)
       this.setState({
         current:pagination.current,
-        pageSzie:pagination.pageSzie,
-      })
-      console.log('表格参数',this.state.paginationparams)
+        pageSize:pagination.pageSize,
+      },
+      ()=>{console.log('表格参数',this.state.current,this.state.pageSize)}
+      )
+      
     }
 
 
     render() {
 
-        return (
+      return (
       <div>
         <div>测试人数：{data.length}</div>
         <div style={{'margin':'10px 0'}} >

@@ -66,10 +66,17 @@ for (let i = 0; i < 33; i++) {
 }
 
   
-  function handleChange(value) {
-    console.log(`selected ${value}`);
-  }
-
+  // function handleChange(value) {
+  //   console.log(`selected ${value}`);
+  // }
+// class InputClear extends Component {
+//   render(){
+//     return(
+//       <Input  placeholder={this.props.placeholder} className={this,props.className} onChange={this.props.onChange} value={this.props.value} />
+      
+//     ) 
+//   }
+// }
 
 export default class DeviceManagement extends Component {
 
@@ -95,7 +102,25 @@ export default class DeviceManagement extends Component {
         showQuickJumper:true,
         showSizeChanger:true,
       },
-      devCode:undefined,
+      devCode:undefined,//历史人员弹窗中的设备码
+      //输入选择框的值
+      client_in:'',//客户
+      active_in:undefined,//激活状态
+      type_in:null,//类型
+      status_in:'',//状态
+
+      //修改弹窗
+      modal:{
+        dev_code:'',//设备码
+        dev_num:'',//设备号
+        hard_ed:'',//硬件版本
+        soft_ed:'',//软件版本
+        refesh_time:'',//软件更新时间
+        buletooth:'',//蓝牙密码
+        is_valid:'',//是否可用
+        is_on:'',//是否激活
+        time:'',//激活时间
+      }
     };
 
 //表格栏
@@ -215,7 +240,19 @@ columns_user = [
 ]
 
 
-
+//  selection= (onChange,value)=>{
+//    return(
+//      <Select placeholder="请选择激活状态 "  
+//      onChange={onChange} 
+//      className="input1" 
+//      vulue={value}
+//      allowClear 
+//      >
+//     <Option value="on">已激活</Option>
+//     <Option value="close">未激活</Option>
+//     </Select>
+//    )
+//  }
 
   start = () => {
 
@@ -228,7 +265,6 @@ columns_user = [
   };
 
   onSelectChange = selectedRowKeys1 => {
-
     //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
     this.setState(
       {selectedRowKeys:selectedRowKeys1},
@@ -245,8 +281,13 @@ columns_user = [
     this.setState(
       {
         selectedRowKeys:[],
-      }
+        client_in:'',
+        active_in:undefined,
+        type_in:null,
+        status_in:undefined,
+      },
     )
+    console.log(this.state);
   };
   //添加
   add =() =>{
@@ -285,9 +326,19 @@ columns_user = [
   //修改
   modify = (record)=> {
     console.log('修改',record)
+    let data = Object.assign({}, this.state.modal, { 
+          dev_code: record.dev_code,
+          dev_num:record.dev_num ,
+          is_on:record.on,
+          is_valid:record.used
+        })
     this.setState({
       visible_modify:true,
-    })
+      modal:data,
+
+    },
+    ()=>console.log(this.state.modal)
+    )
   };
   handleOk_modify = () => {
     this.setState({
@@ -337,7 +388,28 @@ columns_user = [
   handTablechange_user = (pagination) =>{
     console.log(pagination)
   };
-
+  //客户输入框
+  clientChange = (e) => {
+    console.log(e.target.value)
+    this.setState({
+      client_in:e.target.value,
+    })
+  }
+  //激活状态选择框
+  activeChange = (e) => {
+    console.log(e)
+    this.setState({
+      active_in:e
+    })
+  }
+  //类型选择框
+  typeChange = (e) => {
+    console.log(e)
+  }
+  //状态选择框
+  statusChange = (e) => {
+    console.log(e)
+  }
 
 
     render() {
@@ -354,20 +426,33 @@ columns_user = [
               <div style={{'margin':'0 0 15px  0'}} >
                 <div justify="space-between" gutter="15" style={{display:"flex" }}  >
                     
-                        <Input  placeholder="客户" className="input1" />
-                    
-                        <Select placeholder="请选择激活状态 "  onChange={handleChange} className="input1" >
+                        <Input  placeholder="客户" className="input1" onChange={this.clientChange.bind(this)} value={this.state.client_in} />
+                    {/* {this.selection(this.activeChange,this.state.active_in)} */}
+                        <Select placeholder="请选择激活状态 "  
+                                onChange={this.activeChange} 
+                                className="input1" 
+                                vulue={this.state.active_in}
+                                allowClear 
+                                >
                             <Option value="on">已激活</Option>
                             <Option value="close">未激活</Option>
                         </Select>
 
-                        <Select placeholder="请选择类型 "  onChange={handleChange} className="input1" >
+                        <Select placeholder="请选择类型 "  
+                                onChange={this.typeChange} 
+                                className="input1" 
+                                vulue={this.state.type_in}
+                                >
                             <Option value="type1">类型1</Option>
                             <Option value="type2">类型2</Option>
                             <Option value="type3">类型3</Option>
                         </Select>
                   
-                        <Select placeholder="请选择状态 " onChange={handleChange} className="input1" >
+                        <Select placeholder="请选择状态 " 
+                                onChange={this.statusChange} 
+                                className="input1" 
+                                
+                                >
                             <Option value="status1">测试通过</Option>
                             <Option value="status2">测试未通过</Option>
                         </Select>
@@ -598,10 +683,10 @@ columns_user = [
                         layout="horizontal"
                       >
                         <Form.Item label="设备码">
-                          <Input />
+                          <Input value={this.state.modal.dev_code}/>
                         </Form.Item>
                         <Form.Item label="设备号">
-                          <Input />
+                          <Input value={this.state.modal.dev_num} />
                         </Form.Item>
                         <Form.Item label="硬件版本">
                           <Input defaultValue="1.0" />
@@ -610,19 +695,27 @@ columns_user = [
                           <Input defaultValue="1.0" />
                         </Form.Item>
                         <Form.Item label="软件更新时间">
-                          <Input defaultValue="1.0" />
+                          <Input defaultValue="2020-11-11" />
                         </Form.Item>
                         <Form.Item label="蓝牙密码">
                           <Input  defaultValue="1234" />
                         </Form.Item>
                         <Form.Item  label="是否可用" >
                           <Checkbox.Group 
-                            options={['是','否']}  
+                            options={[
+                              {label:'是',value:0},
+                              {label:'否',value:1}
+                            ]}  
+                            value={[this.state.modal.is_valid]}
                           />
                         </Form.Item>
                         <Form.Item  label="是否激活" >
                           <Checkbox.Group 
-                            options={['是','否']}  
+                            options={[
+                              {label:'是',value:0},
+                              {label:'否',value:1}
+                            ]}  
+                            value={[this.state.modal.is_on]}
                           />
                         </Form.Item>
                         <Form.Item label="激活时间">
