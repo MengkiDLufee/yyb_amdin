@@ -28,3 +28,8 @@
     background-color:#f05d73;
 }
 
+
+.ant-layout-content {
+  flex: auto;
+  min-height: 1000;
+}

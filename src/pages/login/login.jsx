@@ -8,7 +8,7 @@ import './login.less'
 
  class Login extends Component {
     login =() => {
-        this.props.history.replace('/')
+        this.props.history.replace('/home')
         message.success('登陆成功')
     }
     
