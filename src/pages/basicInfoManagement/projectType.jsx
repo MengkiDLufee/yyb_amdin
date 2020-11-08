@@ -24,14 +24,14 @@ function handleChange(value) {
     console.log(`selected ${value}`);
 }
 
-const currentItem={
-        key: null,
-        projectType: '',
-        testType: '',
-        projectTypeName:'',
-        projectTypeValue: '',
-        timeout:null,
-    }
+// const currentItem={
+//         key: null,
+//         projectType: '',
+//         testType: '',
+//         projectTypeName:'',
+//         projectTypeValue: '',
+//         timeout:null,
+//     }
 
 export default class ProjectType extends Component {
 
@@ -41,19 +41,27 @@ constructor(props) {
     this.state = {
         selectedRowKeys: [], // Check here to configure the default column
         loading: false,
-        key: this.props.key,
-        projectType: this.props.projectType,
-        testType: this.props.testType,
-        projectTypeName:this.props.projectTypeName,
-        projectTypeValue: this.props.projectTypeValue,
-        timeout:this.props.timeout,
+        currentItem:{
+            key: null,
+            projectType: '',
+            testType: '',
+            projectTypeName:'',
+            projectTypeValue:null,
+            timeout:null,
+        },
+        // key: this.props.key,
+        // projectType: this.props.projectType,
+        // testType: this.props.testType,
+        // projectTypeName:this.props.projectTypeName,
+        // projectTypeValue: this.props.projectTypeValue,
+        // timeout:this.props.timeout,
 
 
     };
 
     this.handleAdd=this.handleAdd.bind(this);
     this.inputOnChange=this.inputOnChange.bind(this);
-    //this.handleModify=this.handleModify.bind(this);
+    this.handleModify=this.handleModify.bind(this);
 }
 
     columns = [
@@ -125,16 +133,19 @@ handleAdd(){
     }
 handleModify=(record)=>{
         console.log(record)
+    let data=Object.assign({},this.state.currentItem,{
+        key:record.key,
+        projectType:record.projectType,
+        testType:record.testType,
+        projectTypeName:record.projectTypeName,
+        projectTypeValue:record.projectTypeValue,
+        timeout:record.timeout,
+    })
+    
         this.setState({
             modifyVisible:true,
+            currentItem:data,
         });
-        currentItem.key=record.key;
-        currentItem.projectType=record.projectType;
-        currentItem.testType=record.testType;
-        currentItem.projectTypeName=record.projectTypeName;
-        currentItem.projectTypeValue=record.projectTypeValue;
-        currentItem.timeout=record.timeout;
-
 
     }
 
@@ -293,32 +304,32 @@ inputOnChange(e){
                             <Form.Item label="计划类型"
                                                name="计划类型"
                                                rules={[{required:true}]}>
-                                <Input value={this.state.projectType}
+                                <Input value={this.state.currentItem.projectType}
                                        name="projectType"
                                        onChange={this.inputOnChange}/>
                             </Form.Item>
                             <Form.Item label="测试类型"
                                                name="测试类型"
                                                rules={[{required:true}]}>
-                                <Input value={this.state.testType}
+                                <Input value={this.state.currentItem.testType}
                                        name="testType"/>
                             </Form.Item>
                             <Form.Item label="计划类型名称"
                                                name="计划类型名称"
                                                rules={[{required:true}]}>
-                                <Input value={this.state.projectTypeName}
+                                <Input value={this.state.currentItem.projectTypeName}
                                        name="projectTypeName"/>
                             </Form.Item>
                             <Form.Item label="计划类型实际值"
                                                name="计划类型实际值"
                                                rules={[{required:true}]}>
-                                <Input value={this.state.projectTypeValue}
+                                <Input value={this.state.currentItem.projectTypeValue}
                                        name="projectTypeValue"/>
                             </Form.Item>
                             <Form.Item label="超时时间"
                                                name="超时时间"
                                                rules={[{required:true}]}>
-                                <Input value={this.state.timeout}
+                                <Input value={this.state.currentItem.timeout}
                                        name="timeout"/>
                             </Form.Item>
                         </Form>
