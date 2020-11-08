@@ -24,23 +24,21 @@ function handleChange(value) {
     console.log(`selected ${value}`);
 }
 
-// const currentItem={
-//         key: null,
-//         projectType: '',
-//         testType: '',
-//         projectTypeName:'',
-//         projectTypeValue: '',
-//         timeout:null,
-//     }
-
 export default class ProjectType extends Component {
 
 constructor(props) {
     super(props);
 
-    this.state = {
+    this.handleAdd=this.handleAdd.bind(this);
+    this.inputOnChange=this.inputOnChange.bind(this);
+    this.handleModify=this.handleModify.bind(this);
+}
+//参数设置
+    state = {
         selectedRowKeys: [], // Check here to configure the default column
         loading: false,
+
+        //修改
         currentItem:{
             key: null,
             projectType: '',
@@ -58,11 +56,6 @@ constructor(props) {
 
 
     };
-
-    this.handleAdd=this.handleAdd.bind(this);
-    this.inputOnChange=this.inputOnChange.bind(this);
-    this.handleModify=this.handleModify.bind(this);
-}
 
     columns = [
         {
@@ -100,7 +93,7 @@ constructor(props) {
             dataIndex: 'operation',
             render: (text, record) => (
                 <Space size="middle">
-                    <Button onClick={()=>this.handleModify(record)}>修改</Button>
+                    <Button onClick={()=>{this.handleModify(record)}}>修改</Button>
                     <Button style={{
                         backgroundColor:'#ec7259',
                         color:'#FFFAFA'}}>删除</Button>
@@ -132,7 +125,7 @@ handleAdd(){
         });
     }
 handleModify=(record)=>{
-        console.log(record)
+        console.log('修改',record)
     let data=Object.assign({},this.state.currentItem,{
         key:record.key,
         projectType:record.projectType,
@@ -145,7 +138,9 @@ handleModify=(record)=>{
         this.setState({
             modifyVisible:true,
             currentItem:data,
-        });
+        },
+        ()=>console.log(this.state.currentItem)
+        );
 
     }
 
@@ -165,7 +160,6 @@ handleCancel = e => {
         this.setState({
             addVisible: false,
             modifyVisible: false,
-            currentItem:null,
         });
     };
 
@@ -302,33 +296,28 @@ inputOnChange(e){
                     <div>
                         <Form {...formItemLayout}>
                             <Form.Item label="计划类型"
-                                               name="计划类型"
-                                               rules={[{required:true}]}>
+                                       rules={[{required:true}]}>
                                 <Input value={this.state.currentItem.projectType}
                                        name="projectType"
                                        onChange={this.inputOnChange}/>
                             </Form.Item>
                             <Form.Item label="测试类型"
-                                               name="测试类型"
-                                               rules={[{required:true}]}>
+                                       rules={[{required:true}]}>
                                 <Input value={this.state.currentItem.testType}
                                        name="testType"/>
                             </Form.Item>
                             <Form.Item label="计划类型名称"
-                                               name="计划类型名称"
-                                               rules={[{required:true}]}>
+                                       rules={[{required:true}]}>
                                 <Input value={this.state.currentItem.projectTypeName}
                                        name="projectTypeName"/>
                             </Form.Item>
                             <Form.Item label="计划类型实际值"
-                                               name="计划类型实际值"
-                                               rules={[{required:true}]}>
+                                       rules={[{required:true}]}>
                                 <Input value={this.state.currentItem.projectTypeValue}
                                        name="projectTypeValue"/>
                             </Form.Item>
                             <Form.Item label="超时时间"
-                                               name="超时时间"
-                                               rules={[{required:true}]}>
+                                       rules={[{required:true}]}>
                                 <Input value={this.state.currentItem.timeout}
                                        name="timeout"/>
                             </Form.Item>
