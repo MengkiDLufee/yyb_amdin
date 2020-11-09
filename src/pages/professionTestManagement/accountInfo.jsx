@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Table ,Button , Input , Select, Space ,Modal} from 'antd';
+import {Table, Button, Input, Select, Space, Modal, Form, Checkbox} from 'antd';
 import { DatePicker} from 'antd';
 
 import {ReloadOutlined,
@@ -13,6 +13,7 @@ import {ReloadOutlined,
 import './index.less'
 import { Row, Col } from 'antd';
 const { TextArea } = Input;
+const { Option } = Select;
 class DoctorTable extends Component{
     columns = [
         {
@@ -236,6 +237,9 @@ export default class AccountInfo extends Component {
     handTablechange_patientInfo = (pagination) =>{
         console.log(pagination)
     };
+    handleCancle_add=()=>{
+        this.setState({visible_add:false});
+    }
 
     start=()=>{
         //??
@@ -309,23 +313,35 @@ export default class AccountInfo extends Component {
                     onOk={this.handleAddOk}
                     okText={'提交'}
                     cancelText={'取消'}
-                    width={1000}
+                    className="modal1"
+                >
+                    <div className="ant-modal-body" >
+                        <div className="modal-body" style={{height:"600px"}}>
+                            <Form
+                                labelCol={{ span: 5 }}
+                                wrapperCol={{ span: 16 }}
+                                layout="horizontal"
+                            >
+                                <Form.Item label="医生姓名">
+                                    <Input placeholder={"请输入医生姓名"}/>
+                                </Form.Item>
+                                <Form.Item label="医生用户">
+                                    <Input placeholder={"请输入医生用户"}/>
+                                </Form.Item>
+                                <Form.Item label="密码">
+                                    <Input  placeholder={"请输入密码"} />
+                                </Form.Item>
+                                <Form.Item label="备注">
+                                    <TextArea rows={4}  placeholder={"请输入备注"} />
+                                </Form.Item>
+                            </Form>
+                        </div>
+                    </div>
+                </Modal>
+                <Modal
+
                 >
                     <div style={{height:'100%',margin:'3px'}}>
-                        <Row>
-                            基本信息
-                        </Row>
-                        <Row>{' '}</Row>
-                        <Row>
-                            <Col span={2}><span style={{fontSize:16}}>医生姓名</span></Col>
-                            <Col span={22}><Input  placeholder={"请输入医生姓名"} /></Col>
-                        </Row>
-                        <Row> </Row>
-                        <Row>
-                            <Col span={2}><span style={{fontSize:16}}>医生用户</span></Col>
-                            <Col span={22}><Input  placeholder={"请输入医生用户"} /></Col>
-                        </Row>
-                        <Row> </Row>
                         <Row>
                             <Col span={2}><span style={{fontSize:16}}>密码</span></Col>
                             <Col span={22}><Input  placeholder={"请输入密码"} /></Col>
