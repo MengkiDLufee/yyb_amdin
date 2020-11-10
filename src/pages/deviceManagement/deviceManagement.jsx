@@ -81,7 +81,7 @@ for (let i = 0; i < 33; i++) {
 export default class DeviceManagement extends Component {
 
     //参数设置
-    state = { visible_add: false ,
+  state = { visible_add: false ,
       visible_modify :false,
       visible_user :false,
       selectedRowKeys: [], // Check here to configure the default column
@@ -104,24 +104,26 @@ export default class DeviceManagement extends Component {
       },
       devCode:undefined,//历史人员弹窗中的设备码
       //输入选择框的值
-      client_in:'',//客户
-      active_in:undefined,//激活状态
-      type_in:null,//类型
-      status_in:'',//状态
+      input:{
+        client:'',
+        active:undefined,
+        type:undefined,
+        state:undefined,
+      },
 
       //修改弹窗
       modal:{
         dev_code:'',//设备码
         dev_num:'',//设备号
-        hard_ed:'',//硬件版本
-        soft_ed:'',//软件版本
-        refesh_time:'',//软件更新时间
-        buletooth:'',//蓝牙密码
-        is_valid:'',//是否可用
-        is_on:'',//是否激活
+        hard_ed:'1.0',//硬件版本
+        soft_ed:'1.0',//软件版本
+        refresh_time:'2020-11-11',//软件更新时间
+        bluetooth:'1234',//蓝牙密码
+        is_valid:null,//是否可用
+        is_on:null,//是否激活
         time:'',//激活时间
       }
-    };
+   };
 
 //表格栏
  columns = [
@@ -273,21 +275,24 @@ columns_user = [
   };
   //搜索
   search = () =>{
-    console.log('搜索')
+    console.log('搜索',this.state.input)
+
   };
   //重置
   reset = () => {
     console.log('重置')
+    let data = Object.assign(this.state.input,{
+      client:'',
+      active_in:undefined,
+      type:undefined,
+      state:undefined,
+    })
     this.setState(
       {
         selectedRowKeys:[],
-        client_in:'',
-        active_in:undefined,
-        type_in:null,
-        status_in:undefined,
+        input:data,
       },
     )
-    console.log(this.state);
   };
   //添加
   add =() =>{
@@ -302,11 +307,11 @@ columns_user = [
   };
   //导出已选择数据
   exportChoose = () =>{
-    console.log('导出已选择数据')
+    console.log('导出已选择数据',this.state.selectedRowKeys)
   };
   //按搜索条件导出
   exportSearch = () =>{
-    console.log('按搜索条件导出')
+    console.log('按搜索条件导出',this.state.input)
   };
 
 //点击添加完成
@@ -340,17 +345,92 @@ columns_user = [
     ()=>console.log(this.state.modal)
     )
   };
+  //完成修改
   handleOk_modify = () => {
+    console.log(this.state.modal)
     this.setState({
       visible_modify:false,
     })
   };
+  //关闭修改
   handleCancel_modify = () =>{
     this.setState({
       visible_modify:false,
     })
     console.log('修改弹窗关闭')
   };
+  //修改弹窗中设备码修改
+  devcodeChange = (e) => {
+    // console.log(e.target)
+    this.setState({
+      modal:Object.assign(this.state.modal,{dev_code:e.target.value})
+    })
+  }
+  //修改弹窗中设备号修改
+  devnumChange = (e) => {
+    this.setState({
+      modal:Object.assign(this.state.modal,{dev_num:e.target.value})
+    })
+  }
+  //修改弹窗硬件版本
+  hardedChange = (e) => {
+    this.setState({
+      modal:Object.assign(this.state.modal,{hard_ed:e.target.value})
+    })
+  }
+  //修改弹窗软件版本
+  softedChange = (e) => {
+    this.setState({
+      modal:Object.assign(this.state.modal,{soft_ed:e.target.value})
+    })
+  }
+  //修改弹窗软件更新时间
+  refreshtimeChange = (e) => {
+    this.setState({
+      modal:Object.assign(this.state.modal,{refresh_time:e.target.value})
+    })
+  }
+  //修改弹窗蓝牙密码
+  bluetoothChange = (e) => {
+    this.setState({
+      modal:Object.assign(this.state.modal,{bluetooth:e.target.value})
+    })
+  }
+  //修改弹窗是否可用
+  isvalidChange = () => {
+    // console.log(e,this.state.modal.is_valid)
+      if(this.state.modal.is_valid === 0){
+        this.setState({
+          modal:Object.assign(this.state.modal,{is_valid:1})
+        })
+      }else  {
+        this.setState({
+          modal:Object.assign(this.state.modal,{is_valid:0})
+        })
+      }
+  }
+  //修改弹窗是否激活
+  isonChange = () => {
+    if(this.state.modal.is_on === 0){
+      this.setState({
+        modal:Object.assign(this.state.modal,{is_on:1})
+      },
+      )
+    }else  {
+      this.setState({
+        modal:Object.assign(this.state.modal,{is_on:0})
+      })
+    }
+
+  }
+  //修改弹窗激活时间
+  timeChange = (e) => {
+    this.setState({
+      modal:Object.assign(this.state.modal,{time:e.target.value})
+    })
+  }
+
+
   //删除
   delete = (record) =>{
     console.log('删除',record)
@@ -374,13 +454,9 @@ columns_user = [
 //表格翻页
   handTablechange = (pagination) =>{
     console.log(pagination)
-    // this.state.paginationProps.current=pagination.current
-    // this.state.paginationProps.pageSize=pagination.pageSize
-    let C = pagination.current
-    let P = pagination.pageSize
     this.setState = ({
-      current:C,
-      pageSize:P
+      current:pagination.current,
+      pageSize:pagination.pageSize
     })
     console.log(this.state.current,this.state.pageSize,this.state)   
   };
@@ -392,24 +468,31 @@ columns_user = [
   clientChange = (e) => {
     console.log(e.target.value)
     this.setState({
-      client_in:e.target.value,
+      input:Object.assign(this.state.input,{client:e.target.value}),
     })
   }
   //激活状态选择框
   activeChange = (e) => {
     console.log(e)
     this.setState({
-      active_in:e
+      input:Object.assign(this.state.input,{active:e})
     })
   }
   //类型选择框
   typeChange = (e) => {
     console.log(e)
+    this.setState({
+      input:Object.assign(this.state.input,{type:e})
+    })
   }
   //状态选择框
-  statusChange = (e) => {
+  stateChange = (e) => {
     console.log(e)
+    this.setState({
+      input:Object.assign(this.state.input,{state:e})
+    })
   }
+
 
 
     render() {
@@ -426,13 +509,12 @@ columns_user = [
               <div style={{'margin':'0 0 15px  0'}} >
                 <div justify="space-between" gutter="15" style={{display:"flex" }}  >
                     
-                        <Input  placeholder="客户" className="input1" onChange={this.clientChange.bind(this)} value={this.state.client_in} />
+                        <Input  placeholder="客户" className="input1" onChange={this.clientChange} value={this.state.input.client} />
                     {/* {this.selection(this.activeChange,this.state.active_in)} */}
                         <Select placeholder="请选择激活状态 "  
                                 onChange={this.activeChange} 
                                 className="input1" 
-                                vulue={this.state.active_in}
-                                allowClear 
+                                value={this.state.input.active}
                                 >
                             <Option value="on">已激活</Option>
                             <Option value="close">未激活</Option>
@@ -441,7 +523,7 @@ columns_user = [
                         <Select placeholder="请选择类型 "  
                                 onChange={this.typeChange} 
                                 className="input1" 
-                                vulue={this.state.type_in}
+                                value={this.state.input.type}
                                 >
                             <Option value="type1">类型1</Option>
                             <Option value="type2">类型2</Option>
@@ -449,8 +531,9 @@ columns_user = [
                         </Select>
                   
                         <Select placeholder="请选择状态 " 
-                                onChange={this.statusChange} 
+                                onChange={this.stateChange} 
                                 className="input1" 
+                                value={this.state.input.state}
                                 
                                 >
                             <Option value="status1">测试通过</Option>
@@ -683,22 +766,22 @@ columns_user = [
                         layout="horizontal"
                       >
                         <Form.Item label="设备码">
-                          <Input value={this.state.modal.dev_code}/>
+                          <Input value={this.state.modal.dev_code} onChange={this.devcodeChange} />
                         </Form.Item>
                         <Form.Item label="设备号">
-                          <Input value={this.state.modal.dev_num} />
+                          <Input value={this.state.modal.dev_num} onChange={this.devnumChange} />
                         </Form.Item>
                         <Form.Item label="硬件版本">
-                          <Input defaultValue="1.0" />
+                          <Input  value={this.state.modal.hard_ed} onChange={this.hardedChange}/>
                         </Form.Item>
                         <Form.Item label="软件版本">
-                          <Input defaultValue="1.0" />
+                          <Input  value={this.state.modal.soft_ed} onChange={this.softedChange}/>
                         </Form.Item>
                         <Form.Item label="软件更新时间">
-                          <Input defaultValue="2020-11-11" />
+                          <Input  value={this.state.modal.refresh_time} onChange={this.refreshtimeChange} />
                         </Form.Item>
                         <Form.Item label="蓝牙密码">
-                          <Input  defaultValue="1234" />
+                          <Input   value={this.state.modal.bluetooth} onChange={this.bluetoothChange} />
                         </Form.Item>
                         <Form.Item  label="是否可用" >
                           <Checkbox.Group 
@@ -707,6 +790,7 @@ columns_user = [
                               {label:'否',value:1}
                             ]}  
                             value={[this.state.modal.is_valid]}
+                            onChange={this.isvalidChange}
                           />
                         </Form.Item>
                         <Form.Item  label="是否激活" >
@@ -716,10 +800,11 @@ columns_user = [
                               {label:'否',value:1}
                             ]}  
                             value={[this.state.modal.is_on]}
+                            onChange={this.isonChange}
                           />
                         </Form.Item>
                         <Form.Item label="激活时间">
-                          <Input />
+                          <Input value={this.state.modal.time}  onChange={this.timeChange} />
                         </Form.Item>
                       </Form>
                     </div>

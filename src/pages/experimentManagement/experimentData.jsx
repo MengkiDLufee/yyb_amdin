@@ -5,7 +5,8 @@ import {ReloadOutlined,
         PlusOutlined, 
         CloudUploadOutlined, 
         CloudDownloadOutlined,
-        PlusSquareFilled
+        PlusSquareFilled,
+        DeleteFilled
         } from '@ant-design/icons'
 
 
@@ -75,11 +76,12 @@ export default class ExperimentData extends Component {
           showQuickJumper:true,
           showSizeChanger:true,
         },
-        //输入选择框的值
-        batch_in:'',//批号
-        type_in:'',//试剂类型
-        exper_in:'',//实验人员
-
+        //s搜索栏输入选择框的值
+       input:{
+        batch:'',//批号
+        type:'',//试剂类型
+        exper:'',//实验人员
+       },
         //修改弹窗
         modal:{
           batch:'',
@@ -211,149 +213,171 @@ export default class ExperimentData extends Component {
           });
         }, 1000);
       };
-      //表格行选择操作
-      onSelectChange = selectedRowKey => {
+   //表格行选择操作
+    onSelectChange = selectedRowKey => {
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
         this.setState(
           {selectedRowKeys:selectedRowKey},
           ()=>{console.log('所选择行',this.state.selectedRowKeys)}
         )
       };
-      search = () =>{
-        console.log('搜索')
-      };
-      //重置
-      reset = () => {
-        console.log('重置')
-        this.setState(
-          {
-            selectedRowKeys:[],
-            batch_in:'',
-            type_in:'',
-            exper_in:undefined,
-          },
-        )
-        console.log(this.state);
-      };
-      //添加
-      add =() =>{
-        console.log('添加')
+    //批号输入框
+    batchChange = (e) => {
+      console.log(e.target.value)
+      this.setState({
+       input:Object.assign(this.state.input,{batch:e.target.value})
+      })
+     }
+    //搜索栏实验人员选择框
+    experChange = (e) => {
+        console.log(e)
         this.setState({
-          visible_add: true,
-        });
-      };
-      //导入
-      importStatic = () =>{
-        console.log('导入')
-      };
-      //导出已选择数据
-      exportChoose = () =>{
-        console.log('导出已选择数据')
-      };
-      //按搜索条件导出
-      exportSearch = () =>{
-        console.log('按搜索条件导出')
-      };
-    
-    //点击添加完成
-      handleOk_add = () => {
+          input:Object.assign(this.state.input,{exper:e})
+        })
+    }
+    //搜索栏试剂类型输入框
+    typeChange = (e) => {
+        console.log(e.target.value)
         this.setState({
-          visible_add: false,
-        });
-        console.log('添加完成')
-      };
-      //添加关闭
-      handleCancel_add = () => {
-        this.setState({
-          visible_add: false,
-        });
-        console.log('添加关闭')
-      };
-      //修改
-      modify = (record)=> {
-        console.log('修改',record)
-        let data = Object.assign(this.state.modal,{
-          batch:record.batch_num,
-          type:record.type,
-          r_time:record.r_time,
-          exper:record.exper,
+          input:Object.assign(this.state.input,{type:e.target.value}),
         })
-        this.setState({
-          visible_modify:true,
-          modal:data,
-        })
-      };
-      handleOk_modify = () => {
-        this.setState({
-          visible_modify:false,
-        })
-      };
-      handleCancel_modify = () =>{
-        this.setState({
-          visible_modify:false,
-        })
-        console.log('修改弹窗关闭')
-      };
-      //删除
-      delete = (record) =>{
-        console.log('删除',record)
-      };
-      //修改弹窗中修改按钮
-      modify_plan = (record) => {
-        console.log('弹窗修改',record)
-        let data = Object.assign(this.state.static,{
-          concentration:record.concentration,
-          exp_num:record.exp_num,
-        })
-        this.setState({
-          visible_static:true,
-          static:data,
-        })
-        
-      }
-      handleOk_static = () => {
-        this.setState({
-          visible_static:false,
-        })
-      }
-      handleCancel_static = () => {
-        this.setState({
-          visible_static:false,
-        })
-      }
-      //表换个页数变化
-      handTablechange = (pagination) =>{
-        console.log(pagination)
-        // let C = pagination.current
-        // let P = pagination.pageSize
-        this.setState = ({
-          current:pagination.current,
-          pageSize:pagination.pageSize
-        })
-        console.log(this.state.current,this.state.pageSize,this.state)   
-      };
+    }
+    search = () =>{
+      console.log('搜索',this.state.input)
+    };
+    //重置
+    reset = () => {
+      console.log('重置')
+      let data = Object.assign(this.state.input,{
+        batch:'',
+        type:'',
+        exper:undefined,
+      })
+      this.setState(
+        {
+          selectedRowKeys:[],
+          input:data,
+        },
+      )
+    };
+    //添加
+    add =() =>{
+      console.log('添加')
+      this.setState({
+        visible_add: true,
+      });
+    };
+    //导入
+    importStatic = () =>{
+      console.log('导入')
+    };
+    //导出已选择数据
+    exportChoose = () =>{
+      console.log('导出已选择数据',this.state.selectedRowKeys)
+    };
+    //按搜索条件导出
+    exportSearch = () =>{
+      console.log('按搜索条件导出',this.state.input)
+    };
+  
+  //点击添加完成
+    handleOk_add = () => {
+      this.setState({
+        visible_add: false,
+      });
+      console.log('添加完成')
+    };
+    //添加关闭
+    handleCancel_add = () => {
+      this.setState({
+        visible_add: false,
+      });
+      console.log('添加关闭')
+    };
+    //修改
+    modify = (record)=> {
+      console.log('修改',record)
+      let data = Object.assign(this.state.modal,{
+        batch:record.batch_num,
+        type:record.type,
+        r_time:record.r_time,
+        exper:record.exper,
+      })
+      this.setState({
+        visible_modify:true,
+        modal:data,
+      })
+    };
+    handleOk_modify = () => {
+      this.setState({
+        visible_modify:false,
+      })
+    };
+    handleCancel_modify = () =>{
+      this.setState({
+        visible_modify:false,
+      })
+      console.log('修改弹窗关闭')
+    };
+    //删除
+    delete = (record) =>{
+      console.log('删除',record)
+    };
+    //修改弹窗中修改按钮
+    modify_plan = (record) => {
+      console.log('弹窗修改',record)
+      let data = Object.assign(this.state.static,{
+        concentration:record.concentration,
+        exp_num:record.exp_num,
+      })
+      this.setState({
+        visible_static:true,
+        static:data,
+      })
+      
+    }
+    handleOk_static = () => {
+      console.log(this.state.static.concentration,this.state.static.exp_num)
+      this.setState({
+        visible_static:false,
+      })
+    }
+    handleCancel_static = () => {
+      this.setState({
+        visible_static:false,
+      })
+    }
+    //表格页数变化
+    handTablechange = (pagination) =>{
+      console.log(pagination)
+      // let C = pagination.current
+      // let P = pagination.pageSize
+      this.setState = ({
+        current:pagination.current,
+        pageSize:pagination.pageSize
+      })
+      console.log(this.state.current,this.state.pageSize,this.state)   
+    };
 
     //使用人员表格变化
     handTablechange_modify = (pagination) =>{
         console.log(pagination)
     };
-    //批号输入框
-    batchChange = (e) => {
-        console.log(e.target.value)
-        this.setState({
-        batch_in:e.target.value,
-        })
+
+    //修改试剂浓度
+    concentrationChange= (e) => {
+      console.log(e.target.value)
+      this.setState({
+        static:Object.assign(this.state.static,{concentration:e.target.value})
+      })
     }
-    //激活状态选择框
-    activeChange = (e) => {
-        console.log(e)
-        this.setState({
-        active_in:e
-        })
-    }
-    //试剂类型输入框
-    typeChange = (e) => {
-        console.log(e.target.value)
+    //修改试验次数
+    expnumChange = (e) => {
+      console.log(e.target.value)
+      let data = Object.assign({},this.state.static,{exp_num:e.target.value})
+      this.setState({
+        static:data,
+      })
     }
 
     render() {
@@ -368,12 +392,12 @@ export default class ExperimentData extends Component {
               {/* 输入框等 */}
               <div style={{'margin':'0 0 15px  0'}} >
                 <div justify="space-between" gutter="15" style={{display:"flex" }}  >
-                        <Input  placeholder="批号" className="input1" onChange={this.batchChange.bind(this)} value={this.state.batch_in} />
-                        <Input  placeholder="试剂类型" className="input1" onChange={this.typeChange.bind(this)} value={this.state.type_in} />
-                        <Select placeholder="试剂类型"   
-                                onChange={this.activeChange} 
+                        <Input  placeholder="批号" className="input1" onChange={this.batchChange.bind(this)} value={this.state.input.batch} />
+                        <Input  placeholder="试剂类型" className="input1" onChange={this.typeChange.bind(this)} value={this.state.input.type} />
+                        <Select placeholder="实验人员"   
+                                onChange={this.experChange} 
                                 className="input1" 
-                                vulue={this.state.active_in}
+                                vulue={this.state.input.exper}
                                 allowClear 
                                 >
                             <Option value="on">已激活</Option>
@@ -505,19 +529,21 @@ export default class ExperimentData extends Component {
                         </div>
                         <div style={{display:'flex',marginTop:'30px',height:'50px',border:'1px solid gray'}}>
                           <div style={{width:'400px',display:'flex'}}>
-                            <PlusSquareFilled style={{color:'#f05d73',fontSize:'30px',lineHeight:'50px',marginLeft:'10px'}} />
-                            <div style={{fontSize:'20px',lineHeight:'50px',marginLeft:'10px'}}>试剂浓度值</div>
+                            <PlusSquareFilled style={{color:'#f05d73',fontSize:'30px',margin:'10px'}} />
+                            <div style={{fontSize:'20px',margin:'8px'}}>试剂浓度值</div>
                           </div>
                           <div style={{width:'400px',borderLeft:'1px solid gray'}} >
-
+                            <div style={{fontSize:'20px',lineHeight:'50px',marginLeft:'10px'}}>所需实验试剂卡数量（个）</div>
                           </div>
                         </div>
                         <div style={{display:'flex',height:'50px',borderBottom:'1px solid gray',borderLeft:'1px solid gray',borderRight:'1px solid gray'}}>
                           <div style={{width:'400px'}}>
-                          
+                            <Input style={{width:'350px',margin:'8px'}} />
+                            
                           </div>
-                          <div style={{width:'400px',borderLeft:'1px solid gray'}} >
-
+                          <div style={{width:'400px',borderLeft:'1px solid gray',display:'flex'}} >
+                              <Input style={{width:'250px',margin:'8px'}} />
+                              <DeleteFilled style={{color:'white',backgroundColor:'#f05d73',fontSize:'20px',height:'30px',width:'30px',margin:'8px',padding:'5px 5px'}}/>
                           </div>
                         </div>
 
@@ -568,7 +594,7 @@ export default class ExperimentData extends Component {
                         </div>
                   </div>
                 </Modal>
-
+                {/* 修改弹窗中修改表格数据弹窗 */}
                 <Modal
                   title="修改实验数据"
                   centered
@@ -585,11 +611,11 @@ export default class ExperimentData extends Component {
                     <div>
                       <div style={{display:'flex'}}>
                         <div style={{width:'20%',lineHeight:'28px'}}>试剂浓度值</div>
-                        <input value={this.state.static.concentration} style={{width:'60%'}}/>
+                        <input value={this.state.static.concentration} style={{width:'60%'}} onChange={this.concentrationChange.bind(this)} />
                       </div>
                       <div style={{display:'flex',marginTop:'20px',}}>
                         <div style={{width:'20%',lineHeight:'28px'}}>所需试验次数</div>
-                        <input value={this.state.static.exp_num} style={{width:'60%'}}/>
+                        <input value={this.state.static.exp_num} style={{width:'60%'}} onChange={this.expnumChange.bind(this)} />
                       </div>
                     </div>
                   </div>
