@@ -20,23 +20,31 @@ for (let i = 0; i < 46; i++) {
 }
 
 
-function handleChange(value) {
-    console.log(`selected ${value}`);
-}
+
 
 export default class ProjectType extends Component {
 
-constructor(props) {
-    super(props);
+    //初始化
+    constructor(props) {
+        super(props);
 
-    this.handleAdd=this.handleAdd.bind(this);
-    this.inputOnChange=this.inputOnChange.bind(this);
-    this.handleModify=this.handleModify.bind(this);
-}
-//参数设置
+        this.handleAdd=this.handleAdd.bind(this);
+        this.inputOnChange=this.inputOnChange.bind(this);
+        this.handleModify=this.handleModify.bind(this);
+        this.reset=this.reset.bind(this);
+        this.search=this.search.bind(this);
+        this.handleChange=this.handleChange.bind(this);
+    }
+    //参数设置
     state = {
         selectedRowKeys: [], // Check here to configure the default column
         loading: false,
+        addVisible:false,
+        modifyVisible: false,
+        data:data,
+        //搜索框
+        planTypeName:'',
+        testTypeId:null,
 
         //修改
         currentItem:{
@@ -47,16 +55,9 @@ constructor(props) {
             projectTypeValue:null,
             timeout:null,
         },
-        // key: this.props.key,
-        // projectType: this.props.projectType,
-        // testType: this.props.testType,
-        // projectTypeName:this.props.projectTypeName,
-        // projectTypeValue: this.props.projectTypeValue,
-        // timeout:this.props.timeout,
-
-
     };
 
+    //表格列名
     columns = [
         {
             title: '计划类型',
@@ -93,15 +94,14 @@ constructor(props) {
             dataIndex: 'operation',
             render: (text, record) => (
                 <Space size="middle">
-                    <Button onClick={()=>{this.handleModify(record)}}>修改</Button>
-                    <Button style={{
-                        backgroundColor:'#ec7259',
-                        color:'#FFFAFA'}}>删除</Button>
+                    <Button style={{color:'black',background:'white'}} onClick={()=>{this.handleModify(record)}}>修改</Button>
+                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                    onClick={()=>{this.handleDelete(record)}}>删除</Button>
                 </Space>
             ),
         },
     ];
-start = () => {
+    start = () => {
         this.setState({ loading: true });
         // ajax request after empty completing
         setTimeout(() => {
@@ -112,28 +112,78 @@ start = () => {
                 modifyVisible:false,
                 addConfirmLoading:false,
                 modifyConfirmLoading:false,
+                data:data,
+                projectTypeName:'',
+
+                //修改
+                currentItem:{
+                    key: null,
+                    projectType: '',
+                    testType: '',
+                    projectTypeName:'',
+                    projectTypeValue:null,
+                    timeout:null,
+                },
             });
         }, 1000);
     };
-onSelectChange = selectedRowKeys => {
+    onSelectChange = selectedRowKeys => {
         console.log('selectedRowKeys changed: ', selectedRowKeys);
         this.setState({ selectedRowKeys });
     };
-handleAdd(){
+
+    //添加展开modal
+    handleAdd(){
         this.setState({
             addVisible:true,
         });
     }
-handleModify=(record)=>{
+
+    //搜索
+    search(){
+        let params={};
+        if(this.state.planTypeName!==""){
+            params.planTypeName=this.state.planTypeName;
+        }
+        if(this.state.testTypeId!==null){
+            params.testTypeId=this.state.testTypeId;
+        }
+        console.log(params);
+        //console.log(this.state.testTypeId)
+    }
+
+    //重置
+    reset(){
+        console.log("重置")
+            this.setState({
+                data:data,
+                currentItem:{
+                    key: null,
+                    projectType: '',
+                    testType: '',
+                    projectTypeName:'',
+                    projectTypeValue:null,
+                    timeout:null,
+                },
+                //搜索框
+                planTypeName:'',
+                testTypeId:null
+            });
+        console.log(this.state)
+
+    }
+
+    //修改展开modal
+    handleModify=(record)=>{
         console.log('修改',record)
-    let data=Object.assign({},this.state.currentItem,{
+        let data=Object.assign({},this.state.currentItem,{
         key:record.key,
         projectType:record.projectType,
         testType:record.testType,
         projectTypeName:record.projectTypeName,
         projectTypeValue:record.projectTypeValue,
         timeout:record.timeout,
-    })
+        })
     
         this.setState({
             modifyVisible:true,
@@ -144,30 +194,117 @@ handleModify=(record)=>{
 
     }
 
-handleOk = e => {
-        console.log(e);
-        this.setState({ loading: true });
+    //删除某一行
+    handleDelete=(record)=>{
+        console.log('删除',record)
+        const deleteData=[...this.state.data];
+        console.log("删除项",record.key)
+        deleteData.forEach((item,index) => {
+            if(item.key===record.key){
+                deleteData.splice(index,1);
+            }
+        })
+        this.setState({
+            data:deleteData,
+            //ES6中键和值相等时可直接写成list
+        })
+    }
+
+    //modal点击确认
+    handleOk = e => {
+        this.setState({
+            loading: true,
+            //modifyVisible: true,
+        });
+        let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
+        let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
+        console.log(flag)
+        let data=Object.assign({},this.state.currentItem,{
+            key:key,
+            projectType:this.state.currentItem.projectType,
+            testType:this.state.currentItem.testType,
+            projectTypeName:this.state.currentItem.projectTypeName,
+            projectTypeValue:this.state.currentItem.projectTypeValue,
+            timeout:this.state.currentItem.timeout,
+        })
+        console.log("修改为/添加", data)
+        const modifyData = [...this.state.data];
+        if(flag===1){
+            modifyData.forEach((item, index) => {
+                if (item.key === this.state.currentItem.key) {
+                    modifyData.splice(index, 1,data);
+                }
+            })
+        }
+        else{
+            modifyData.push(data);
+        }
+
+        this.setState({
+            data: modifyData,
+            //ES6中键和值相等时可直接写成list
+        })
         setTimeout(() => {
             this.setState({
                 loading:false,
                 addVisible: false,
                 modifyVisible: false,
+                currentItem:{
+                    key: null,
+                    projectType: '',
+                    testType: '',
+                    projectTypeName:'',
+                    projectTypeValue:null,
+                    timeout:null,
+                },
             });
         }, 1000);
     };
-handleCancel = e => {
+    //关闭modal
+    handleCancel = e => {
         console.log(e);
         this.setState({
             addVisible: false,
             modifyVisible: false,
+            currentItem:{
+                key: null,
+                projectType: '',
+                testType: '',
+                projectTypeName:'',
+                projectTypeValue:null,
+                timeout:null,
+            },
         });
     };
 
-inputOnChange(e){
-    this.setState({
-        [e.target.name]:e.target.value
-    })
-}
+    //输入框变化
+    inputOnChange=e=>{
+        console.log(e)
+        const name=e.target.name;
+        const value=e.target.value;
+        console.log({[name]:value})
+        if(name==="planTypeName"){
+            console.log("进到搜索框了")
+            this.setState({
+                planTypeName:value
+            })
+        }
+        else{
+            this.setState({
+                currentItem:Object.assign(this.state.currentItem,{[name]:value})
+            })
+        }
+
+
+    }
+
+    //选择框变化
+    handleChange(value) {
+        console.log(`选择框变化 ${value}`);
+        this.setState({
+            testTypeId:value,
+        })
+    }
 
     render() {
         const { loading, selectedRowKeys } = this.state;
@@ -199,19 +336,33 @@ inputOnChange(e){
         return (
             <div>
                 <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                    <Col span={4} >
+                        <Select placeholder="测试类型"
+                                onChange={this.handleChange}
+                                value={this.state.testTypeId}
+                                allowClear>
+
+                            <Option value="0">测试类型1</Option>
+                            <Option value="1">测试类型2</Option>
+                        </Select>
+                    </Col>
                     <Col span={4}>
-                        <Input  placeholder="单位名称"  />
+                        <Input  placeholder="计划类型名称"
+                                value={this.state.planTypeName}
+                                name="planTypeName"
+                                onChange={this.inputOnChange}
+                                allowClear/>
                     </Col>
                     <Col span={2}>
-                        <Button type="primary" ><SearchOutlined />搜索</Button>
+                        <Button type="primary" onClick={this.search}><SearchOutlined />搜索</Button>
                     </Col>
                     <Col span={2} >
-                        <Button type="primary" ><ReloadOutlined />重置</Button>
+                        <Button type="primary" onClick={this.reset}><ReloadOutlined />重置</Button>
                     </Col>
                     <Col span={2} >
                         <Button type="primary" onClick={this.handleAdd}><PlusSquareOutlined />添加</Button>
                     </Col>
-                    <Col span={14} >
+                    <Col span={10} >
 
                     </Col>
                 </Row>
@@ -219,7 +370,7 @@ inputOnChange(e){
                     <Table
                         rowSelection={rowSelection}
                         columns={this.columns}
-                        dataSource={data}
+                        dataSource={this.state.data}
                         rowKey={record => record.key}
                         bordered={true}
                         style={{margin:'20px 0'}}
@@ -247,35 +398,35 @@ inputOnChange(e){
                     ]}
                 >
                     <Form {...formItemLayout}>
-                        <Form.Item label="计划类型"
-                                   name="计划类型"
-                                   rules={[{required:true}]}>
-                            <Input />
+                        <Form.Item label="计划类型">
+                            <Input value={this.state.currentItem.projectType}
+                                   name="projectType"
+                                   onChange={this.inputOnChange}
+                                   allowClear/>
                         </Form.Item>
-                        <Form.Item label="计划类型"
-                                   name="计划类型"
-                                   rules={[{required:true}]}>
-                            <Input />
+                        <Form.Item label="测试类型">
+                            <Input value={this.state.currentItem.testType}
+                                   name="testType"
+                                   onChange={this.inputOnChange}
+                                   allowClear/>
                         </Form.Item>
-                        <Form.Item label="测试类型"
-                                   name="测试类型"
-                                   rules={[{required:true}]}>
-                            <Input />
+                        <Form.Item label="计划类型名称">
+                            <Input value={this.state.currentItem.projectTypeName}
+                                   name="projectTypeName"
+                                   onChange={this.inputOnChange}
+                                   allowClear/>
                         </Form.Item>
-                        <Form.Item label="计划类型名称"
-                                   name="计划类型名称"
-                                   rules={[{required:true}]}>
-                            <Input />
+                        <Form.Item label="计划类型实际值">
+                            <Input value={this.state.currentItem.projectTypeValue}
+                                         onChange={this.inputOnChange}
+                                         name="projectTypeValue"
+                                         allowClear/>
                         </Form.Item>
-                        <Form.Item label="计划类型实际值"
-                                   name="计划类型实际值"
-                                   rules={[{required:true}]}>
-                            <Input />
-                        </Form.Item>
-                        <Form.Item label="超时时间"
-                                   name="超时时间"
-                                   rules={[{required:true}]}>
-                            <Input />
+                        <Form.Item label="超时时间">
+                            <Input value={this.state.currentItem.timeout}
+                                         onChange={this.inputOnChange}
+                                         name="timeout"
+                                         allowClear/>
                         </Form.Item>
                     </Form>
                 </Modal>
@@ -295,35 +446,38 @@ inputOnChange(e){
                 >
                     <div>
                         <Form {...formItemLayout}>
-                            <Form.Item label="计划类型"
-                                       rules={[{required:true}]}>
+                            <Form.Item label="计划类型">
                                 <Input value={this.state.currentItem.projectType}
+                                       onChange={this.inputOnChange}
                                        name="projectType"
-                                       onChange={this.inputOnChange}/>
+                                       allowClear/>
                             </Form.Item>
-                            <Form.Item label="测试类型"
-                                       rules={[{required:true}]}>
+                            <Form.Item label="测试类型">
                                 <Input value={this.state.currentItem.testType}
-                                       name="testType"/>
+                                       onChange={this.inputOnChange}
+                                       name="testType"
+                                       allowClear/>
                             </Form.Item>
-                            <Form.Item label="计划类型名称"
-                                       rules={[{required:true}]}>
+                            <Form.Item label="计划类型名称">
                                 <Input value={this.state.currentItem.projectTypeName}
-                                       name="projectTypeName"/>
+                                       onChange={this.inputOnChange}
+                                       name="projectTypeName"
+                                       allowClear/>
                             </Form.Item>
-                            <Form.Item label="计划类型实际值"
-                                       rules={[{required:true}]}>
+                            <Form.Item label="计划类型实际值">
                                 <Input value={this.state.currentItem.projectTypeValue}
-                                       name="projectTypeValue"/>
+                                             onChange={this.inputOnChange}
+                                             name="projectTypeValue"
+                                             allowClear/>
                             </Form.Item>
-                            <Form.Item label="超时时间"
-                                       rules={[{required:true}]}>
+                            <Form.Item label="超时时间">
                                 <Input value={this.state.currentItem.timeout}
-                                       name="timeout"/>
+                                             name="timeout"
+                                       onChange={this.inputOnChange}
+                                       allowClear/>
                             </Form.Item>
                         </Form>
                     </div>
-
                 </Modal>
             </div>
         )
