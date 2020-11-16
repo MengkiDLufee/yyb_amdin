@@ -34,6 +34,8 @@ export default class UnitManagement extends Component {
         this.handleModify=this.handleModify.bind(this);
         this.reset=this.reset.bind(this);
         this.search=this.search.bind(this);
+        this.onChange=this.onChange.bind(this);
+
     }
 
     //状态管理
@@ -43,8 +45,10 @@ export default class UnitManagement extends Component {
         addVisible:false,
         modifyVisible: false,
         data:data,
-        searchItem:'',
+	//搜索框
+        unitName:'',
 
+        currentPage:1,
         //修改
         currentItem:{
             key: null,
@@ -85,10 +89,9 @@ export default class UnitManagement extends Component {
             dataIndex: 'operation',
             render: (text, record) => (
                 <Space size="middle">
-                    <Button onClick={()=>{this.handleModify(record)}}>修改</Button>
-                    <Button style={{
-                        backgroundColor:'#ec7259',
-                        color:'#FFFAFA'}}>删除</Button>
+                       <Button style={{color:'black',background:'white'}} onClick={()=>{this.handleModify(record)}}>修改</Button>
+                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                    onClick={()=>{this.handleDelete(record)}}>删除</Button>
                 </Space>
             ),
         },
@@ -107,7 +110,8 @@ export default class UnitManagement extends Component {
                 addConfirmLoading:false,
                 modifyConfirmLoading:false,
                 data:data,
-                searchItem:'',
+                unitName:'',
+                currentPage:1,
 
                 //修改
                 currentItem:{
@@ -125,25 +129,61 @@ export default class UnitManagement extends Component {
         this.setState({ selectedRowKeys });
     };
 
+ //添加展开modal
+    handleAdd(){
+        this.setState({
+            addVisible:true,
+        });
+    }
 
-    //修改展开modal
+    //搜索
+    search(){
+        let params={};
+        if(this.state.unitName!==""){
+            params.unitName=this.state.unitName;
+        }
+        console.log(params);
+        //console.log(this.state.testTypeId)
+    }
+
+  //重置
+    reset(){
+        console.log("重置")
+            this.setState({
+                data:data,
+                currentItem:{
+                   key: null,
+                    unitCode: '',
+                    organization:'',
+                    insertTime: '',
+
+                },
+                //搜索框
+                unitName:'',
+                currentPage:1,
+            });
+        console.log(this.state)
+
+    }
+     //修改展开modal
     handleModify=(record)=>{
         console.log('修改',record)
         let data=Object.assign({},this.state.currentItem,{
-            key: record.key,
-            unitCode: record.unitCode,
-            organization:record.organization,
-            insertTime: record.insertTime,
+        key:record.key,
+        unitCode:record.unitCode,
+        organization:record.organization,
+        insertTime: record.insertTime,
         })
-
+    
         this.setState({
-                modifyVisible:true,
-                currentItem:data,
-            },
-            ()=>console.log(this.state.currentItem)
+            modifyVisible:true,
+            currentItem:data,
+        },
+        ()=>console.log(this.state.currentItem)
         );
 
     }
+
 
     //删除某一行
     handleDelete=(record)=>{
@@ -162,37 +202,7 @@ export default class UnitManagement extends Component {
     }
 
 
-    //添加展开modal
-    handleAdd(){
-        this.setState({
-            addVisible:true,
-        });
-    }
-
-    //搜索
-    search(){
-        let params={};
-        if(this.state.searchItem!==""){
-            params.se=this.state.searchItem;
-        }
-        console.log(params);
-    }
-
-    //重置
-    reset(){
-        console.log("重置")
-        this.setState({
-            data:data,
-            currentItem:{
-                key: null,
-                unitCode: '',
-                organization:'',
-                insertTime: '',
-            },
-            searchItem:'',
-        });
-
-    }
+   
 
     //modal点击确认
     handleOk = e => {
@@ -262,10 +272,10 @@ export default class UnitManagement extends Component {
         const name=e.target.name;
         const value=e.target.value;
         console.log({[name]:value})
-        if(name==="searchItem"){
+        if(name==="unitName"){
             console.log("进到搜索框了")
             this.setState({
-                searchItem:value
+                unitName:value
             })
         }
         else{
@@ -274,6 +284,14 @@ export default class UnitManagement extends Component {
             })
         }
     }
+    //表格分页
+    onChange = page => {
+        console.log(page);
+        this.setState({
+            currentPage: page,
+        });
+    };
+
     render() {
         const { loading, selectedRowKeys } = this.state;
         const rowSelection = {
@@ -306,8 +324,8 @@ export default class UnitManagement extends Component {
                 <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
                     <Col span={4}>
                         <Input  placeholder="单位名称"
-                                value={this.state.searchItem}
-                                name="searchItem"
+                                value={this.state.unitName}
+                                name="unitName"
                                 onChange={this.inputOnChange}
                                 allowClear/>
                     </Col>
@@ -337,7 +355,9 @@ export default class UnitManagement extends Component {
                             total:'data.length',
                             showTotal:total => `共 ${total} 条`,
                             showQuickJumper:true,
-                            showSizeChanger:true
+                            showSizeChanger:true,
+                            current:this.state.currentPage,
+                            onChange:this.onChange,
                         }}
                     />
                 </div>

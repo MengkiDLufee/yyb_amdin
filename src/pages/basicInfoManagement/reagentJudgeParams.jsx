@@ -38,9 +38,9 @@ for (let i = 0; i < 46; i++) {
 }
 
 
-function handleChange(value) {
-    console.log(`selected ${value}`);
-}
+// function handleChange(value) {
+//     console.log(`selected ${value}`);
+// }
 
 
 export default class ReagentJudgeParams extends Component {
@@ -49,8 +49,13 @@ export default class ReagentJudgeParams extends Component {
         super(props);
 
         this.handleAdd=this.handleAdd.bind(this);
-        //this.inputOnChange=this.inputOnChange.bind(this);
         this.handleModify=this.handleModify.bind(this);
+        this.inputOnChange=this.inputOnChange.bind(this);
+        this.reset=this.reset.bind(this);
+        this.search=this.search.bind(this);
+        this.handleChange=this.handleChange.bind(this);
+        this.alerthandleChange=this.alerthandleChange.bind(this);
+        this.onChange=this.onChange.bind(this);
     }
 
     //状态管理
@@ -59,7 +64,13 @@ export default class ReagentJudgeParams extends Component {
         loading: false,
         addVisible:false,
         modifyVisible: false,
-
+        data:data,
+        //分页
+        currentPage:1,
+        //搜索框
+        bathNumber:null,
+        paperTypeId:null,
+        searchOrganization:'',
         //修改
         currentItem:{
             key: null,
@@ -125,10 +136,9 @@ export default class ReagentJudgeParams extends Component {
             dataIndex: 'operation',
             render: (text, record) => (
                 <Space size="middle">
-                    <Button onClick={()=>{this.handleModify(record)}}>修改</Button>
-                    <Button style={{
-                        backgroundColor:'#ec7259',
-                        color:'#FFFAFA'}}>删除</Button>
+                    <Button style={{color:'black',background:'white'}} onClick={()=>{this.handleModify(record)}}>修改</Button>
+                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                            onClick={()=>{this.handleDelete(record)}}>删除</Button>
                 </Space>
             ),
         },
@@ -141,6 +151,27 @@ export default class ReagentJudgeParams extends Component {
             this.setState({
                 selectedRowKeys: [],
                 loading: false,
+                addVisible:false,
+                modifyVisible:false,
+                addConfirmLoading:false,
+                modifyConfirmLoading:false,
+                data:data,
+                bathNumber:null,
+                paperTypeId:null,
+                searchOrganization:'',
+                currentPage:1,
+                //修改
+                currentItem:{
+                    key: null,
+                    batchNumber: null,
+                    reagentType: '',
+                    responsTime: null,
+                    affiliation:'',
+                    isStable:'',
+                    isEfficiency :'',
+                },
+
+
             });
         }, 1000);
     };
@@ -149,6 +180,55 @@ export default class ReagentJudgeParams extends Component {
         console.log('selectedRowKeys changed: ', selectedRowKeys);
         this.setState({ selectedRowKeys });
     };
+
+    //添加展开modal
+    handleAdd(){
+        this.setState({
+            addVisible:true,
+        });
+    }
+
+    //搜索
+    search(){
+        let params={};
+        if(this.state.bathNumber!==null){
+            params.bathNumber=this.state.bathNumber;
+        }
+        if(this.state.paperTypeId!==null){
+            params.paperTypeId=this.state.paperTypeId;
+        }
+        if(this.state.searchOrganization!==''){
+            params.organization=this.state.searchOrganization;
+        }
+        console.log(params);
+        //console.log(this.state.testTypeId)
+    }
+
+    //重置
+    reset(){
+        console.log("重置")
+        this.setState({
+            data:data,
+            currentItem:{
+                key: null,
+                batchNumber: null,
+                reagentType: '',
+                responsTime: null,
+                affiliation:'',
+                isStable:'',
+                isEfficiency :'',
+            },
+
+            //搜索框
+            bathNumber:null,
+            paperTypeId:null,
+            searchOrganization:'',
+            //当前页
+            currentPage:1,
+        });
+        console.log(this.state)
+
+    }
 
     //修改
     handleModify=(record)=>{
@@ -171,22 +251,77 @@ export default class ReagentJudgeParams extends Component {
         );
 
     }
-    handleAdd(){
+
+    //删除某一行
+    handleDelete=(record)=>{
+        console.log('删除',record)
+        const deleteData=[...this.state.data];
+        console.log("删除项",record.key)
+        deleteData.forEach((item,index) => {
+            if(item.key===record.key){
+                deleteData.splice(index,1);
+            }
+        })
         this.setState({
-            addVisible:true,
-        });
+            data:deleteData,
+            //ES6中键和值相等时可直接写成list
+        })
     }
+
+    //modal点击确认
     handleOk = e => {
-        console.log(e);
-        this.setState({ loading: true });
+        this.setState({
+            loading: true,
+            //modifyVisible: true,
+        });
+        let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
+        let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
+        console.log(flag)
+        let data=Object.assign({},this.state.currentItem,{
+            key:key,
+            batchNumber:this.state.currentItem.batchNumber,
+            reagentType:this.state.currentItem.reagentType,
+            responsTime:this.state.currentItem.responsTime,
+            affiliation:this.state.currentItem.affiliation,
+            isStable:this.state.currentItem.isStable,
+            isEfficiency :this.state.currentItem.isEfficiency ,
+        })
+        console.log("修改为/添加", data)
+        const modifyData = [...this.state.data];
+        if(flag===1){
+            modifyData.forEach((item, index) => {
+                if (item.key === this.state.currentItem.key) {
+                    modifyData.splice(index, 1,data);
+                }
+            })
+        }
+        else{
+            modifyData.push(data);
+        }
+
+        this.setState({
+            data: modifyData,
+            //ES6中键和值相等时可直接写成list
+        })
         setTimeout(() => {
             this.setState({
                 loading:false,
                 addVisible: false,
                 modifyVisible: false,
+                currentItem:{
+                    key: null,
+                    batchNumber: null,
+                    reagentType: '',
+                    responsTime: null,
+                    affiliation:'',
+                    isStable:'',
+                    isEfficiency :'',
+                },
             });
         }, 1000);
     };
+
+    //关闭modal
     handleCancel = e => {
         console.log(e);
         this.setState({
@@ -204,6 +339,51 @@ export default class ReagentJudgeParams extends Component {
         });
     };
 
+//输入框变化
+    inputOnChange=e=>{
+        console.log(e)
+        const name=e.target.name;
+        const value=e.target.value;
+        console.log({[name]:value})
+        if(name==="bathNumber"){
+            console.log("进到搜索框了")
+            this.setState({
+                bathNumber:value
+            })
+        }
+        else{
+            this.setState({
+                currentItem:Object.assign(this.state.currentItem,{[name]:value})
+            })
+        }
+
+
+    }
+
+    //搜索选择框变化
+    handleChange=(e,Option) =>{
+        console.log(e)
+            this.setState({
+                [Option.title]:e,
+        })
+    }
+    //增加或修改选择框变化
+    alerthandleChange=(e,Option) =>{
+        console.log(e)
+        console.log(Option)
+        this.setState({
+                currentItem:Object.assign(this.state.currentItem,{[Option.title]:e})
+        })
+        console.log(this.state)
+    }
+
+    //表格分页
+    onChange = page => {
+        console.log(page);
+        this.setState({
+            currentPage: page,
+        });
+    };
 
 
     render() {
@@ -238,27 +418,43 @@ export default class ReagentJudgeParams extends Component {
             <div>
                 <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
                     <Col span={4}>
-                        <Input  placeholder="批号"  />
+                        <Input  placeholder="批号"
+                                value={this.state.bathNumber}
+                                name="bathNumber"
+                                onChange={this.inputOnChange}
+                                allowClear/>
                     </Col>
                     <Col span={4}>
-                        <Select placeholder="请选择试剂类型 " style={{width:'100%'}} onChange={handleChange}>
-                            <Option value="reagentType1">试剂类型1</Option>
-                            <Option value="sampleType2">试剂类型2</Option>
-                            <Option value="reagentType3">试剂类型3</Option>
+                        <Select
+                            className="reagentType"
+                            placeholder="请选择试剂类型 "
+                            style={{width:'100%'}}
+                            value={this.state.paperTypeId}
+                            allowClear
+                            onChange={this.handleChange}>
+                            <Option title="paperTypeId" value={1}>试剂类型1</Option>
+                            <Option title="paperTypeId" value={2}>试剂类型2</Option>
+                            <Option title="paperTypeId" value={3}>试剂类型3</Option>
                         </Select>
                     </Col>
                     <Col span={4}>
-                        <Select placeholder="请选择所属单位 " style={{width:'100%'}} onChange={handleChange}>
-                            <Option value="affiliatedInstitutions1">单位1</Option>
-                            <Option value="affiliatedInstitutions2">单位2</Option>
-                            <Option value="affiliatedInstitutions3">单位3</Option>
+                        <Select
+                            placeholder="请选择所属单位"
+                            value={this.state.searchOrganization}
+                            allowClear
+                            className="affiliatedInstitutions"
+                            style={{width:'100%'}}
+                            onChange={this.handleChange}>
+                            <Option title="searchOrganization" value="affiliatedInstitutions1">单位1</Option>
+                            <Option title="searchOrganization" value="affiliatedInstitutions2">单位2</Option>
+                            <Option title="searchOrganization" value="affiliatedInstitutions3">单位3</Option>
                         </Select>
                     </Col>
                     <Col span={2}>
-                        <Button type="primary" ><SearchOutlined />搜索</Button>
+                        <Button type="primary" onClick={this.search}><SearchOutlined />搜索</Button>
                     </Col>
                     <Col span={2} >
-                        <Button type="primary" ><ReloadOutlined />重置</Button>
+                        <Button type="primary" onClick={this.reset}><ReloadOutlined />重置</Button>
                     </Col>
                     <Col span={2} >
                         <Button type="primary" onClick={this.handleAdd}><PlusSquareOutlined />添加</Button>
@@ -278,7 +474,8 @@ export default class ReagentJudgeParams extends Component {
                     <Table
                         rowSelection={rowSelection}
                         columns={this.columns}
-                        dataSource={data}
+                        dataSource={this.state.data}
+                        rowKey={record => record.key}
                         bordered={true}
                         style={{margin:'20px 0'}}
                         pagination={{
@@ -286,7 +483,9 @@ export default class ReagentJudgeParams extends Component {
                             total:'data.length',
                             showTotal:total => `共 ${total} 条`,
                             showQuickJumper:true,
-                            showSizeChanger:true
+                            showSizeChanger:true,
+                            current:this.state.currentPage,
+                            onChange:this.onChange,
                         }}
                     />
                 </div>
@@ -308,28 +507,50 @@ export default class ReagentJudgeParams extends Component {
                     <Form {...formItemLayout}>
                         <Form.Item label="批号"
                                    rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.batchNumber}/>
+                            <Input value={this.state.currentItem.batchNumber}
+                                   name="batchNumber"
+                                   onChange={this.inputOnChange}
+                                   allowClear/>
                         </Form.Item>
                         <Form.Item label="试剂类型"
                                    rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.reagentType}/>
+                            <Input value={this.state.currentItem.reagentType}
+                                   name="reagentType"
+                                   onChange={this.inputOnChange}
+                                   allowClear/>
                         </Form.Item>
                         <Form.Item label="反应时间（秒）"
                                    rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.responsTime}/>
+                            <Input value={this.state.currentItem.responsTime}
+                                   name="responsTime"
+                                   onChange={this.inputOnChange}
+                                   allowClear/>
                         </Form.Item>
                         <Form.Item label="所属单位"
                                    rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.affiliation}/>
+                            <Input value={this.state.currentItem.affiliation}
+                                   name="affiliation"
+                                   onChange={this.inputOnChange}
+                                   allowClear/>
                         </Form.Item>
                         <Form.Item label="是否定性"
                                    rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.isStable}/>
+                            <Select
+                                value={this.state.currentItem.isStable}
+                                onChange={this.alerthandleChange}>
+                                <Option title="isStable" value="是">是</Option>
+                                <Option title="isStable" value="否">否</Option>
+                            </Select>
                         </Form.Item>
 
                         <Form.Item label="能效已降低"
                                    rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.isEfficiency}/>
+                            <Select value={this.state.currentItem.isEfficiency}
+                                   name="isEfficiency"
+                                   onChange={this.alerthandleChange}>
+                                <Option title="isEfficiency" value="是">是</Option>
+                                <Option title="isEfficiency" value="否">否</Option>
+                            </Select>
                         </Form.Item>
                     </Form>
                 </Modal>
@@ -351,28 +572,50 @@ export default class ReagentJudgeParams extends Component {
                         <Form {...formItemLayout}>
                             <Form.Item label="批号"
                                        rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.batchNumber}/>
+                                <Input value={this.state.currentItem.batchNumber}
+                                       onChange={this.inputOnChange}
+                                       name="batchNumber"
+                                       allowClear/>
                             </Form.Item>
                             <Form.Item label="试剂类型"
                                        rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.reagentType}/>
+                                <Input value={this.state.currentItem.reagentType}
+                                       onChange={this.inputOnChange}
+                                       name="reagentType"
+                                       allowClear/>
                             </Form.Item>
                             <Form.Item label="反应时间（秒）"
                                        rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.responsTime}/>
+                                <Input value={this.state.currentItem.responsTime}
+                                       onChange={this.inputOnChange}
+                                       name="responsTime"
+                                       allowClear/>
                             </Form.Item>
                             <Form.Item label="所属单位"
                                        rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.affiliation}/>
+                                <Input value={this.state.currentItem.affiliation}
+                                       onChange={this.inputOnChange}
+                                       name="affiliation"
+                                       allowClear/>
                             </Form.Item>
                             <Form.Item label="是否定性"
                                        rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.isStable}/>
+                                <Select
+                                    value={this.state.currentItem.isStable}
+                                    onChange={this.alerthandleChange}>
+                                    <Option title="isStable" value="是">是</Option>
+                                    <Option title="isStable" value="否">否</Option>
+                                </Select>
                             </Form.Item>
 
                             <Form.Item label="能效已降低"
                                        rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.isEfficiency}/>
+                                <Select value={this.state.currentItem.isEfficiency}
+                                        name="isEfficiency"
+                                        onChange={this.alerthandleChange}>
+                                    <Option title="isEfficiency" value="是">是</Option>
+                                    <Option title="isEfficiency" value="否">否</Option>
+                                </Select>
                             </Form.Item>
                         </Form>
                     </div>
