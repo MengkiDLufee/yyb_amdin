@@ -75,8 +75,8 @@ class PatientTable extends Component{
             align:'center',
             render:(text,record)=>(
                 <Space>
-                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}}>测试数据</Button>
-                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}}>发送事件</Button>
+                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}}>修改</Button>
+                    <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{}}>使用人员</Button>
                 </Space>
             ),
         },

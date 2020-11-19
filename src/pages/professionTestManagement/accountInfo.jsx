@@ -10,10 +10,96 @@ import {ReloadOutlined,
     CheckCircleOutlined,
     CloseCircleTwoTone
 } from '@ant-design/icons'
-import './index.less'
 import { Row, Col } from 'antd';
+import './index.less'
+
 const { TextArea } = Input;
 const { Option } = Select;
+
+class HistoryDeviceTable extends Component{
+    columns=[
+        {
+            title: '设备号',
+            dataIndex: 'patient_name',
+            width:150,
+            sorter: {
+                compare: (a, b) => a.patient_name - b.patient_name,
+                multiple: 3,
+            },
+        },
+        {
+            title: '正在使用',
+            dataIndex: 'test_time',
+            width: 150,
+            sorter: {
+                compare: (a, b) => a.test_time - b.test_time,
+                multiple: 2,
+            },
+        },
+        {
+            title: '绑定时间',
+            dataIndex: 'test_time',
+            width: 150,
+            sorter: {
+                compare: (a, b) => a.test_time - b.test_time,
+                multiple: 2,
+            },
+        },
+        {
+            title: '终止时间',
+            dataIndex: 'test_time',
+            width: 150,
+            sorter: {
+                compare: (a, b) => a.test_time - b.test_time,
+                multiple: 2,
+            },
+        },
+    ];
+    paginationProps={
+        position:['bottomLeft'],
+        total:'data.length',
+        showTotal:total => `共 ${total} 条`,
+        showQuickJumper:true,
+        showSizeChanger:true,
+    };
+    state={
+        visible_patientDetailInfo:false,
+        patientDetailData:[{
+            key:1,
+            patient_accountNumber:1,
+            patient_age:23,
+            patient_address:'许昌',
+            patient_testState:'未测试',
+            patient_createTime:'2020-11-02 20:21',
+
+        }],
+        record: {
+            key:'',
+            test_time:'',
+            patient_name:'',
+        },
+    }
+    handleTableChange = (pagination) =>{
+        console.log(pagination)
+    };
+
+    render() {
+        return(
+            <div>
+                <Table
+                    columns={this.columns}
+                    dataSource={this.props.data}
+                    bordered={true}
+                    style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                    pagination={this.paginationProps}
+                    onChange={this.handleTableChange}
+                />
+            </div>
+
+        );
+    }
+}
+
 class DoctorTable extends Component{
     columns = [
         {
@@ -66,9 +152,9 @@ class DoctorTable extends Component{
             render:(text,record)=>(
                 <Space>
                     <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}}>重置密码</Button>
-                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}}>修改</Button>
+                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.doctor_modify(record)}}>修改</Button>
                     <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{}}>删除</Button>
-                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}}>历史设备</Button>
+                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.history_device(record)}}>历史设备</Button>
                 </Space>
             ),
         },
@@ -87,6 +173,8 @@ class DoctorTable extends Component{
     state={
         visible_patientInfo:false,
         visible_latestData:false,
+        visible_modify:false,
+        visible_historyDevice:false,
         record:{
             key:'',
             doctor_phone:'',
@@ -97,7 +185,56 @@ class DoctorTable extends Component{
             test_time:'0',
             patient_name:'白病人',
         }],
+        historyDeviceData:[{
+            key:1,
+            test_time:'0',
+            patient_name:'白病人',
+        }],
         latestData:[],
+        patientDetailInfoData:[],
+    }
+    setpatientDetailInfoData=(data)=>{
+        this.setState({
+            patientDetailInfoData:data,
+        });
+    }
+    historyDeviceTable = ()=>{
+        return(
+            <HistoryDeviceTable
+                data={this.state.historyDeviceData}
+                dataChange={this.setHistoryDeviceData}
+            />
+        );
+    }
+    setHistoryDeviceData=(data)=>{
+        this.setState({
+            historyDeviceData:data,
+        });
+    }
+    history_device=record=>{
+        this.setState({
+            visible_historyDevice:true,
+            record,
+        });
+    }
+    handleCancle_historyDevice=()=>{
+        this.setState({
+            visible_historyDevice:false,
+        });
+    }
+    doctor_modify=record=>{
+        console.log(record);
+        this.setState({visible_modify:true});
+    }
+    handleCancle_modify=()=>{
+        this.setState({
+            visible_modify:false,
+        });
+    }
+    handleOk_modify=()=>{
+        this.setState({
+            visible_modify:false,
+        });
     }
     handleTableChange = (pagination) =>{
         console.log(pagination)
@@ -167,10 +304,76 @@ class DoctorTable extends Component{
                     pagination={this.paginationProps}
                     onChange={this.handleTableChange}
                 />
+                <Modal
+                    title={"修改医生账号"}
+                    centered
+                    visible={this.state.visible_modify}
+                    onCancel={this.handleCancle_modify}
+                    onOk={this.handleOk_modify}
+                    okText={'提交'}
+                    cancelText={'取消'}
+                    className="modal1"
+                >
+                    <div className="ant-modal-body" >
+                        <div className="modal-body" style={{height:"100%"}}>
+                            <Form
+                                labelCol={{ span: 5 }}
+                                wrapperCol={{ span: 16 }}
+                                layout="horizontal"
+                                name="add"
+                            >
+                                <Form.Item
+                                    label="医生姓名"
+                                    name="医生姓名"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: '请输入医生姓名!',
+                                        },
+                                    ]}
+                                >
+                                    <Input placeholder={"请输入医生姓名"}/>
+                                </Form.Item>
+                                <Form.Item label="医生用户"
+                                           name={"医生用户"}
+                                           rules={[
+                                               {
+                                                   required: true,
+                                                   message: '请输入医生用户!',
+                                               },
+                                           ]}
+                                >
+                                    <Input placeholder={"请输入医生用户"}/>
+                                </Form.Item>
+                                <Form.Item label="备注">
+                                    <TextArea rows={4}  placeholder={"请输入备注"} />
+                                </Form.Item>
+                            </Form>
+                        </div>
+                    </div>
+                </Modal>
+                <Modal
+                    title={"历史设备"}
+                    centered
+                    visible={this.state.visible_historyDevice}
+                    onCancel={this.handleCancle_historyDevice}
+                    footer={null}
+                    width={1000}
+                >
+                    <div style={{height:'100%',margin:'3px'}}>
+                        <p>用户名：{this.state.record.doctor_name}</p>
+                        <p>{5} 设备历史</p>
+                        <div style={{heigh:"100%"}}>
+                            {this.historyDeviceTable()}
+                        </div>
+                    </div>
+                </Modal>
+
             </div>
         );
     }
 }
+
 export default class AccountInfo extends Component {
     //参数设置
     state={
@@ -238,6 +441,9 @@ export default class AccountInfo extends Component {
         console.log(pagination)
     };
     handleCancle_add=()=>{
+        this.setState({visible_add:false});
+    }
+    handleAddOk=()=>{
         this.setState({visible_add:false});
     }
 
@@ -316,19 +522,45 @@ export default class AccountInfo extends Component {
                     className="modal1"
                 >
                     <div className="ant-modal-body" >
-                        <div className="modal-body" style={{height:"600px"}}>
+                        <div className="modal-body" style={{height:"100%"}}>
                             <Form
                                 labelCol={{ span: 5 }}
                                 wrapperCol={{ span: 16 }}
                                 layout="horizontal"
+                                name="add"
                             >
-                                <Form.Item label="医生姓名">
+                                <Form.Item
+                                    label="医生姓名"
+                                    name="医生姓名"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: '请输入医生姓名!',
+                                        },
+                                    ]}
+                                >
                                     <Input placeholder={"请输入医生姓名"}/>
                                 </Form.Item>
-                                <Form.Item label="医生用户">
+                                <Form.Item label="医生用户"
+                                           name={"医生用户"}
+                                           rules={[
+                                               {
+                                                   required: true,
+                                                   message: '请输入医生用户!',
+                                               },
+                                           ]}
+                                >
                                     <Input placeholder={"请输入医生用户"}/>
                                 </Form.Item>
-                                <Form.Item label="密码">
+                                <Form.Item label="密码"
+                                           name={"密码"}
+                                           rules={[
+                                               {
+                                                   required: true,
+                                                   message: '请输入密码!',
+                                               },
+                                           ]}
+                                >
                                     <Input  placeholder={"请输入密码"} />
                                 </Form.Item>
                                 <Form.Item label="备注">
