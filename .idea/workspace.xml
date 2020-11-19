@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
+      <change afterPath="$PROJECT_DIR$/src/exportFile.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/http.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,6 +17,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="HTML File" />
+        <option value="JavaScript File" />
       </list>
     </option>
   </component>
@@ -31,7 +34,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../vue/xsr/xsr" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -60,7 +63,8 @@
       <workItem from="1605497802557" duration="15504000" />
       <workItem from="1605543869201" duration="732000" />
       <workItem from="1605583806057" duration="8898000" />
-      <workItem from="1605663098567" duration="12351000" />
+      <workItem from="1605663098567" duration="15114000" />
+      <workItem from="1605749722618" duration="6239000" />
     </task>
     <servers />
   </component>
