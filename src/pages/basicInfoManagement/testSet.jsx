@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Row, Col, Select, Space, Modal, Form} from 'antd';
+import {Table, Button, Input, Row, Col, Select, Space, Modal, Form,} from 'antd';
 import {SearchOutlined,PlusSquareOutlined,ReloadOutlined} from '@ant-design/icons';
-
+import httpRequest from "../../http";
 
 const { Option } = Select;
-
+const { TextArea } = Input;
 
 
 const data = [];
@@ -54,6 +54,7 @@ export default class TestSet extends Component {
             key: null,
             testSet:'',
             creatTime:'',
+            description:'',
         },
     };
 //表格列头
@@ -89,6 +90,26 @@ export default class TestSet extends Component {
         },
     ];
 
+    //初始页面请求数据
+    // componentDidMount() {
+    //
+    //     let params={
+    //         page:1,
+    //         pageSize:10,
+    //     }
+    //     httpRequest('post','/test/list',params)
+    //         .then(response=>{
+    //             if(response.data!==[]){
+    //                 this.setState({
+    //                     data:response.data,
+    //                 })
+    //             }
+    //     }).catch(err => {
+    //         console.log(err);
+    //     })
+    // }
+
+
     start = () => {
         this.setState({ loading: true });
         // ajax request after empty completing
@@ -108,6 +129,7 @@ export default class TestSet extends Component {
                     key: null,
                     testSet:'',
                     creatTime:'',
+                    description:'',
                 },
             });
         }, 1000);
@@ -142,6 +164,7 @@ export default class TestSet extends Component {
                 key: null,
                 testSet:'',
                 creatTime:'',
+                description:'',
             },
             //搜索框
             testSetName:'',
@@ -159,6 +182,7 @@ export default class TestSet extends Component {
             key: record.key,
             testSet:record.testSet,
             creatTime:record.creatTime,
+            description:record.description
         })
         this.setState({
                 modifyVisible:true,
@@ -204,6 +228,7 @@ export default class TestSet extends Component {
         let data=Object.assign({},this.state.currentItem,{
             key:key,
             testSet:this.state.currentItem.testSet,
+            description:this.state.currentItem.description,
             creatTime:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
         })
         console.log("修改为/添加", data)
@@ -232,6 +257,7 @@ export default class TestSet extends Component {
                     key: null,
                     testSet:'',
                     creatTime:'',
+                    description:'',
                 },
             });
         }, 1000);
@@ -247,6 +273,7 @@ export default class TestSet extends Component {
                 key: null,
                 testSet:'',
                 creatTime:'',
+                description:'',
             },
         });
     };
@@ -370,6 +397,14 @@ export default class TestSet extends Component {
                                    onChange={this.inputOnChange}
                                    allowClear/>
                         </Form.Item>
+                        <Form.Item label="描述"
+                                   rules={[{required:true}]}>
+                            <TextArea value={this.state.currentItem.description}
+                                   name="description"
+                                   onChange={this.inputOnChange}
+                                   autoSize={{ minRows: 3, maxRows: 5 }}
+                                   allowClear/>
+                        </Form.Item>
                     </Form>
                 </Modal>
                 <Modal
@@ -393,6 +428,14 @@ export default class TestSet extends Component {
                                 <Input value={this.state.currentItem.testSet}
                                        name="testSet"
                                        onChange={this.inputOnChange}
+                                       allowClear/>
+                            </Form.Item>
+                            <Form.Item label="描述"
+                                       rules={[{required:true}]}>
+                                <TextArea value={this.state.currentItem.description}
+                                       name="description"
+                                       onChange={this.inputOnChange}
+                                       autoSize={{ minRows: 3, maxRows: 5 }}
                                        allowClear/>
                             </Form.Item>
                         </Form>

@@ -177,7 +177,7 @@ export default class TestType extends Component {
         // ajax request after empty completing
         setTimeout(() => {
             this.setState({
-                selectedRowKeys: [],
+                selectedRowKeys: [],// Check here to configure the default column
                 associtedSelectedRowKeys:[],
                 loading: false,
                 addVisible:false,
@@ -217,8 +217,11 @@ export default class TestType extends Component {
         }, 1000);
     };
 
+    //行选择
     onSelectChange = selectedRowKeys => {
+        //已选中的行数
         console.log('selectedRowKeys changed: ', selectedRowKeys);
+
         this.setState({ selectedRowKeys });
     };
     associatedOnSelectChange = associtedSelectedRowKeys => {
@@ -268,6 +271,7 @@ export default class TestType extends Component {
         console.log(this.state)
 
     }
+
     //修改展开modal
     handleModify=(record)=>{
         console.log('修改',record)
@@ -326,9 +330,9 @@ export default class TestType extends Component {
         })
     }
 
-
     //modal点击确认
     handleOk = e => {
+        console.log("已选中",this.state.associtedSelectedRowKeys)
         this.setState({
             loading: true,
         });
@@ -405,7 +409,6 @@ export default class TestType extends Component {
         })
     }
 
-
     //关闭modal
     handleCancel = e => {
         console.log(e);
@@ -455,6 +458,7 @@ export default class TestType extends Component {
             })
         }
     }
+
     //表格分页
     onChange = page => {
         console.log(page);
@@ -463,6 +467,7 @@ export default class TestType extends Component {
             associatedcurrentPage:page,
         });
     };
+
     render() {
         const { loading, selectedRowKeys, associtedSelectedRowKeys} = this.state;
         const rowSelection = {
@@ -677,29 +682,23 @@ export default class TestType extends Component {
                         ]}
                     >
                         <div>
-                            <Form {...formItemLayout}>
-                                <Form.Item label="测试类型名称"
-                                           rules={[{required:true}]}>
-                                    <Input value={this.state.currentItem.testType}
-                                           name="testType"
-                                           onChange={this.inputOnChange}
-                                           allowClear/>
-                                </Form.Item>
-                                <Form.Item label="测试集名称"
-                                           rules={[{required:true}]}>
-                                    <Input value={this.state.currentItem.testSet}
-                                           name="testSet"
-                                           onChange={this.inputOnChange}
-                                           allowClear/>
-                                </Form.Item>
-                                <Form.Item label="测试类型代码"
-                                           rules={[{required:true}]}>
-                                    <Input value={this.state.currentItem.testTypeCode}
-                                           name="testTypeCode"
-                                           onChange={this.inputOnChange}
-                                           allowClear/>
-                                </Form.Item>
-                            </Form>
+                            <Table
+                                rowSelection={associatedRowSelection}
+                                columns={this.associatedcolumns}
+                                dataSource={this.state.associatedData}
+                                rowKey={record => record.key}
+                                bordered={true}
+                                style={{margin:'20px 0'}}
+                                pagination={{
+                                    position: ['bottomLeft'] ,
+                                    total:'data.length',
+                                    showTotal:total => `共 ${total} 条`,
+                                    showQuickJumper:true,
+                                    showSizeChanger:true,
+                                    current:this.state.associatedcurrentPage,
+                                    onChange:this.onChange,
+                                }}
+                            />
                         </div>
 
                     </Modal>
