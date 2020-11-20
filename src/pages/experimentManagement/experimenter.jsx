@@ -197,15 +197,6 @@ export default class Experimenter extends Component {
         },
 
       ]
-
-    start = () => {
-        // ajax request after empty completing
-        setTimeout(() => {
-          this.setState({
-            selectedRowKeys: [],
-          });
-        }, 1000);
-      };
       //表格行选择操作
     onSelectChange = selectedRowKey => {
     //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变

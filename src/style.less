@@ -8,6 +8,23 @@
     // color: black;
     background-color: #f79ca9;
 }
+//dark主题下，列表展开的背景
+.ant-menu-dark .ant-menu-inline.ant-menu-sub {
+    background: #f05d73;
+}
+//选中时的背景
+.ant-menu-dark.ant-menu-dark:not(.ant-menu-horizontal) .ant-menu-item-selected {
+    background-color: #f79ca9;
+}
+//列表缩小后，鼠标放到图标上显示的列表的背景
+.ant-menu.ant-menu-dark, .ant-menu-dark .ant-menu-sub, .ant-menu.ant-menu-dark .ant-menu-sub {
+    color: rgba(255, 255, 255, 0.65);
+    background: #f05d73;
+}
+.ant-menu.ant-menu-dark, .ant-menu-dark .ant-menu-sub, .ant-menu.ant-menu-dark .ant-menu-sub {
+    color: #f0f0f0;
+    background: #f05d73;
+}
 
 
 //按钮选中时的样式
@@ -16,11 +33,27 @@
     background: #f05d73;
     border-color: #ece3e3;
 }
-
+.ant-menu-dark .ant-menu-item, .ant-menu-dark .ant-menu-item-group-title, .ant-menu-dark .ant-menu-item > a, .ant-menu-dark .ant-menu-item > span > a {
+    color: #eaeaea;
+}
 // checkbox选中时的样式
 .ant-checkbox-checked .ant-checkbox-inner {
     background-color: #f05d73;
     border-color: #fff;
+    border: #fff;
+}
+//选中表格某行checkbox时，表格顶部checkbox内小方块的颜色
+.ant-checkbox-indeterminate .ant-checkbox-inner::after {
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background-color: #f05d73;
+    border: 0;
+    -webkit-transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    content: ' ';
 }
 
 //表格下分页栏点击时样式
@@ -35,6 +68,12 @@
 }
 .ant-pagination-next:hover .ant-pagination-item-link {
     color: #0e0e0e;
+}
+
+.ant-pagination-item-active {
+    font-weight: 500;
+    background: #fff;
+    border-color: #e3ecf5;
 }
 
 //
