@@ -753,15 +753,8 @@ columns_user = [
                         <Form.Item label="剩余押金">
                           <Input />
                         </Form.Item>
-                        {/* <Form.Item  style={{position:'absolute',bottom:'-10px',right:'30px',zIndex:'10'}}>
-                        <Button type="primary" htmlType="submit" onClick={this.handleOk_add} >
-                            Submit
-                        </Button>
-                        </Form.Item> */}
                       </Form>
                     </div>
-                    <div style={{height:'40px',borderTop:'1px solid #e2e1e1'}}></div>
-
                 </Modal>
                 {/* 修改弹窗 */}i
                 <Modal
@@ -880,54 +873,6 @@ columns_user = [
                         </div>
                   </div>
                 </Modal>
-                {/* <Modal
-                  visible={this.state.visible}
-                  title="Create a new collection"
-                  okText="Create"
-                  cancelText="Cancel"
-                  onCancel={() => {
-                                this.setState({
-                                  visible:false
-                                })
-                              }}
-                  onOk={() => {
-                    this.form
-                      .validateFields()
-                      .then((values) => {
-                        this.form.resetFields();
-                        onCreate(values);
-                      })
-                      .catch((info) => {
-                        console.log('Validate Failed:', info);
-                      });
-                  }}
-                >
-                  <Form
-                    form={this.form}
-                    layout="vertical"
-                    name="form_in_modal"
-                    initialValues={{
-                      modifier: 'public',
-                    }}
-                    ref={this.form}
-                  >
-                    <Form.Item
-                      name="title"
-                      label="Title"
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Please input the title of collection!',
-                        },
-                      ]}
-                    >
-                      <Input />
-                    </Form.Item>
-                    <Form.Item name="description" label="Description">
-                      <Input type="textarea" />
-                    </Form.Item>
-                  </Form>
-                </Modal> */}
             </div>
         )
     }
