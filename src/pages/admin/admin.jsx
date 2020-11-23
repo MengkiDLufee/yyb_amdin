@@ -1,6 +1,6 @@
 // 后台管理的路由组件
 import React, { Component } from 'react'
-import {Route , Switch , Link  } from 'react-router-dom'
+import {Route , Switch , Link ,Redirect } from 'react-router-dom'
 import { Layout, Menu } from 'antd';
 import {
     MenuUnfoldOutlined,
@@ -122,8 +122,8 @@ export default class Admin extends Component {
         });
         return title
     }
-          //顶部右侧显示页面名称
-          getTitleRight = () => {
+      //顶部右侧显示页面名称
+      getTitleRight = () => {
             const path = this.props.location.pathname
             
             let title
@@ -139,7 +139,7 @@ export default class Admin extends Component {
               }
             });
             return title
-        }
+    }
 
     render() {
         return (
@@ -150,7 +150,7 @@ export default class Admin extends Component {
               <Menu
                     defaultSelectedKeys={['1']}
                     mode="inline"
-                    theme="light"
+                    theme="dark"
                     style={{background:' #f05d73'}}
                     
                     >
@@ -298,7 +298,7 @@ export default class Admin extends Component {
                   <Route path="/serve/user"  component={UserManagement} />
                   <Route path="/serve/device"  component={DeviceManagement_Serve} />
                   <Route path="/service"  component={ServiceManagement} />
-                    {/* <Redirect to="/home" /> */}
+                  <Redirect to="/home" />
                 </Switch>
               </Content>
             </Layout>

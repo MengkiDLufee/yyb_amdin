@@ -80,48 +80,61 @@ for (let i = 0; i < 33; i++) {
 
 export default class DeviceManagement extends Component {
 
-    //参数设置
-    state = { visible_add: false ,
-      visible_modify :false,
-      visible_user :false,
-      selectedRowKeys: [], // Check here to configure the default column
-      paginationProps : {//分页栏参数
-        position: ['bottomLeft'] ,
-        total:'data.length',
-        showTotal:total => `共 ${total} 条`,
-        showQuickJumper:true,
-        showSizeChanger:true,
-      },
+  constructor(props){
+    super(props);
+      //参数设置
+  this.onSelectChange = this.onSelectChange.bind(this);
+  }
+  state = { 
+    data:data,
+    data_user:data_user,
+    visible:false,
+    visible_add: false ,
+    visible_modify :false,
+    visible_user :false,
+    selectedRowKeys: [], // Check here to configure the default column
+    paginationProps : {//分页栏参数
+      position: ['bottomLeft'] ,
+      total:'data.length',
+      showTotal:total => `共 ${total} 条`,
+      showQuickJumper:true,
+      showSizeChanger:true,
       current:1,//当前页数
       pageSize:10,//当前页面条数
+    },
+    paginationProps_user : {//使用人员分页栏参数
+      position: ['bottomLeft'] ,
+      total:'data.length',
+      showTotal:total => `共 ${total} 条`,
+      showQuickJumper:true,
+      showSizeChanger:true,
+      current:1,
+      pageSize:10,
+    },
+    devCode:undefined,//历史人员弹窗中的设备码
+    //输入选择框的值
+    input:{
+      client:'',
+      active:undefined,
+      type:undefined,
+      state:undefined,
+    },
 
-      paginationProps_user : {//使用人员分页栏参数
-        position: ['bottomLeft'] ,
-        total:'data.length',
-        showTotal:total => `共 ${total} 条`,
-        showQuickJumper:true,
-        showSizeChanger:true,
-      },
-      devCode:undefined,//历史人员弹窗中的设备码
-      //输入选择框的值
-      client_in:'',//客户
-      active_in:undefined,//激活状态
-      type_in:null,//类型
-      status_in:'',//状态
-
-      //修改弹窗
-      modal:{
-        dev_code:'',//设备码
-        dev_num:'',//设备号
-        hard_ed:'',//硬件版本
-        soft_ed:'',//软件版本
-        refesh_time:'',//软件更新时间
-        buletooth:'',//蓝牙密码
-        is_valid:'',//是否可用
-        is_on:'',//是否激活
-        time:'',//激活时间
-      }
-    };
+  //修改弹窗
+  modal:{
+    dev_code:'',//设备码
+    dev_num:'',//设备号
+    hard_ed:'1.0',//硬件版本
+    soft_ed:'1.0',//软件版本
+    refresh_time:'2020-11-11',//软件更新时间
+    bluetooth:'1234',//蓝牙密码
+    is_valid:null,//是否可用
+    is_on:null,//是否激活
+    time:'',//激活时间
+  },
+  justify_modal:null,
+}
+  
 
 //表格栏
  columns = [
@@ -238,56 +251,49 @@ columns_user = [
     align:'center',
   },
 ]
-
-
-//  selection= (onChange,value)=>{
-//    return(
-//      <Select placeholder="请选择激活状态 "  
-//      onChange={onChange} 
-//      className="input1" 
-//      vulue={value}
-//      allowClear 
-//      >
-//     <Option value="on">已激活</Option>
-//     <Option value="close">未激活</Option>
-//     </Select>
-//    )
-//  }
-
-  start = () => {
-
-    // ajax request after empty completing
-    setTimeout(() => {
-      this.setState({
-        selectedRowKeys: [],
-      });
-    }, 1000);
-  };
-
-  onSelectChange = selectedRowKeys1 => {
+  //表格行选择
+  onSelectChange = row => {
+    console.log('所选择行',row)
     //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
     this.setState(
-      {selectedRowKeys:selectedRowKeys1},
-      ()=>{console.log('所选择行',this.state.selectedRowKeys)}
+      {selectedRowKeys:row}
     )
   };
+
+//客户输入框
+  clientChange = (e) => {
+    console.log(e.target.value)
+    this.setState({
+      input:Object.assign(this.state.input,{client:e.target.value}),
+    })
+  }
+ //选择框
+  selectChange =(e,Option) => {
+      console.log(e)
+      console.log(Option)
+      this.setState({
+        input:Object.assign(this.state.input,{[Option.title]:e})
+      })
+    }
   //搜索
   search = () =>{
-    console.log('搜索')
+    console.log('搜索',this.state.input)
   };
   //重置
   reset = () => {
     console.log('重置')
+    let data = Object.assign(this.state.input,{
+      client:'',
+      active:undefined,
+      type:undefined,
+      state:undefined,
+    })
     this.setState(
       {
         selectedRowKeys:[],
-        client_in:'',
-        active_in:undefined,
-        type_in:null,
-        status_in:undefined,
+        input:data,
       },
     )
-    console.log(this.state);
   };
   //添加
   add =() =>{
@@ -296,25 +302,24 @@ columns_user = [
       visible_add: true,
     });
   };
-  //导入
-  importStatic = () =>{
-    console.log('导入')
-  };
-  //导出已选择数据
-  exportChoose = () =>{
-    console.log('导出已选择数据')
-  };
-  //按搜索条件导出
-  exportSearch = () =>{
-    console.log('按搜索条件导出')
-  };
-
-//点击添加完成
+  //点击添加完成
   handleOk_add = () => {
-    this.setState({
-      visible_add: false,
-    });
     console.log('添加完成')
+    console.log(this.form)
+    let form = this.form.current;
+    form.validateFields()//表单输入校验
+      .then((values) => {
+        form.resetFields();
+        console.log(values)
+        this.setState({
+          visible_add:false
+        })
+      })
+      .catch((info) => {
+        console.log('Validate Failed:', info);
+      });
+
+
   };
   //添加关闭
   handleCancel_add = () => {
@@ -322,6 +327,19 @@ columns_user = [
       visible_add: false,
     });
     console.log('添加关闭')
+  };
+
+  //导入
+  importStatic = () =>{
+    console.log('导入')
+  };
+  //导出已选择数据
+  exportChoose = () =>{
+    console.log('导出已选择数据',this.state.selectedRowKeys)
+  };
+  //按搜索条件导出
+  exportSearch = () =>{
+    console.log('按搜索条件导出',this.state.input)
   };
   //修改
   modify = (record)=> {
@@ -340,20 +358,71 @@ columns_user = [
     ()=>console.log(this.state.modal)
     )
   };
+  //完成修改
   handleOk_modify = () => {
+    console.log(this.state.modal)
     this.setState({
       visible_modify:false,
     })
   };
+  //关闭修改
   handleCancel_modify = () =>{
     this.setState({
       visible_modify:false,
     })
     console.log('修改弹窗关闭')
   };
+  //修改弹窗_是否可用
+  isvalidChange = () => {
+    // console.log(e,this.state.modal.is_valid)
+      if(this.state.modal.is_valid === 0){
+        this.setState({
+          modal:Object.assign(this.state.modal,{is_valid:1})
+        })
+      }else  {
+        this.setState({
+          modal:Object.assign(this.state.modal,{is_valid:0})
+        })
+      }
+  }
+  //修改弹窗_是否激活
+  isonChange = () => {
+    if(this.state.modal.is_on === 0){
+      this.setState({
+        modal:Object.assign(this.state.modal,{is_on:1})
+      },
+      )
+    }else  {
+      this.setState({
+        modal:Object.assign(this.state.modal,{is_on:0})
+      })
+    }
+
+  }
+  //修改弹窗中输入框变化
+  modify_inputChange = (e) => {
+    let name = e.target.name;
+    console.log(name)
+    this.setState({
+      modal:Object.assign(this.state.modal,{[e.target.name]:e.target.value})
+    })
+  }
+
+
   //删除
   delete = (record) =>{
     console.log('删除',record)
+    const deleteData = [...this.state.data];
+    deleteData.forEach((item,index) => {
+      if(item.key===record.key){
+          deleteData.splice(index,1)
+      }
+  })
+  
+  this.setState({
+      data:deleteData,
+  },()=> console.log(this.state.data))
+
   };
   //使用人员按钮
   user = (record) => {
@@ -373,52 +442,58 @@ columns_user = [
 
 //表格翻页
   handTablechange = (pagination) =>{
-    console.log(pagination)
-    // this.state.paginationProps.current=pagination.current
-    // this.state.paginationProps.pageSize=pagination.pageSize
-    let C = pagination.current
-    let P = pagination.pageSize
-    this.setState = ({
-      current:C,
-      pageSize:P
+     Object.assign(this.state.paginationProps,{
+      pageSize:pagination.pageSize,
+      current:pagination.current
     })
-    console.log(this.state.current,this.state.pageSize,this.state)   
+    console.log(this.state.paginationProps);
+    let params = {};
+    params.current = pagination.current;
+    params.pageSize = pagination.pageSize;
+    console.log(params)
   };
   //使用人员表格变化
   handTablechange_user = (pagination) =>{
     console.log(pagination)
+    Object.assign(this.state.paginationProps_user,{
+      current:pagination.current,
+      pageSize:pagination.pageSize,
+    })
+    let params = {};
+    params.pageSize = pagination.pageSize;
+    params.current = pagination.current;
+    console.log(params)
   };
-  //客户输入框
-  clientChange = (e) => {
-    console.log(e.target.value)
-    this.setState({
-      client_in:e.target.value,
-    })
-  }
-  //激活状态选择框
-  activeChange = (e) => {
-    console.log(e)
-    this.setState({
-      active_in:e
-    })
-  }
-  //类型选择框
-  typeChange = (e) => {
-    console.log(e)
-  }
-  //状态选择框
-  statusChange = (e) => {
-    console.log(e)
-  }
 
+
+
+  onFinish = (values) => {
+    console.log('Success:', values);
+    this.setState({
+      justify_modal:0,
+    })
+  };
+  onFinishFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo);
+    this.setState({
+      justify_modal:1,
+    })
+  };
+
+
+/*表单验证
+  Form.useForm是是 React Hooks 的实现，只能用于函数组件
+  class组件中通过 React.createRef()来获取数据域*/
+  form = React.createRef();
+  
 
     render() {
       const { selectedRowKeys } = this.state;
       const rowSelection = {
-        selectedRowKeys,
+        selectedRowKeys:selectedRowKeys,
         onChange: this.onSelectChange,
       };
-
+      // const [form] = Form.useForm();
 
         return (
             <div style={{height:"100%"}}>
@@ -426,35 +501,35 @@ columns_user = [
               <div style={{'margin':'0 0 15px  0'}} >
                 <div justify="space-between" gutter="15" style={{display:"flex" }}  >
                     
-                        <Input  placeholder="客户" className="input1" onChange={this.clientChange.bind(this)} value={this.state.client_in} />
+                        <Input  placeholder="客户" className="input1" onChange={this.clientChange} value={this.state.input.client} />
                     {/* {this.selection(this.activeChange,this.state.active_in)} */}
                         <Select placeholder="请选择激活状态 "  
-                                onChange={this.activeChange} 
+                                onChange={this.selectChange} 
                                 className="input1" 
-                                vulue={this.state.active_in}
-                                allowClear 
+                                value={this.state.input.active}
                                 >
-                            <Option value="on">已激活</Option>
-                            <Option value="close">未激活</Option>
+                            <Option title="active" value="on">已激活</Option>
+                            <Option title="active" value="close">未激活</Option>
                         </Select>
 
                         <Select placeholder="请选择类型 "  
-                                onChange={this.typeChange} 
+                                onChange={this.selectChange} 
                                 className="input1" 
-                                vulue={this.state.type_in}
+                                value={this.state.input.type}
                                 >
-                            <Option value="type1">类型1</Option>
-                            <Option value="type2">类型2</Option>
-                            <Option value="type3">类型3</Option>
+                            <Option title="type" value="type1">类型1</Option>
+                            <Option title="type" value="type2">类型2</Option>
+                            <Option title="type" value="type3">类型3</Option>
                         </Select>
                   
                         <Select placeholder="请选择状态 " 
-                                onChange={this.statusChange} 
+                                onChange={this.selectChange} 
                                 className="input1" 
+                                value={this.state.input.state}
                                 
                                 >
-                            <Option value="status1">测试通过</Option>
-                            <Option value="status2">测试未通过</Option>
+                            <Option title="state" value="status1">测试通过</Option>
+                            <Option title="state" value="status2">测试未通过</Option>
                         </Select>
 
                         <Button 
@@ -509,8 +584,9 @@ columns_user = [
                         >
                           按检索条件导出
                         </Button>
-                   
-                    
+                    <div>
+
+                    </div>
                 </div>
               </div>
 
@@ -518,7 +594,7 @@ columns_user = [
                 <div style={{height:"100%"}}>
                   <Table 
                    columns={this.columns} 
-                  dataSource={data} 
+                  dataSource={this.state.data} 
                   bordered={true} 
                   rowSelection={rowSelection}
                   style={{margin:'20px 0',borderBottom:'1px,soild'}}
@@ -537,17 +613,18 @@ columns_user = [
                   onCancel={this.handleCancel_add}
                   cancelText="关闭"
                   className="modal1"
-                  width="600"
+                  width="700"
                 >
-                  <div className="ant-modal-body" >
-                    <div className="modal-body" style={{height:"600px"}}>
+                    <div className="modal-body" style={{height:"550px"}}>
                       <Form
                         labelCol={{ span: 5 }}
                         wrapperCol={{ span: 16 }}
                         layout="horizontal"
+                        ref={this.form}//表单验证，通过ref获取
                       >
-                        
-                        <Form.Item label="检测机构">
+                        <Form.Item 
+                          label="检测机构"
+                        >
                           <Select defaultValue="henan">
                             <Option value="henan">河南</Option>
                             <Option value="sicuan">四川</Option>
@@ -559,12 +636,28 @@ columns_user = [
                             <Option value="jxs2">经销商2</Option>
                           </Select>
                         </Form.Item>
-                        <Form.Item label="设备名">
+                        <Form.Item 
+                          label="设备名"
+                          name="dev_name"
+                          rules={[
+                            {required:true,message:'设备名必须输入'},
+                            {min:4,message:'至少4位'},
+                            {max:8,message:'最多8位'},
+                            {pattern:/^[a-zA-Z0-9_]+$/,message:'必须由英文、数字或下划线组成'},
+                          ]}//设置验证规则
+                        >
                           <Input />
                         </Form.Item>
-                        <Form.Item label="设备码">
+                        <Form.Item 
+                          label="设备码"
+                          name="dev_code"
+                          rules={[
+                            {required:true,message:'请输入设备码！',},
+                          ]}
+                        >
                           <Input />
                         </Form.Item>
+
                         <Form.Item label="硬件版本">
                           <Input  defaultValue="1.0" />
                         </Form.Item>
@@ -660,10 +753,8 @@ columns_user = [
                         <Form.Item label="剩余押金">
                           <Input />
                         </Form.Item>
-
                       </Form>
                     </div>
-                  </div>
                 </Modal>
                 {/* 修改弹窗 */}i
                 <Modal
@@ -683,22 +774,46 @@ columns_user = [
                         layout="horizontal"
                       >
                         <Form.Item label="设备码">
-                          <Input value={this.state.modal.dev_code}/>
+                          <Input 
+                          value={this.state.modal.dev_code} 
+                          onChange={this.modify_inputChange} 
+                          name="dev_code"
+                          />
                         </Form.Item>
                         <Form.Item label="设备号">
-                          <Input value={this.state.modal.dev_num} />
+                          <Input 
+                            value={this.state.modal.dev_num} 
+                            onChange={this.modify_inputChange} 
+                            name="dev_num"
+                          />
                         </Form.Item>
                         <Form.Item label="硬件版本">
-                          <Input defaultValue="1.0" />
+                          <Input  
+                            value={this.state.modal.hard_ed} 
+                            onChange={this.modify_inputChange}
+                            name="hard_ed"
+                          />
                         </Form.Item>
                         <Form.Item label="软件版本">
-                          <Input defaultValue="1.0" />
+                          <Input  
+                            value={this.state.modal.soft_ed} 
+                            onChange={this.modify_inputChange}
+                            name="soft_ed"
+                          />
                         </Form.Item>
                         <Form.Item label="软件更新时间">
-                          <Input defaultValue="2020-11-11" />
+                          <Input  
+                            value={this.state.modal.refresh_time} 
+                            onChange={this.modify_inputChange} 
+                            name="refresh_time"
+                          />
                         </Form.Item>
                         <Form.Item label="蓝牙密码">
-                          <Input  defaultValue="1234" />
+                          <Input   
+                            value={this.state.modal.bluetooth} 
+                            onChange={this.modify_inputChange}
+                            name="bluetooth"
+                           />
                         </Form.Item>
                         <Form.Item  label="是否可用" >
                           <Checkbox.Group 
@@ -707,6 +822,7 @@ columns_user = [
                               {label:'否',value:1}
                             ]}  
                             value={[this.state.modal.is_valid]}
+                            onChange={this.isvalidChange}
                           />
                         </Form.Item>
                         <Form.Item  label="是否激活" >
@@ -716,10 +832,15 @@ columns_user = [
                               {label:'否',value:1}
                             ]}  
                             value={[this.state.modal.is_on]}
+                            onChange={this.isonChange}
                           />
                         </Form.Item>
                         <Form.Item label="激活时间">
-                          <Input />
+                          <Input 
+                          value={this.state.modal.time}  
+                          onChange={this.modify_inputChange}
+                          name="time"
+                           />
                         </Form.Item>
                       </Form>
                     </div>
