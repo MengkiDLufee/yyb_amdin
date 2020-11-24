@@ -34,7 +34,6 @@ export default class ProjectType extends Component {
         this.reset=this.reset.bind(this);
         this.search=this.search.bind(this);
         this.handleChange=this.handleChange.bind(this);
-        this.onChange=this.onChange.bind(this);
     }
     //参数设置
     state = {
@@ -46,7 +45,6 @@ export default class ProjectType extends Component {
         //搜索框
         planTypeName:'',
         testTypeId:null,
-        currentPage:1,
 
         //修改
         currentItem:{
@@ -116,7 +114,7 @@ export default class ProjectType extends Component {
                 modifyConfirmLoading:false,
                 data:data,
                 projectTypeName:'',
-                currentPage:1,
+
                 //修改
                 currentItem:{
                     key: null,
@@ -169,9 +167,7 @@ export default class ProjectType extends Component {
                 },
                 //搜索框
                 planTypeName:'',
-                testTypeId:null,
-                //当前页
-              currentPage:1,
+                testTypeId:null
             });
         console.log(this.state)
 
@@ -284,8 +280,8 @@ export default class ProjectType extends Component {
     //输入框变化
     inputOnChange=e=>{
         console.log(e)
-        const name=e.target.name;
-        const value=e.target.value;
+        let name=e.target.name;
+        let value=e.target.value;
         console.log({[name]:value})
         if(name==="planTypeName"){
             console.log("进到搜索框了")
@@ -310,20 +306,13 @@ export default class ProjectType extends Component {
         })
     }
 
-    //表格分页
-    onChange = page => {
-        console.log(page);
-        this.setState({
-            currentPage: page,
-        });
-    };
     render() {
         const { loading, selectedRowKeys } = this.state;
         const rowSelection = {
             selectedRowKeys: selectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
             onChange: this.onSelectChange,
         };
-        const hasSelected = selectedRowKeys.length > 0;
+        
 
         const formItemLayout = {
             labelCol: {
@@ -346,24 +335,23 @@ export default class ProjectType extends Component {
 
         return (
             <div>
-                <Row justify="space-between" gutter="15" style={{display:"flex" }}>
+                <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
                     <Col span={4} >
                         <Select placeholder="测试类型"
                                 onChange={this.handleChange}
                                 value={this.state.testTypeId}
-                                allowClear
-                                className="testTypeId"
-                                style={{width:'200px'}}>
+                                allowClear>
+
                             <Option value="0">测试类型1</Option>
                             <Option value="1">测试类型2</Option>
                         </Select>
                     </Col>
                     <Col span={4}>
                         <Input  placeholder="计划类型名称"
-                                    value={this.state.planTypeName}
-                                    name="planTypeName"
-                                    onChange={this.inputOnChange}
-                                    allowClear/>
+                                value={this.state.planTypeName}
+                                name="planTypeName"
+                                onChange={this.inputOnChange}
+                                allowClear/>
                     </Col>
                     <Col span={2}>
                         <Button type="primary" onClick={this.search}><SearchOutlined />搜索</Button>
@@ -375,6 +363,7 @@ export default class ProjectType extends Component {
                         <Button type="primary" onClick={this.handleAdd}><PlusSquareOutlined />添加</Button>
                     </Col>
                     <Col span={10} >
+
                     </Col>
                 </Row>
                 <div>
@@ -390,9 +379,7 @@ export default class ProjectType extends Component {
                             total:'data.length',
                             showTotal:total => `共 ${total} 条`,
                             showQuickJumper:true,
-                            showSizeChanger:true,
-                            current:this.state.currentPage,
-                            onChange:this.onChange,
+                            showSizeChanger:true
                         }}
                     />
                 </div>

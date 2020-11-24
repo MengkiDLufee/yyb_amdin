@@ -1,6 +1,6 @@
 // 后台管理的路由组件
 import React, { Component } from 'react'
-import {Route , Switch , Link } from 'react-router-dom'
+import {Route , Switch , Link ,Redirect } from 'react-router-dom'
 import { Layout, Menu } from 'antd';
 import {
     MenuUnfoldOutlined,
@@ -74,7 +74,7 @@ export default class Admin extends Component {
     state = {
         collapsed: false,
       };
-    
+    //导航栏收缩扩张
       toggle = () => {
         this.setState({
           collapsed: !this.state.collapsed,
@@ -107,7 +107,7 @@ export default class Admin extends Component {
       //顶部左侧显示页面名称
     getTitle = () => {
         const path = this.props.location.pathname
-        console.log(path)
+        
         let title
         menuList.forEach(el => {
           if(el.key === path) {
@@ -122,10 +122,10 @@ export default class Admin extends Component {
         });
         return title
     }
-          //顶部右侧显示页面名称
-          getTitleRight = () => {
+      //顶部右侧显示页面名称
+      getTitleRight = () => {
             const path = this.props.location.pathname
-            console.log(path)
+            
             let title
             menuList.forEach(el => {
               if(el.key === path) {
@@ -139,18 +139,18 @@ export default class Admin extends Component {
               }
             });
             return title
-        }
+    }
 
     render() {
         return (
-            <Layout style={{height:'100%'}}>
+            <Layout className="layout">
               {/* 左侧导航栏 */}
             <Sider trigger={null} collapsible collapsed={this.state.collapsed}  className="left-nav"> 
               <div className="logo" ><h1 style={{color:'white',paddingTop:'5px'}}>logo</h1></div>
               <Menu
                     defaultSelectedKeys={['1']}
                     mode="inline"
-                    theme="light"
+                    theme="dark"
                     style={{background:' #f05d73'}}
                     
                     >
@@ -252,7 +252,7 @@ export default class Admin extends Component {
 
               {/* 内容部分二级路由配置 */}
               <Content
-                style={{ margin: '24px 16px', padding: 24,background:'white'}}
+                style={{ margin: '24px 16px', padding: 24,background:'white',minHeight:"800"}}
               >
                 <Switch>
                   <Route path="/home" exact component={Home} />
@@ -299,49 +299,7 @@ export default class Admin extends Component {
                   <Route path="/serve/user"  component={UserManagement} />
                   <Route path="/serve/device"  component={DeviceManagement_Serve} />
                   <Route path="/service"  component={ServiceManagement} />
-
-
-                  {/* <Route path="/userBasicInfoManagement/userBasicInfoManagement"  component={UserBasicInfoManagement} />
-                  <Route path="/userBasicInfoManagement/userDeviceManagement"  component={UserDeviceManagement} />
-                  <Route path="/userBasicInfoManagement/userMobileMsgManagement"  component={UserMobileMsgManagement} />
-                  <Route path="/userBasicInfoManagement/userMsg"  component={UserMsg} />
-                  <Route path="/userBasicInfoManagement/userSMSmanagement"  component={UserSMSmanagement} />
-                  <Route path="/userBasicInfoManagement/userTestDataManagement"  component={UserTestDataManagement} />
-                  <Route path="/userBasicInfoManagement/verificationSMSinquire"  component={VerificationSMSinquire} />
-
-                  <Route path="/basicInfoManagement/testSet"  component={TestSet} />
-                  <Route path="/basicInfoManagement/testType"  component={TestType} />
-                  <Route path="/basicInfoManagement/reagentType"  component={ReagentType} />
-                  <Route path="/basicInfoManagement/reagentJudgeParams"  component={ReagentJudgeParams} />
-                  <Route path="/basicInfoManagement/unitManagement"  component={UnitManagement} />
-                  <Route path="/basicInfoManagement/projectType"  component={ProjectType} />
-
-                  <Route path="/professionTestManagement/professionTestData"  component={ProfessionTestData} />
-                  <Route path="/professionTestManagement/accountInfo"  component={AccountInfo} />
-                  <Route path="/professionTestManagement/patientInfo"  component={PatientInfo} />
-
-                  <Route path="/deviceManagement"  component={DeviceManagement} />
-
-                  <Route path="/experimentManagement/experimentData"  component={ExperimentData} />
-                  <Route path="/experimentManagement/experimenter"  component={Experimenter} />
-
-                  <Route path="/yybHomeEditionStatistics/testData"  component={TestData} />
-                  <Route path="/yybHomeEditionStatistics/actualTest"  component={ActualTest} />
-                  <Route path="/yybHomeEditionStatistics/missingTestThisPeriod"  component={MissingTestThisPeriod} />
-                  <Route path="/yybHomeEditionStatistics/userInTest"  component={UserInTest} />
-                  <Route path="/yybHomeEditionStatistics/newlyRegisteredUser"  component={NewlyRegisteredUser} />
-                  <Route path="/yybHomeEditionStatistics/newlyRegisteredUsingUser"  component={NewlyRegisteredUsingUser} />
-                  <Route path="/yybHomeEditionStatistics/userMedication"  component={UserMedication} />
-                  <Route path="/yybHomeEditionStatistics/allUser"  component={AllUser} />
-                  <Route path="/yybHomeEditionStatistics/validUser"  component={ValidUser} />
-                  <Route path="/yybHomeEditionStatistics/missingTsetUser"  component={MissingTsetUser} />
-                  <Route path="/yybHomeEditionStatistics/testUserThisPeriod"  component={TestUserThisPeriod} />
-
-                  <Route path="/yybProfessionEditionStatistics"  component={YybProfessionEditionStatistics} />
-
-                  <Route path="/serviceSystem/userManagement"  component={UserManagement} />
-                  <Route path="/serviceSystem/deviceManagement"  component={DeviceManagement_Serve} />
-                  <Route path="/serviceSystem/serviceManagement"  component={ServiceManagement} /> */}
+                  <Redirect to="/home" />
                 </Switch>
               </Content>
             </Layout>

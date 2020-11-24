@@ -69,37 +69,114 @@ const columns = [
   }
 
 
-  function handleChange(value) {
-    console.log(`selected ${value}`);
-  }
 
 
 export default class TestData extends Component {
+    state = {
+        current:1,
+        pageSize:10,
+        input:{
+          client:'',
+          name:'',
+          type:undefined,
+          stage:undefined,
+          dev_num:'',
+        }
+    }
 
+    handTablechange = (pagination) =>{
+      console.log(pagination)
+      this.setState({
+        current:pagination.current,
+        pageSize:pagination.pageSize,
+      },
+      ()=>{console.log('表格参数',this.state.current,this.state.pageSize)}
+      )
+    }
+  //搜索栏输入框变化
+    searchChange = (e) => {
+      console.log(e.target)
+      const ID = e.target.id
+      const value = e.target.value
+      this.setState({
+        input:Object.assign(this.state.input,{[ID]:value})
+      })
+    }
+    //搜索栏类型选择框变化
+    typeChange = (e) => {
+      console.log(e)
+      this.setState({
+        input:Object.assign(this.state.input,{type:e})
+      })
+    }
+    //搜索栏阶段选择框变化
+    stageChange = (e) => {
+      console.log(e)
+      this.setState({
+        input:Object.assign(this.state.input,{stage:e})
+      })
+    }
+    //搜索按钮
+    search = () => {
+      console.log(this.state.input)
+    }
+    reset = () => {
+      let data = Object.assign(this.state.input,{
+        client:'',
+        name:'',
+        type:undefined,
+        stage:undefined,
+        time:'',
+        dev_num:'',
+      })
+      this.setState({
+        input:data
+      })
+    }
 
 
     render() {
 
-        return (
+      return (
       <div>
-        <div>测试人数：55</div>
+        <div>测试人数：{data.length}</div>
         <div style={{'margin':'10px 0'}} >
         <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
           <Col span={3}>
-            <Input  placeholder="客户"  />
+            <Input  
+                placeholder="客户"  
+                value={this.state.input.client}  
+                onChange={this.searchChange} 
+                id="client"
+             />
           </Col>
           <Col span={3}>
-            <Input  placeholder="姓名"  />
+            <Input  
+                placeholder="姓名" 
+                value={this.state.input.name} 
+                onChange={this.searchChange}
+                id="name"
+             />
           </Col>
           <Col span={3}>
-            <Select placeholder="请选择试剂类型 " style={{width:'100%'}} onChange={handleChange}>
+            <Select 
+                placeholder="请选择试剂类型 " 
+                style={{width:'100%'}} 
+                value={this.state.input.type} 
+                onChange={this.typeChange}
+              >
               <Option value="reagent1">试剂1</Option>
               <Option value="reagent2">试剂2</Option>
               <Option value="reagent3">试剂3</Option>
             </Select>
           </Col>
           <Col span={3}>
-            <Select placeholder="请选择测试阶段 " style={{width:'100%'}} onChange={handleChange}>
+            <Select 
+                placeholder="请选择测试阶段 " 
+                style={{width:'100%'}} 
+                value={this.state.input.stage} 
+                onChange={this.stageChange}
+              >
               <Option value="stage1">阶段1</Option>
               <Option value="stage2">阶段2</Option>
               <Option value="stage3">阶段3</Option>
@@ -107,17 +184,27 @@ export default class TestData extends Component {
           </Col>
           
           <Col span={4}>
-            <Input  placeholder="测试时间"  />
+            <Input  
+                placeholder="测试时间" 
+                value={this.state.input.time} 
+                onChange={this.searchChange}  
+                id="time"
+             />
           </Col>
           
           <Col span={3}>
-            <Input  placeholder="设备号"  />
+            <Input  
+                placeholder="设备号" 
+                value={this.state.input.dev_num} 
+                onChange={this.searchChange}  
+                id="dev_num"
+                />
           </Col>
           <Col span={1.5}>
-            <Button type="primary" >搜索</Button>
+            <Button type="primary" onClick={this.search} >搜索</Button>
           </Col>
           <Col span={1.5} >
-          <Button type="primary" >重置</Button>
+          <Button type="primary" onClick={this.reset} >重置</Button>
           </Col>
           <Col span={2} >
 
@@ -137,6 +224,7 @@ export default class TestData extends Component {
             showQuickJumper:true,
             showSizeChanger:true
           }}
+          onChange={this.handTablechange}
           />
         </div>
       </div>

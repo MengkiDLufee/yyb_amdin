@@ -12,23 +12,21 @@ import './style.less'
 
 
 export default class App extends Component {
-  login =() => {
-    this.props.history.replace('/login')
-}
-componentWillUnmount(){
-  console.log('this.props.path')
-  this.login()
-   
-}
+
+
+
 
   render () {
+    
     return (
       <BrowserRouter>
         <Switch>
-          <Route path='/login' component={Login} />
-          <Route path='/' component={Admin} />  
           
-          <Redirect  from="/*" to='/login'/> 
+          <Route exact path='/login' component={Login} />
+          <Route path='/' component={Admin} />  
+          <Redirect exact from='/' to='/login'/> 
+          
+          
 
           
         </Switch>
