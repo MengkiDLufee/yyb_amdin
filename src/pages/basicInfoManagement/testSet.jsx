@@ -35,7 +35,7 @@ export default class TestSet extends Component {
         testSet:'',
         //修改
         currentItem:{
-            //key: null,
+            key: null,
             testSetName:'',
             insertDate:'',
             description:'',
@@ -209,7 +209,8 @@ export default class TestSet extends Component {
             key: record.key,
             testSetName:record.testSetName,
             insertDate:record.insertDate,
-            description:record.description
+            description:record.description,
+            testSetId:record.testSetId,
         })
         this.setState({
                 modifyVisible:true,
@@ -230,7 +231,7 @@ export default class TestSet extends Component {
         httpRequest('post','/test/remove',params)
             .then(response=>{
                 console.log(response)
-                if(response.code===1006){
+                if(response.data.code===1006){
                     const deleteData=[...this.state.data];
                     console.log("删除项",record.key)
                     deleteData.forEach((item,index) => {
@@ -266,8 +267,6 @@ export default class TestSet extends Component {
         let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
         let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
         console.log("0添加1修改",flag)
-        //判断通信成功
-        let success=0;
 
         //获取当前时间
         var date=new Date();
@@ -286,28 +285,50 @@ export default class TestSet extends Component {
         console.log("修改为/添加", data)
         const modifyData = [...this.state.data];
         //修改
-        console.log(this.state.currentItem)
         if(flag===1){
             modifyData.forEach((item,index) => {
-                if (item.testSetId === this.state.currentItem.testSetId) {
+                if (item.key === this.state.currentItem.key) {
                     let params={
                         testSetId:item.testSetId,
                         testSetName:this.state.currentItem.testSetName,
                         description:this.state.currentItem.description,
                     }
+                    console.log("修改参数",params)
                     httpRequest('post','/test/modify',params)
                         .then(response=>{
-                            console.log("修改回复")
+
                             console.log(response)
                             if(response.data.code===1004){
-                                success=1;
                                 modifyData.splice(index, 1,data);
+                                {
+                                    this.setState({
+                                        data: modifyData,
+                                        //ES6中键和值相等时可直接写成list
+                                    })
+                                    setTimeout(() => {
+                                        this.setState({
+                                            loading:false,
+                                            addVisible: false,
+                                            modifyVisible: false,
+                                            currentItem:{
+                                                key: null,
+                                                testSetName:'',
+                                                insertDate:'',
+                                                description:'',
+                                                testSetId:null,
+                                            },
+
+                                        });
+                                    }, 1000);
+                                }
+
                             }
                         }).catch(err => {
                         console.log(err);
                     })
                 }
             })
+
         }
         //添加
         else{
@@ -319,35 +340,34 @@ export default class TestSet extends Component {
                 .then(response=>{
                     console.log(response)
                     if(response.data.code===1002){
-                        success=1;
                         data.testSetId=response.data.testSetId;
                         modifyData.push(data);
+                        {
+                            this.setState({
+                                data: modifyData,
+                                //ES6中键和值相等时可直接写成list
+                            })
+                            setTimeout(() => {
+                                this.setState({
+                                    loading:false,
+                                    addVisible: false,
+                                    modifyVisible: false,
+                                    currentItem:{
+                                        key: null,
+                                        testSetName:'',
+                                        insertDate:'',
+                                        description:'',
+                                        testSetId:null,
+                                    },
+
+                                });
+                            }, 1000);
+                        }
+
                     }
                 }).catch(err => {
                 console.log(err);
             })
-        }
-        console.log(success)
-        if(success===1){
-            this.setState({
-                data: modifyData,
-                //ES6中键和值相等时可直接写成list
-            })
-            setTimeout(() => {
-                this.setState({
-                    loading:false,
-                    addVisible: false,
-                    modifyVisible: false,
-                    currentItem:{
-                        key: null,
-                        testSetName:'',
-                        insertDate:'',
-                        description:'',
-                        testSetId:null,
-                    },
-
-                });
-            }, 1000);
         }
 
     };

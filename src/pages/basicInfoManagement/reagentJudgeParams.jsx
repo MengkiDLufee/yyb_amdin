@@ -1,46 +1,11 @@
 import React, { Component } from 'react'
 import {Table, Button, Input, Row, Col, Select, Space, Modal, Form} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined,ExportOutlined,ImportOutlined } from "@ant-design/icons";
+import httpRequest from "../../http";
 
 const { Option } = Select;
 
 
-
-const data = [];
-data.push({
-    key: 99,
-    batchNumber: 99,
-    reagentType: `生成素 ${99}`,
-    responsTime: 99,
-    affiliation:`起跑线${99}`,
-    isStable:`否`,
-    isEfficiency :`是`,
-},
-{
-    key: 88,
-    batchNumber: 88,
-    reagentType: `生成素 ${88}`,
-    responsTime: 88,
-    affiliation:`起跑线${88}`,
-    isStable:`是`,
-    isEfficiency :`否`,
-})
-for (let i = 0; i < 46; i++) {
-    data.push({
-        key: i,
-        batchNumber: i,
-        reagentType: `生成素 ${i}`,
-        responsTime: i,
-        affiliation:`起跑线${i}`,
-        isStable:`是`,
-        isEfficiency :`是`,
-    });
-}
-
-
-// function handleChange(value) {
-//     console.log(`selected ${value}`);
-// }
 
 
 export default class ReagentJudgeParams extends Component {
@@ -64,7 +29,7 @@ export default class ReagentJudgeParams extends Component {
         loading: false,
         addVisible:false,
         modifyVisible: false,
-        data:data,
+        data:[],
         //分页
         currentPage:1,
         //搜索框
@@ -74,12 +39,13 @@ export default class ReagentJudgeParams extends Component {
         //修改
         currentItem:{
             key: null,
-            batchNumber: null,
-            reagentType: '',
-            responsTime: null,
-            affiliation:'',
-            isStable:'',
-            isEfficiency :'',
+            paperParamProId:null,//试剂判读参数id生产
+            bathNumber: null,//批号
+            paperTypeName: '',//试剂类型名称
+            reactiveTime: null,//反应时间(秒)
+            organization:'',//所属单位
+            qualitative:null,//是定性
+            paperFade :null,//能效已降低
         },
     };
 
@@ -87,38 +53,40 @@ export default class ReagentJudgeParams extends Component {
     columns = [
         {
             title: '批号',
-            dataIndex: 'batchNumber',
-            sorter: (a,b) => a.batchNumber - b.batchNumber,
+            dataIndex: 'bathNumber',
+            sorter: (a,b) => a. bathNumber - b. bathNumber,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '试剂类型',
-            dataIndex: 'reagentType',
-            sorter: (a,b) => a.reagentType.length - b.reagentType.length,
+            dataIndex: 'paperTypeName',
+            sorter: (a,b) => a.paperTypeName.length - b.paperTypeName.length,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '反应时间（秒）',
-            dataIndex: 'responsTime',
-            sorter: (a,b) => a.responsTime - b.responsTime,
+            dataIndex: 'reactiveTime',
+            sorter: (a,b) => a.reactiveTime - b.reactiveTime,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '所属单位',
-            dataIndex: 'affiliation',
-            sorter: (a,b) => a.affiliation.length - b.affiliation.length,
+            dataIndex: ' organization',
+            sorter: (a,b) => a. organization.length - b. organization.length,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '是否定性',
-            dataIndex: 'isStable',
-            sorter: (a,b) => a.isStable.localeCompare(b.isStable, 'zh'),
+            dataIndex: 'qualitative',
+            //sorter: (a,b) => a.qualitative.localeCompare(b.qualitative, 'zh'),
+            sorter: (a,b) => a.qualitative-b.qualitative,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '能效已降低',
-            dataIndex: 'isEfficiency',
-            sorter: (a,b) => a.isEfficiency.localeCompare(b.isEfficiency, 'zh'),
+            dataIndex: 'paperFade',
+            //sorter: (a,b) => a.isEfficiency.localeCompare(b.isEfficiency, 'zh'),
+            sorter: (a,b) => a.paperFade-b.paperFade,
             sortDirections: ['descend','ascend'],
         },
         {
@@ -144,6 +112,47 @@ export default class ReagentJudgeParams extends Component {
         },
     ];
 
+    //初始页面请求数据
+    componentDidMount() {
+        let params={
+            page:1,
+            pageSize:10,
+        }
+        httpRequest('post','/paper/param/pro/list',params)
+            .then(response=>{
+                console.log(response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i;
+                        if(tempData[i].qualitative===false){
+                            tempData[i].qualitative='否';
+                        }
+                        else{
+                            tempData[i].qualitative='是';
+                        }
+                        if(tempData[i].paperFade===false){
+                            tempData[i].paperFade='否';
+                        }
+                        else{
+                            tempData[i].paperFade='是';
+                        }
+                    }
+                    this.setState({
+                        data:tempData
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+    }
+
+
     start = () => {
         this.setState({ loading: true });
         // ajax request after empty completing
@@ -155,7 +164,7 @@ export default class ReagentJudgeParams extends Component {
                 modifyVisible:false,
                 addConfirmLoading:false,
                 modifyConfirmLoading:false,
-                data:data,
+                data:[],
                 bathNumber:null,
                 paperTypeId:null,
                 searchOrganization:'',
@@ -163,12 +172,13 @@ export default class ReagentJudgeParams extends Component {
                 //修改
                 currentItem:{
                     key: null,
-                    batchNumber: null,
-                    reagentType: '',
-                    responsTime: null,
-                    affiliation:'',
-                    isStable:'',
-                    isEfficiency :'',
+                    paperParamProId:null,//试剂判读参数id生产
+                    bathNumber: null,//批号
+                    paperTypeName: '',//试剂类型名称
+                    reactiveTime: null,//反应时间(秒)
+                    organization:'',//所属单位
+                    qualitative:null,//是定性
+                    paperFade :null,//能效已降低
                 },
 
 
@@ -208,7 +218,7 @@ export default class ReagentJudgeParams extends Component {
     reset(){
         console.log("重置")
         this.setState({
-            data:data,
+            data:[],
             currentItem:{
                 key: null,
                 batchNumber: null,

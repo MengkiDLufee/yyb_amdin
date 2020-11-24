@@ -1,23 +1,10 @@
 import React, { Component } from 'react'
 import {Table, Button, Input, Row, Col, Select, Space,Modal,Form} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
+import httpRequest from "../../http";
 
 const { Option } = Select;
-
-
-
-const data = [];
-
-for (let i = 0; i < 46; i++) {
-    data.push({
-        key: i,
-        projectType: `abc${i}`,
-        testType: `功能评估 ${i}`,
-        projectTypeName:`24小时计划${i}`,
-        projectTypeValue: 12000+i,
-        timeout:12000-i,
-    });
-}
+const { TextArea } = Input;
 
 
 
@@ -41,19 +28,22 @@ export default class ProjectType extends Component {
         loading: false,
         addVisible:false,
         modifyVisible: false,
-        data:data,
+        data:[],
+        //测试类型名称
+        testTypeGroup:[],
         //搜索框
-        planTypeName:'',
+        searchplanTypeName:'',
         testTypeId:null,
 
         //修改
         currentItem:{
             key: null,
-            projectType: '',
-            testType: '',
-            projectTypeName:'',
-            projectTypeValue:null,
-            timeout:null,
+            planTypeId:null,//计划类型Id
+            planTypeCode:'',//计划类型code"normal"普通  "prelayegg" 起峰前
+            testTypeName:'',//测试类型名称
+            planTypeName:'',//计划类型名称
+            planTypeValue:null,//计划类型实际值
+            timeout:null,//超时时间
         },
     };
 
@@ -61,26 +51,26 @@ export default class ProjectType extends Component {
     columns = [
         {
             title: '计划类型',
-            dataIndex: 'projectType',
-            sorter: (a,b) => a.projectType.length - b.projectType.length,
+            dataIndex: 'planTypeCode',
+            sorter: (a,b) => a.planTypeCode.length - b.planTypeCode.length,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '测试类型',
-            dataIndex: 'testType',
-            sorter: (a,b) => a.testType.length - b.testType.length,
+            dataIndex: 'testTypeName',
+            sorter: (a,b) => a.testTypeName.length - b.testTypeName.length,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '计划类型名称',
-            dataIndex: 'projectTypeName',
-            sorter: (a,b) => a.projectTypeName.length - b.projectTypeName.length,
+            dataIndex: 'planTypeName',
+            sorter: (a,b) => a.planTypeName.length - b.planTypeName.length,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '计划类型实际值',
-            dataIndex: 'projectTypeValue',
-            sorter: (a,b) => a.projectTypeValue - b.projectTypeValue,
+            dataIndex: 'planTypeValue',
+            sorter: (a,b) => a.planTypeValue - b.planTypeValue,
             sortDirections: ['descend','ascend'],
         },
         {
@@ -101,6 +91,55 @@ export default class ProjectType extends Component {
             ),
         },
     ];
+
+
+    //初始页面请求数据
+    componentDidMount() {
+        let params={
+            page:1,
+            pageSize:10,
+        }
+        //请求数据
+        httpRequest('post','/plan/list',params)
+            .then(response=>{
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i;
+                        if(tempData[i].planTypeCode==="normal"){
+                            tempData[i].planTypeCode='普通';
+                        }
+                        else{
+                            tempData[i].planTypeCode='起峰前';
+                        }
+                    }
+                    this.setState({
+                        data:tempData
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+      //请求测试类型名称
+        httpRequest('post','/test/type/list')
+            .then(response=>{
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        testTypeGroup: response.data.data.info,
+                    })
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+    }
+
     start = () => {
         this.setState({ loading: true });
         // ajax request after empty completing
@@ -112,17 +151,18 @@ export default class ProjectType extends Component {
                 modifyVisible:false,
                 addConfirmLoading:false,
                 modifyConfirmLoading:false,
-                data:data,
+                data:[],
                 projectTypeName:'',
 
                 //修改
                 currentItem:{
                     key: null,
-                    projectType: '',
-                    testType: '',
-                    projectTypeName:'',
-                    projectTypeValue:null,
-                    timeout:null,
+                    planTypeId:null,//计划类型Id
+                    planTypeCode:'',//计划类型code"normal"普通  "prelayegg" 起峰前
+                    testTypeName:'',//测试类型名称
+                    planTypeName:'',//计划类型名称
+                    planTypeValue:null,//计划类型实际值
+                    timeout:null,//超时时间
                 },
             });
         }, 1000);
@@ -142,8 +182,8 @@ export default class ProjectType extends Component {
     //搜索
     search(){
         let params={};
-        if(this.state.planTypeName!==""){
-            params.planTypeName=this.state.planTypeName;
+        if(this.state.searchplanTypeName!==""){
+            params.planTypeName=this.state.searchplanTypeName;
         }
         if(this.state.testTypeId!==null){
             params.testTypeId=this.state.testTypeId;
@@ -156,17 +196,19 @@ export default class ProjectType extends Component {
     reset(){
         console.log("重置")
             this.setState({
-                data:data,
+                data:[],
+                //修改
                 currentItem:{
                     key: null,
-                    projectType: '',
-                    testType: '',
-                    projectTypeName:'',
-                    projectTypeValue:null,
-                    timeout:null,
+                    planTypeId:null,//计划类型Id
+                    planTypeCode:'',//计划类型code"normal"普通  "prelayegg" 起峰前
+                    testTypeName:'',//测试类型名称
+                    planTypeName:'',//计划类型名称
+                    planTypeValue:null,//计划类型实际值
+                    timeout:null,//超时时间
                 },
                 //搜索框
-                planTypeName:'',
+                searchplanTypeName:'',
                 testTypeId:null
             });
         console.log(this.state)
@@ -177,12 +219,13 @@ export default class ProjectType extends Component {
     handleModify=(record)=>{
         console.log('修改',record)
         let data=Object.assign({},this.state.currentItem,{
-        key:record.key,
-        projectType:record.projectType,
-        testType:record.testType,
-        projectTypeName:record.projectTypeName,
-        projectTypeValue:record.projectTypeValue,
-        timeout:record.timeout,
+            key:record.key,
+            planTypeId:record.planTypeId,
+            planTypeCode:record.planTypeCode,
+            testTypeName:record.testTypeName,
+            planTypeName:record.planTypeName,
+            planTypeValue:record.planTypeValue,
+            timeout:record.timeout,
         })
     
         this.setState({
@@ -197,17 +240,40 @@ export default class ProjectType extends Component {
     //删除某一行
     handleDelete=(record)=>{
         console.log('删除',record)
-        const deleteData=[...this.state.data];
-        console.log("删除项",record.key)
-        deleteData.forEach((item,index) => {
-            if(item.key===record.key){
-                deleteData.splice(index,1);
-            }
+        let params={
+            planTypeId:record.planTypeId,
+        }
+        httpRequest('post','/plan/delete',params)
+            .then(response=>{
+                console.log(response)
+                if(response.data.code===1006){
+                    const deleteData=[...this.state.data];
+                    console.log("删除项",record.key)
+                    deleteData.forEach((item,index) => {
+                        if(item.key===record.key){
+                            deleteData.splice(index,1);
+                        }
+                    })
+                    this.setState({
+                        data:deleteData,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
         })
-        this.setState({
-            data:deleteData,
-            //ES6中键和值相等时可直接写成list
-        })
+
+
+        // const deleteData=[...this.state.data];
+        // console.log("删除项",record.key)
+        // deleteData.forEach((item,index) => {
+        //     if(item.key===record.key){
+        //         deleteData.splice(index,1);
+        //     }
+        // })
+        // this.setState({
+        //     data:deleteData,
+        //     //ES6中键和值相等时可直接写成list
+        // })
     }
 
     //modal点击确认
@@ -221,18 +287,55 @@ export default class ProjectType extends Component {
         console.log(flag)
         let data=Object.assign({},this.state.currentItem,{
             key:key,
-            projectType:this.state.currentItem.projectType,
-            testType:this.state.currentItem.testType,
-            projectTypeName:this.state.currentItem.projectTypeName,
-            projectTypeValue:this.state.currentItem.projectTypeValue,
+            planTypeId:this.state.currentItem.planTypeId,
+            planTypeCode:this.state.currentItem.planTypeCode,
+            testTypeName:this.state.currentItem.testTypeName,
+            planTypeName:this.state.currentItem.planTypeName,
+            planTypeValue:this.state.currentItem.planTypeValue,
             timeout:this.state.currentItem.timeout,
         })
         console.log("修改为/添加", data)
         const modifyData = [...this.state.data];
-        if(flag===1){
+        if(flag===1) {
             modifyData.forEach((item, index) => {
                 if (item.key === this.state.currentItem.key) {
-                    modifyData.splice(index, 1,data);
+                    let params = {
+                        planTypeId: item.planTypeId,
+                        planTypeCode: this.state.currentItem.planTypeCode,
+                        testTypeName: this.state.currentItem.testTypeName,
+                        planTypeName: this.state.currentItem.planTypeName,
+                        planTypeValue: this.state.currentItem.planTypeValue,
+                        timeout: this.state.currentItem.timeout,
+                    }
+                    console.log("修改参数", params)
+                    httpRequest('post', '/plan/modify', params)
+                        .then(response => {
+                            console.log(response)
+                            if (response.data.code === 1004) {
+                                modifyData.splice(index, 1, data);
+                                {
+                                    this.setState({
+                                        data: modifyData,
+                                        //ES6中键和值相等时可直接写成list
+                                    })
+                                    setTimeout(() => {
+                                        this.setState({
+                                            loading: false,
+                                            addVisible: false,
+                                            modifyVisible: false,
+                                            currentItem: {
+                                                key: null,
+                                                testSetName: '',
+                                                insertDate: '',
+                                                description: '',
+                                                testSetId: null,
+                                            },
+
+                                        });
+                                    }, 1000);
+                                }
+                            }
+                        })
                 }
             })
         }
@@ -240,25 +343,6 @@ export default class ProjectType extends Component {
             modifyData.push(data);
         }
 
-        this.setState({
-            data: modifyData,
-            //ES6中键和值相等时可直接写成list
-        })
-        setTimeout(() => {
-            this.setState({
-                loading:false,
-                addVisible: false,
-                modifyVisible: false,
-                currentItem:{
-                    key: null,
-                    projectType: '',
-                    testType: '',
-                    projectTypeName:'',
-                    projectTypeValue:null,
-                    timeout:null,
-                },
-            });
-        }, 1000);
     };
     //关闭modal
     handleCancel = e => {
@@ -266,13 +350,15 @@ export default class ProjectType extends Component {
         this.setState({
             addVisible: false,
             modifyVisible: false,
+            //修改
             currentItem:{
                 key: null,
-                projectType: '',
-                testType: '',
-                projectTypeName:'',
-                projectTypeValue:null,
-                timeout:null,
+                planTypeId:null,//计划类型Id
+                planTypeCode:'',//计划类型code"normal"普通  "prelayegg" 起峰前
+                testTypeName:'',//测试类型名称
+                planTypeName:'',//计划类型名称
+                planTypeValue:null,//计划类型实际值
+                timeout:null,//超时时间
             },
         });
     };
@@ -283,10 +369,10 @@ export default class ProjectType extends Component {
         let name=e.target.name;
         let value=e.target.value;
         console.log({[name]:value})
-        if(name==="planTypeName"){
+        if(name==="searchplanTypeName"){
             console.log("进到搜索框了")
             this.setState({
-                planTypeName:value
+                searchplanTypeName:value
             })
         }
         else{
@@ -348,8 +434,8 @@ export default class ProjectType extends Component {
                     </Col>
                     <Col span={4}>
                         <Input  placeholder="计划类型名称"
-                                value={this.state.planTypeName}
-                                name="planTypeName"
+                                value={this.state.searchplanTypeName}
+                                name="searchplanTypeName"
                                 onChange={this.inputOnChange}
                                 allowClear/>
                     </Col>
@@ -399,25 +485,25 @@ export default class ProjectType extends Component {
                 >
                     <Form {...formItemLayout}>
                         <Form.Item label="计划类型">
-                            <Input value={this.state.currentItem.projectType}
+                            <Input value={this.state.currentItem.planTypeCode}
                                    name="projectType"
                                    onChange={this.inputOnChange}
                                    allowClear/>
                         </Form.Item>
                         <Form.Item label="测试类型">
-                            <Input value={this.state.currentItem.testType}
+                            <Input value={this.state.currentItem.testTypeName}
                                    name="testType"
                                    onChange={this.inputOnChange}
                                    allowClear/>
                         </Form.Item>
                         <Form.Item label="计划类型名称">
-                            <Input value={this.state.currentItem.projectTypeName}
+                            <Input value={this.state.currentItem.planTypeName}
                                    name="projectTypeName"
                                    onChange={this.inputOnChange}
                                    allowClear/>
                         </Form.Item>
                         <Form.Item label="计划类型实际值">
-                            <Input value={this.state.currentItem.projectTypeValue}
+                            <Input value={this.state.currentItem.planTypeValue}
                                          onChange={this.inputOnChange}
                                          name="projectTypeValue"
                                          allowClear/>
@@ -447,27 +533,27 @@ export default class ProjectType extends Component {
                     <div>
                         <Form {...formItemLayout}>
                             <Form.Item label="计划类型">
-                                <Input value={this.state.currentItem.projectType}
+                                <Input value={this.state.currentItem.planTypeCode}
                                        onChange={this.inputOnChange}
-                                       name="projectType"
+                                       name="planTypeCode"
                                        allowClear/>
                             </Form.Item>
                             <Form.Item label="测试类型">
-                                <Input value={this.state.currentItem.testType}
+                                <Input value={this.state.currentItem.testTypeName}
                                        onChange={this.inputOnChange}
-                                       name="testType"
+                                       name="testTypeName"
                                        allowClear/>
                             </Form.Item>
                             <Form.Item label="计划类型名称">
-                                <Input value={this.state.currentItem.projectTypeName}
+                                <Input value={this.state.currentItem.planTypeName}
                                        onChange={this.inputOnChange}
-                                       name="projectTypeName"
+                                       name="planTypeName"
                                        allowClear/>
                             </Form.Item>
                             <Form.Item label="计划类型实际值">
-                                <Input value={this.state.currentItem.projectTypeValue}
+                                <Input value={this.state.currentItem.planTypeValue}
                                              onChange={this.inputOnChange}
-                                             name="projectTypeValue"
+                                             name="planTypeValue"
                                              allowClear/>
                             </Form.Item>
                             <Form.Item label="超时时间">
