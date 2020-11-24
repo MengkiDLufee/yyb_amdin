@@ -51,6 +51,7 @@ export default class TestType extends Component {
         this.onChange=this.onChange.bind(this);
         this.handleChange=this.handleChange.bind(this);
         this.handleAssociate=this.handleAssociate.bind(this);
+        this.handleLogic=this.handleLogic.bind(this);
 
     }
 
@@ -62,6 +63,7 @@ export default class TestType extends Component {
         modifyVisible: false,
         associatedModifyVisible:false,
         associateVisible:false,
+        logicVisible:false,
         data:data,
         associatedData:associatedData,
         //搜索框
@@ -130,7 +132,8 @@ export default class TestType extends Component {
                 <Space size="middle">
                     <Button style={{color:'black',background:'white'}}
                             onClick={()=>{this.handleAssociate(record)}}>已关联试剂类型</Button>
-                    <Button>当前生产判读逻辑</Button>
+                    <Button style={{color:'black',background:'white'}}
+                            onClick={()=>{this.handleLogic(record)}}>当前生产判读逻辑</Button>
                     <Button>上传模板</Button>
                     <Button>查看历史</Button>
                     <Button style={{color:'black',background:'white'}}
@@ -302,6 +305,21 @@ export default class TestType extends Component {
     //查看当前所关联的试剂类型
     handleAssociate=(record)=>{
         console.log('所关联的试剂类型',record)
+        this.setState({
+                associateVisible:true,
+                currentItem:{
+                    reagent:record.reagent,
+                    reagentNameEN:record.reagentNameEN,
+                    insertDate:record.insertDate,
+                }
+            },
+            ()=>console.log(this.state.currentItem)
+        );
+    }
+
+    //查看当前生产判读逻辑
+    handleLogic=(record)=>{
+        console.log('当前生产判读逻辑',record)
         this.setState({
                 associateVisible:true,
                 currentItem:{

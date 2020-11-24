@@ -12,7 +12,6 @@ import './style.less'
 
 
 export default class App extends Component {
-
   login =() => {
     this.props.history.replace('/login')
 }

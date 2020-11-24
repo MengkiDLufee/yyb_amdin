@@ -7,24 +7,6 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 
-const data = [];
-data.push({
-    key: 121,
-    testSet: `啦啦啦${121}`,
-    creatTime : `2019-12-06 17:51:59`,
-})
-for (let i = 0; i < 46; i++) {
-    data.push({
-        key: i,
-        testSet:`啦啦啦${i}`,
-        creatTime : `2019-12-06 17:51:${i}`,
-    });
-}
-
-
-// function handleChange(value) {
-//     console.log(`selected ${value}`);
-// }
 
 
 export default class TestSet extends Component {
@@ -44,33 +26,36 @@ export default class TestSet extends Component {
         loading: false,
         addVisible:false,
         modifyVisible: false,
-        data:data,
+        data:[],
+        //总数据数
+        total:null,
         //分页
         currentPage:1,
         //搜索框
-        testSetName:'',
+        testSet:'',
         //修改
         currentItem:{
-            key: null,
-            testSet:'',
-            creatTime:'',
+            //key: null,
+            testSetName:'',
+            insertDate:'',
             description:'',
+            testSetId:null,
         },
     };
 //表格列头
     columns = [
         {
             title: '测试集名称',
-            dataIndex: 'testSet',
-            sorter: (a,b) => a.testSet.length - b.testSet.length,
+            dataIndex: 'testSetName',
+            sorter: (a,b) => a.testSetName.length - b.testSetName.length,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '创建时间',
-            dataIndex: 'creatTime',
+            dataIndex: 'insertDate',
             sorter:(a,b)=>{
-                let atimeString=a.creatTime;
-                let btimeString=b.creatTime;
+                let atimeString=a.insertDate;
+                let btimeString=b.insertDate;
                 let atime=new Date(atimeString).getTime();
                 let btime=new Date(btimeString).getTime();
                 return atime-btime;
@@ -91,23 +76,31 @@ export default class TestSet extends Component {
     ];
 
     //初始页面请求数据
-    // componentDidMount() {
-    //
-    //     let params={
-    //         page:1,
-    //         pageSize:10,
-    //     }
-    //     httpRequest('post','/test/list',params)
-    //         .then(response=>{
-    //             if(response.data!==[]){
-    //                 this.setState({
-    //                     data:response.data,
-    //                 })
-    //             }
-    //     }).catch(err => {
-    //         console.log(err);
-    //     })
-    // }
+    componentDidMount() {
+        let params={
+            page:1,
+            pageSize:10,
+        }
+        httpRequest('post','/test/list',params)
+            .then(response=>{
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                        for(let i=0;i<tempData.length;i++){
+                            tempData[i].key=i;
+                    }
+                    this.setState({
+                        data:tempData
+                    })
+                }
+        }).catch(err => {
+            console.log(err);
+        })
+    }
 
 
     start = () => {
@@ -121,15 +114,17 @@ export default class TestSet extends Component {
                 modifyVisible:false,
                 addConfirmLoading:false,
                 modifyConfirmLoading:false,
-                data:data,
-                testSetName:'',
+                //data:data,
+                data:[],
+                testSet:'',
                 currentPage:1,
                 //修改
                 currentItem:{
                     key: null,
-                    testSet:'',
-                    creatTime:'',
+                    testSetName:'',
+                    insertDate:'',
                     description:'',
+                    testSetId:null,
                 },
             });
         }, 1000);
@@ -149,25 +144,57 @@ export default class TestSet extends Component {
     //搜索
     search(){
         let params={};
-        if(this.state.testSetName!==''){
-            params.testSetName=this.state.testSetName;
+        if(this.state.testSet!==''){
+            params.testSetName=this.state.testSet;
         }
+        params.page=1;
+        params.pageSize=10;
+        console.log(params)
+        httpRequest('post','/test/list',params)
+            .then(response=>{
+                console.log(response)
+                if(response.data!==[]){
+                    this.setState({
+                        data:response.data.data.info,
+                        total:response.data.data.total,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
         console.log(params);
     }
 
     //重置
     reset(){
         console.log("重置")
+        let params={
+            page:1,
+            pageSize:10,
+        }
+        httpRequest('post','/test/list',params)
+            .then(response=>{
+                console.log(response)
+                if(response.data!==[]){
+                    this.setState({
+                        data:response.data.data.info,
+                        total:response.data.data.total,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
         this.setState({
-            data:data,
             currentItem:{
                 key: null,
-                testSet:'',
-                creatTime:'',
+                testSetName:'',
+                insertDate:'',
                 description:'',
+                testSetId:null,
             },
             //搜索框
-            testSetName:'',
+            testSet:'',
             //当前页
             currentPage:1,
         });
@@ -180,8 +207,8 @@ export default class TestSet extends Component {
         console.log('修改',record)
         let data=Object.assign({},this.state.currentItem,{
             key: record.key,
-            testSet:record.testSet,
-            creatTime:record.creatTime,
+            testSetName:record.testSetName,
+            insertDate:record.insertDate,
             description:record.description
         })
         this.setState({
@@ -196,16 +223,39 @@ export default class TestSet extends Component {
     //删除某一行
     handleDelete=(record)=>{
         console.log('删除',record)
-        const deleteData=[...this.state.data];
-        console.log("删除项",record.key)
-        deleteData.forEach((item,index) => {
-            if(item.key===record.key){
-                deleteData.splice(index,1);
-            }
+
+        let params={
+            testSetId:record.testSetId
+        }
+        httpRequest('post','/test/remove',params)
+            .then(response=>{
+                console.log(response)
+                if(response.code===1006){
+                    const deleteData=[...this.state.data];
+                    console.log("删除项",record.key)
+                    deleteData.forEach((item,index) => {
+                        if(item.key===record.key){
+                            deleteData.splice(index,1);
+                        }
+                    })
+                    this.setState({
+                        data:deleteData,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
         })
-        this.setState({
-            data:deleteData,
-        })
+
+        // const deleteData=[...this.state.data];
+        // console.log("删除项",record.key)
+        // deleteData.forEach((item,index) => {
+        //     if(item.key===record.key){
+        //         deleteData.splice(index,1);
+        //     }
+        // })
+        // this.setState({
+        //     data:deleteData,
+        // })
     }
     //modal点击确认
     handleOk = e => {
@@ -215,7 +265,9 @@ export default class TestSet extends Component {
         });
         let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
         let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
-        console.log(flag)
+        console.log("0添加1修改",flag)
+        //判断通信成功
+        let success=0;
 
         //获取当前时间
         var date=new Date();
@@ -227,40 +279,77 @@ export default class TestSet extends Component {
         let second=date.getSeconds();
         let data=Object.assign({},this.state.currentItem,{
             key:key,
-            testSet:this.state.currentItem.testSet,
+            testSetName:this.state.currentItem.testSetName,
             description:this.state.currentItem.description,
-            creatTime:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
+            insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
         })
         console.log("修改为/添加", data)
         const modifyData = [...this.state.data];
+        //修改
+        console.log(this.state.currentItem)
         if(flag===1){
-            modifyData.forEach((item, index) => {
-                if (item.key === this.state.currentItem.key) {
-                    modifyData.splice(index, 1,data);
+            modifyData.forEach((item,index) => {
+                if (item.testSetId === this.state.currentItem.testSetId) {
+                    let params={
+                        testSetId:item.testSetId,
+                        testSetName:this.state.currentItem.testSetName,
+                        description:this.state.currentItem.description,
+                    }
+                    httpRequest('post','/test/modify',params)
+                        .then(response=>{
+                            console.log("修改回复")
+                            console.log(response)
+                            if(response.data.code===1004){
+                                success=1;
+                                modifyData.splice(index, 1,data);
+                            }
+                        }).catch(err => {
+                        console.log(err);
+                    })
                 }
             })
         }
+        //添加
         else{
-            modifyData.push(data);
+            let params={
+                testSetName:this.state.currentItem.testSetName,
+                description:this.state.currentItem.description,
+            }
+            httpRequest('post','/test/add',params)
+                .then(response=>{
+                    console.log(response)
+                    if(response.data.code===1002){
+                        success=1;
+                        data.testSetId=response.data.testSetId;
+                        modifyData.push(data);
+                    }
+                }).catch(err => {
+                console.log(err);
+            })
+        }
+        console.log(success)
+        if(success===1){
+            this.setState({
+                data: modifyData,
+                //ES6中键和值相等时可直接写成list
+            })
+            setTimeout(() => {
+                this.setState({
+                    loading:false,
+                    addVisible: false,
+                    modifyVisible: false,
+                    currentItem:{
+                        key: null,
+                        testSetName:'',
+                        insertDate:'',
+                        description:'',
+                        testSetId:null,
+                    },
+
+                });
+            }, 1000);
         }
 
-        this.setState({
-            data: modifyData,
-            //ES6中键和值相等时可直接写成list
-        })
-        setTimeout(() => {
-            this.setState({
-                loading:false,
-                addVisible: false,
-                modifyVisible: false,
-                currentItem:{
-                    key: null,
-                    testSet:'',
-                    creatTime:'',
-                    description:'',
-                },
-            });
-        }, 1000);
     };
 
     //关闭modal
@@ -271,10 +360,11 @@ export default class TestSet extends Component {
             modifyVisible: false,
             currentItem:{
                 key: null,
-                testSet:'',
-                creatTime:'',
+                testSetName:'',
+                insertDate:'',
                 description:'',
             },
+
         });
     };
 
@@ -284,10 +374,10 @@ export default class TestSet extends Component {
         const name=e.target.name;
         const value=e.target.value;
         console.log({[name]:value})
-        if(name==="testSetName"){
+        if(name==="testSet"){
             console.log("进到搜索框了")
             this.setState({
-                testSetName:value
+                testSet:value
             })
         }
         else{
@@ -305,6 +395,23 @@ export default class TestSet extends Component {
         this.setState({
             currentPage: page,
         });
+
+        let params={
+            page:page,
+            pageSize:10,
+        }
+        httpRequest('post','/test/list',params)
+            .then(response=>{
+                console.log(response)
+                if(response.data!==[]){
+                    this.setState({
+                        data:response.data,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
     };
 
 
@@ -339,8 +446,8 @@ export default class TestSet extends Component {
                 <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
                     <Col span={6}>
                         <Input  placeholder="测试集名称"
-                                value={this.state.testSetName}
-                                name="testSetName"
+                                value={this.state.testSet}
+                                name="testSet"
                                 onChange={this.inputOnChange}
                                 allowClear/>
                     </Col>
@@ -366,7 +473,7 @@ export default class TestSet extends Component {
                         style={{margin:'20px 0'}}
                         pagination={{
                             position: ['bottomLeft'] ,
-                            total:'data.length',
+                            total:'this.total',
                             showTotal:total => `共 ${total} 条`,
                             showQuickJumper:true,
                             showSizeChanger:true,
@@ -392,8 +499,8 @@ export default class TestSet extends Component {
                     <Form {...formItemLayout}>
                         <Form.Item label="测试集名称"
                                    rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.testSet}
-                                   name="testSet"
+                            <Input value={this.state.currentItem.testSetName}
+                                   name="testSetName"
                                    onChange={this.inputOnChange}
                                    allowClear/>
                         </Form.Item>
@@ -425,8 +532,8 @@ export default class TestSet extends Component {
                         <Form {...formItemLayout}>
                             <Form.Item label="测试集名称"
                                        rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.testSet}
-                                       name="testSet"
+                                <Input value={this.state.currentItem.testSetName}
+                                       name="testSetName"
                                        onChange={this.inputOnChange}
                                        allowClear/>
                             </Form.Item>
