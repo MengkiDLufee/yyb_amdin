@@ -8,11 +8,16 @@ const { TextArea } = Input;
 
 
 
-
 export default class TestSet extends Component {
     //初始化
     constructor(props) {
         super(props);
+
+        // //该方法返回一个ref 对象， 通过ref 属性绑定该对象，该对象下的current 属性就指向了绑定的元素或组件对象
+         this.form = React.createRef();
+         this.form_modify = React.createRef();
+
+
 
         this.handleAdd=this.handleAdd.bind(this);
         this.handleModify=this.handleModify.bind(this);
@@ -67,7 +72,10 @@ export default class TestSet extends Component {
             dataIndex: 'operation',
             render: (text, record) => (
                 <Space size="large">
-                    <Button style={{color:'black',background:'white'}} onClick={()=>{this.handleModify(record)}}>修改</Button>
+                    <Button style={{color:'black',background:'white'}}
+                            onClick={()=>{this.handleModify(record)}}
+
+                    >修改</Button>
                     <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
                             onClick={()=>{this.handleDelete(record)}}>删除</Button>
                 </Space>
@@ -77,6 +85,8 @@ export default class TestSet extends Component {
 
     //初始页面请求数据
     componentDidMount() {
+        //this.form_modify = React.createRef();
+
         let params={
             page:1,
             pageSize:10,
@@ -130,10 +140,10 @@ export default class TestSet extends Component {
         }, 1000);
     };
 
-    onSelectChange = selectedRowKeys => {
-        console.log('selectedRowKeys changed: ', selectedRowKeys);
-        this.setState({ selectedRowKeys });
-    };
+    // onSelectChange = selectedRowKeys => {
+    //     console.log('selectedRowKeys changed: ', selectedRowKeys);
+    //     this.setState({ selectedRowKeys });
+    // };
 //添加展开modal
     handleAdd(){
         this.setState({
@@ -205,19 +215,29 @@ export default class TestSet extends Component {
     //修改
     handleModify=(record)=>{
         console.log('修改',record)
-        let data=Object.assign({},this.state.currentItem,{
-            key: record.key,
-            testSetName:record.testSetName,
-            insertDate:record.insertDate,
-            description:record.description,
-            testSetId:record.testSetId,
-        })
+        // let _data=Object.assign({},this.state.currentItem,{
+        //     key: record.key,
+        //     testSetName:record.testSetName,
+        //     insertDate:record.insertDate,
+        //     description:record.description,
+        //     testSetId:record.testSetId,
+        // })
         this.setState({
                 modifyVisible:true,
-                currentItem:data,
+                currentItem:record,
             },
             ()=>console.log(this.state.currentItem)
         );
+        let form_modify=this.form_modify.current;
+     if(this.form_modify.current){
+         form_modify.setFieldsValue({
+             testSet:record.testSetName,
+             description:record.description
+         })
+
+     }
+
+
 
     }
 
@@ -247,26 +267,15 @@ export default class TestSet extends Component {
             console.log(err);
         })
 
-        // const deleteData=[...this.state.data];
-        // console.log("删除项",record.key)
-        // deleteData.forEach((item,index) => {
-        //     if(item.key===record.key){
-        //         deleteData.splice(index,1);
-        //     }
-        // })
-        // this.setState({
-        //     data:deleteData,
-        // })
     }
+
     //modal点击确认
     handleOk = e => {
-        this.setState({
-            loading: true,
-            //modifyVisible: true,
-        });
+        console.log(e)
         let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
-        let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
-        console.log("0添加1修改",flag)
+        //let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
+        //let flag=(this.form_modify.current) ? 1:0;//0添加1修改
+        //console.log("0添加1修改",flag)
 
         //获取当前时间
         var date=new Date();
@@ -276,100 +285,138 @@ export default class TestSet extends Component {
         let hour=date.getHours();
         let minute=date.getMinutes();
         let second=date.getSeconds();
-        let data=Object.assign({},this.state.currentItem,{
-            key:key,
-            testSetName:this.state.currentItem.testSetName,
-            description:this.state.currentItem.description,
-            insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
-        })
-        console.log("修改为/添加", data)
+        // let _data=Object.assign({},this.state.currentItem,{
+        //     key:key,
+        //     testSetName:this.state.currentItem.testSetName,
+        //     description:this.state.currentItem.description,
+        //     insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
+        // })
+        //console.log("修改为/添加", _data)
         const modifyData = [...this.state.data];
+
+        let form = this.form.current;
+        let form_modify=this.form_modify.current;
         //修改
-        if(flag===1){
-            modifyData.forEach((item,index) => {
-                if (item.key === this.state.currentItem.key) {
-                    let params={
-                        testSetId:item.testSetId,
-                        testSetName:this.state.currentItem.testSetName,
-                        description:this.state.currentItem.description,
-                    }
-                    console.log("修改参数",params)
+        if(form_modify){
+            form_modify.validateFields()//表单输入校验
+                .then((values) => {
+                    //form_modify.resetFields();
+                    console.log("form_modify",values)
+                    this.setState({
+                        loading: true,
+                        //modifyVisible: true,
+                    });
+                    let params={};
+                    let _index;
+                    modifyData.forEach((item,index) => {
+                        if (item.key === this.state.currentItem.key) {
+                            params={
+                                testSetId:item.testSetId,
+                                testSetName:values.testSet,
+                                description:values.description,
+                            }
+                            _index=index;
+                            console.log("修改参数",params)
+
+                        }
+                    })
                     httpRequest('post','/test/modify',params)
                         .then(response=>{
-
                             console.log(response)
                             if(response.data.code===1004){
-                                modifyData.splice(index, 1,data);
+                                let _data=Object.assign({},this.state.currentItem,{
+                                    testSetName:values.testSet,
+                                    description:values.description,
+                                    insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
+                                })
+                                modifyData.splice(_index, 1,_data);
                                 {
+
+                                    setTimeout(() => {
+                                        form_modify.resetFields();
+                                        this.setState({
+                                            loading:false,
+                                            //addVisible: false,
+                                            modifyVisible: false,
+                                            // currentItem:{
+                                            //     key: null,
+                                            //     testSetName:'',
+                                            //     insertDate:'',
+                                            //     description:'',
+                                            //     testSetId:null,
+                                            // },
+
+                                        });
+                                    }, 1000);
                                     this.setState({
                                         data: modifyData,
                                         //ES6中键和值相等时可直接写成list
                                     })
-                                    setTimeout(() => {
-                                        this.setState({
-                                            loading:false,
-                                            addVisible: false,
-                                            modifyVisible: false,
-                                            currentItem:{
-                                                key: null,
-                                                testSetName:'',
-                                                insertDate:'',
-                                                description:'',
-                                                testSetId:null,
-                                            },
 
-                                        });
-                                    }, 1000);
                                 }
 
                             }
                         }).catch(err => {
                         console.log(err);
                     })
-                }
-            })
 
+
+
+                })
+                .catch((info) => {
+                    console.log('Validate Failed:', info);
+                });
         }
-        //添加
-        else{
-            let params={
-                testSetName:this.state.currentItem.testSetName,
-                description:this.state.currentItem.description,
-            }
-            httpRequest('post','/test/add',params)
-                .then(response=>{
-                    console.log(response)
-                    if(response.data.code===1002){
-                        data.testSetId=response.data.testSetId;
-                        modifyData.push(data);
-                        {
-                            this.setState({
-                                data: modifyData,
-                                //ES6中键和值相等时可直接写成list
-                            })
-                            setTimeout(() => {
-                                this.setState({
-                                    loading:false,
-                                    addVisible: false,
-                                    modifyVisible: false,
-                                    currentItem:{
-                                        key: null,
-                                        testSetName:'',
-                                        insertDate:'',
-                                        description:'',
-                                        testSetId:null,
-                                    },
-
-                                });
-                            }, 1000);
+                //添加
+        else if(form){
+            console.log("form",form)
+            form.validateFields()//触发表单验证
+                .then((values) => {
+                        console.log("form validate", values)
+                        let params = {
+                            testSetName: values.testSet,
+                            description: values.description,
                         }
+                        httpRequest('post', '/test/add', params)
+                            .then(response => {
+                                console.log(response)
+                                if (response.data.code === 1002) {
+                                    let _data=Object.assign({},this.state.currentItem,{
+                                        key:key,
+                                        testSetName:values.testSet,
+                                        description:values.description,
+                                        insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
+                                    })
+                                    _data.testSetId = response.data.testSetId;
+                                    modifyData.push(_data);
+                                    {
+                                        this.setState({
+                                            data: modifyData,
+                                        })
+                                        setTimeout(() => {
+                                            form.resetFields();
+                                            this.setState({
+                                                loading: false,
+                                                //addVisible: false,
+                                                modifyVisible: false,
+                                                currentItem: {
+                                                    key: null,
+                                                    testSetName: '',
+                                                    insertDate: '',
+                                                    description: '',
+                                                    testSetId: null,
+                                                },
+                                            });
+                                        }, 1000);
+                                    }
 
+                                }
+                            }).catch(err => {
+                            console.log(err);
+                        })
                     }
-                }).catch(err => {
-                console.log(err);
-            })
+                )
         }
-
     };
 
     //关闭modal
@@ -434,14 +481,18 @@ export default class TestSet extends Component {
 
     };
 
+//该方法返回一个ref 对象， 通过ref 属性绑定该对象，该对象下的current 属性就指向了绑定的元素或组件对象
+   //form = React.createRef();
+  // form_modify = React.createRef();
+
 
     render() {
         const { loading, selectedRowKeys } = this.state;
-        const rowSelection = {
-            selectedRowKeys: selectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
-            onChange: this.onSelectChange,
-        };
-        const hasSelected = selectedRowKeys.length > 0;
+        // const rowSelection = {
+        //     selectedRowKeys: selectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
+        //     onChange: this.onSelectChange,
+        // };
+        // const hasSelected = selectedRowKeys.length > 0;
 
         const formItemLayout = {
             labelCol: {
@@ -486,7 +537,7 @@ export default class TestSet extends Component {
                 <div>
                     <Table
                         columns={this.columns}
-                        rowSelection={rowSelection}
+                        // rowSelection={rowSelection}
                         dataSource={this.state.data}
                         rowKey={record => record.key}
                         bordered={true}
@@ -508,60 +559,67 @@ export default class TestSet extends Component {
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     footer={[
-                        <Button key="back" onClick={this.handleCancel}>
-                            取消
-                        </Button>,
-                        <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
-                            添加
-                        </Button>,
-                    ]}
-                >
-                    <Form {...formItemLayout}>
+                        <div style={{textAlign:"center"}}>
+                            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+                                提交
+                            </Button>,
+                            <Button key="back" onClick={this.handleCancel}>
+                                取消
+                            </Button>,
+                        </div>]}>
+                    <Form
+                        {...formItemLayout}
+                        name="add"
+                        ref={this.form}>
                         <Form.Item label="测试集名称"
-                                   rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.testSetName}
-                                   name="testSetName"
-                                   onChange={this.inputOnChange}
+                                   name={'testSet'}
+                                   rules={[
+                                       {required:true,message:'测试集不能为空'},
+                                   ]}//设置验证规则
+                            >
+                            <Input placeholder="请输入测试集名称"
                                    allowClear/>
                         </Form.Item>
                         <Form.Item label="描述"
-                                   rules={[{required:true}]}>
-                            <TextArea value={this.state.currentItem.description}
-                                   name="description"
-                                   onChange={this.inputOnChange}
-                                   autoSize={{ minRows: 3, maxRows: 5 }}
-                                   allowClear/>
+                                   name="description">
+                            <TextArea placeholder="请输入描述"
+                                      autoSize={{ minRows: 3, maxRows: 5 }}
+                                      allowClear/>
                         </Form.Item>
                     </Form>
                 </Modal>
                 <Modal
+                    forceRender={true}
                     title="修改测试集"
                     visible={this.state.modifyVisible}
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     footer={[
-                        <Button key="back" onClick={this.handleCancel}>
-                            取消
-                        </Button>,
-                        <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
-                            修改
-                        </Button>,
+                        <div style={{textAlign:"center"}}>
+                            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+                                提交
+                            </Button>,
+                            <Button key="back" onClick={this.handleCancel}>
+                                取消
+                            </Button>,
+                        </div>
                     ]}
                 >
                     <div>
-                        <Form {...formItemLayout}>
+                        <Form {...formItemLayout}
+                              name="modify"
+                              ref={this.form_modify}>
                             <Form.Item label="测试集名称"
-                                       rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.testSetName}
-                                       name="testSetName"
-                                       onChange={this.inputOnChange}
-                                       allowClear/>
+                                       name="testSet"
+                                       rules={[
+                                           {required:true,message:'测试集不能为空'},
+                                       ]}//设置验证规则
+                            >
+                                <Input allowClear/>
                             </Form.Item>
                             <Form.Item label="描述"
-                                       rules={[{required:true}]}>
-                                <TextArea value={this.state.currentItem.description}
-                                       name="description"
-                                       onChange={this.inputOnChange}
+                                       name="description">
+                                <TextArea
                                        autoSize={{ minRows: 3, maxRows: 5 }}
                                        allowClear/>
                             </Form.Item>

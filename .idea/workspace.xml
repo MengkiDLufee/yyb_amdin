@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" afterDir="false" />
     </list>
@@ -42,6 +41,7 @@
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="yarn" />
     <property name="settings.editor.selected.configurable" value="configurable.group.build" />
+    <property name="ts.external.directory.path" value="C:\Users\DELL\AppData\Local\JetBrains\Toolbox\apps\WebStorm\ch-1\203.5784.22\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -68,6 +68,10 @@
       <workItem from="1606051484803" duration="2009000" />
       <workItem from="1606129867188" duration="608000" />
       <workItem from="1606200336749" duration="9085000" />
+      <workItem from="1606308760904" duration="3847000" />
+      <workItem from="1606395533053" duration="5972000" />
+      <workItem from="1606443514742" duration="15144000" />
+      <workItem from="1606477819081" duration="613000" />
     </task>
     <servers />
   </component>

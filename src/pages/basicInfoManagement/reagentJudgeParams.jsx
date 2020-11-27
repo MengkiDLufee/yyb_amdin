@@ -54,7 +54,7 @@ export default class ReagentJudgeParams extends Component {
         {
             title: '批号',
             dataIndex: 'bathNumber',
-            sorter: (a,b) => a. bathNumber - b. bathNumber,
+            sorter: (a,b) => a.bathNumber - b.bathNumber,
             sortDirections: ['descend','ascend'],
         },
         {
@@ -72,7 +72,7 @@ export default class ReagentJudgeParams extends Component {
         {
             title: '所属单位',
             dataIndex: ' organization',
-            sorter: (a,b) => a. organization.length - b. organization.length,
+            sorter: (a,b) => a.organization.length - b.organization.length,
             sortDirections: ['descend','ascend'],
         },
         {
@@ -402,7 +402,7 @@ export default class ReagentJudgeParams extends Component {
             selectedRowKeys: selectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
             onChange: this.onSelectChange,
         };
-        const hasSelected = selectedRowKeys.length > 0;
+       // const hasSelected = selectedRowKeys.length > 0;
 
         const formItemLayout = {
             labelCol: {
