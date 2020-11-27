@@ -14,10 +14,8 @@ export default class TestSet extends Component {
         super(props);
 
         // //该方法返回一个ref 对象， 通过ref 属性绑定该对象，该对象下的current 属性就指向了绑定的元素或组件对象
-         this.form = React.createRef();
+         //this.form = React.createRef();
          this.form_modify = React.createRef();
-
-
 
         this.handleAdd=this.handleAdd.bind(this);
         this.handleModify=this.handleModify.bind(this);
@@ -244,7 +242,6 @@ export default class TestSet extends Component {
     //删除某一行
     handleDelete=(record)=>{
         console.log('删除',record)
-
         let params={
             testSetId:record.testSetId
         }
@@ -262,6 +259,9 @@ export default class TestSet extends Component {
                     this.setState({
                         data:deleteData,
                     })
+                }
+                else{
+                    alert("无法删除与当前测试集有关的数据！")
                 }
             }).catch(err => {
             console.log(err);
@@ -297,7 +297,8 @@ export default class TestSet extends Component {
         let form = this.form.current;
         let form_modify=this.form_modify.current;
         //修改
-        if(form_modify){
+        if(this.state.modifyVisible){
+            console.log("进入修改")
             form_modify.validateFields()//表单输入校验
                 .then((values) => {
                     //form_modify.resetFields();
@@ -317,7 +318,6 @@ export default class TestSet extends Component {
                             }
                             _index=index;
                             console.log("修改参数",params)
-
                         }
                     })
                     httpRequest('post','/test/modify',params)
@@ -331,7 +331,6 @@ export default class TestSet extends Component {
                                 })
                                 modifyData.splice(_index, 1,_data);
                                 {
-
                                     setTimeout(() => {
                                         form_modify.resetFields();
                                         this.setState({
@@ -345,36 +344,31 @@ export default class TestSet extends Component {
                                             //     description:'',
                                             //     testSetId:null,
                                             // },
-
                                         });
                                     }, 1000);
                                     this.setState({
                                         data: modifyData,
-                                        //ES6中键和值相等时可直接写成list
                                     })
-
                                 }
 
                             }
                         }).catch(err => {
                         console.log(err);
                     })
-
-
-
                 })
                 .catch((info) => {
                     console.log('Validate Failed:', info);
                 });
         }
                 //添加
-        else if(form){
+        if(this.state.addVisible){
+            console.log("进入添加")
             console.log("form",form)
             form.validateFields()//触发表单验证
                 .then((values) => {
                         console.log("form validate", values)
                         let params = {
-                            testSetName: values.testSet,
+                            testSetName: values.testSetName,
                             description: values.description,
                         }
                         httpRequest('post', '/test/add', params)
@@ -383,7 +377,7 @@ export default class TestSet extends Component {
                                 if (response.data.code === 1002) {
                                     let _data=Object.assign({},this.state.currentItem,{
                                         key:key,
-                                        testSetName:values.testSet,
+                                        testSetName:values.testSetName,
                                         description:values.description,
                                         insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
                                     })
@@ -397,8 +391,8 @@ export default class TestSet extends Component {
                                             form.resetFields();
                                             this.setState({
                                                 loading: false,
-                                                //addVisible: false,
-                                                modifyVisible: false,
+                                                addVisible: false,
+                                                //modifyVisible: false,
                                                 currentItem: {
                                                     key: null,
                                                     testSetName: '',
@@ -457,8 +451,8 @@ export default class TestSet extends Component {
     }
 
     //表格分页
-    onChange = page => {
-        console.log(page);
+    onChange = (page) => {
+        console.log("翻页",page);
         this.setState({
             currentPage: page,
         });
@@ -469,10 +463,10 @@ export default class TestSet extends Component {
         }
         httpRequest('post','/test/list',params)
             .then(response=>{
-                console.log(response)
-                if(response.data!==[]){
+                console.log(response.data.data.info)
+                if(response.data.data.info!==[]){
                     this.setState({
-                        data:response.data,
+                        data:response.data.data.info,
                     })
                 }
             }).catch(err => {
@@ -482,7 +476,7 @@ export default class TestSet extends Component {
     };
 
 //该方法返回一个ref 对象， 通过ref 属性绑定该对象，该对象下的current 属性就指向了绑定的元素或组件对象
-   //form = React.createRef();
+   form = React.createRef();
   // form_modify = React.createRef();
 
 
@@ -544,7 +538,7 @@ export default class TestSet extends Component {
                         style={{margin:'20px 0'}}
                         pagination={{
                             position: ['bottomLeft'] ,
-                            total:'this.total',
+                            total:this.state.total,
                             showTotal:total => `共 ${total} 条`,
                             showQuickJumper:true,
                             showSizeChanger:true,
@@ -572,13 +566,13 @@ export default class TestSet extends Component {
                         name="add"
                         ref={this.form}>
                         <Form.Item label="测试集名称"
-                                   name={'testSet'}
+                                   name="testSetName"
                                    rules={[
-                                       {required:true,message:'测试集不能为空'},
+                                       {required:true, message:'测试集不能为空',
+                                        },
                                    ]}//设置验证规则
                             >
-                            <Input placeholder="请输入测试集名称"
-                                   allowClear/>
+                            <Input allowClear/>
                         </Form.Item>
                         <Form.Item label="描述"
                                    name="description">

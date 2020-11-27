@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -71,7 +70,7 @@
       <workItem from="1606308760904" duration="3847000" />
       <workItem from="1606395533053" duration="5972000" />
       <workItem from="1606443514742" duration="15144000" />
-      <workItem from="1606477819081" duration="613000" />
+      <workItem from="1606477819081" duration="6423000" />
     </task>
     <servers />
   </component>
