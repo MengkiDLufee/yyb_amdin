@@ -3,9 +3,8 @@ import {Table, Button, Input, Row, Col, Select, Space, Modal, Form,} from 'antd'
 import {SearchOutlined,PlusSquareOutlined,ReloadOutlined} from '@ant-design/icons';
 import httpRequest from "../../http";
 
-const { Option } = Select;
+//const { Option } = Select;
 const { TextArea } = Input;
-
 
 
 export default class TestSet extends Component {
@@ -13,10 +12,9 @@ export default class TestSet extends Component {
     constructor(props) {
         super(props);
 
-        // //该方法返回一个ref 对象， 通过ref 属性绑定该对象，该对象下的current 属性就指向了绑定的元素或组件对象
+         //该方法返回一个ref 对象， 通过ref 属性绑定该对象，该对象下的current 属性就指向了绑定的元素或组件对象
          //this.form = React.createRef();
-         this.form_modify = React.createRef();
-
+        this.form_modify = React.createRef();
         this.handleAdd=this.handleAdd.bind(this);
         this.handleModify=this.handleModify.bind(this);
         this.inputOnChange=this.inputOnChange.bind(this);
@@ -34,6 +32,7 @@ export default class TestSet extends Component {
         total:null,
         //分页
         currentPage:1,
+        pageSize:10,
         //搜索框
         testSet:'',
         //修改
@@ -83,11 +82,9 @@ export default class TestSet extends Component {
 
     //初始页面请求数据
     componentDidMount() {
-        //this.form_modify = React.createRef();
-
         let params={
             page:1,
-            pageSize:10,
+            pageSize:this.state.pageSize,
         }
         httpRequest('post','/test/list',params)
             .then(response=>{
@@ -122,7 +119,6 @@ export default class TestSet extends Component {
                 modifyVisible:false,
                 addConfirmLoading:false,
                 modifyConfirmLoading:false,
-                //data:data,
                 data:[],
                 testSet:'',
                 currentPage:1,
@@ -156,7 +152,7 @@ export default class TestSet extends Component {
             params.testSetName=this.state.testSet;
         }
         params.page=1;
-        params.pageSize=10;
+        params.pageSize=this.state.pageSize;
         console.log(params)
         httpRequest('post','/test/list',params)
             .then(response=>{
@@ -178,7 +174,7 @@ export default class TestSet extends Component {
         console.log("重置")
         let params={
             page:1,
-            pageSize:10,
+            pageSize:this.state.pageSize,
         }
         httpRequest('post','/test/list',params)
             .then(response=>{
@@ -213,13 +209,6 @@ export default class TestSet extends Component {
     //修改
     handleModify=(record)=>{
         console.log('修改',record)
-        // let _data=Object.assign({},this.state.currentItem,{
-        //     key: record.key,
-        //     testSetName:record.testSetName,
-        //     insertDate:record.insertDate,
-        //     description:record.description,
-        //     testSetId:record.testSetId,
-        // })
         this.setState({
                 modifyVisible:true,
                 currentItem:record,
@@ -249,15 +238,38 @@ export default class TestSet extends Component {
             .then(response=>{
                 console.log(response)
                 if(response.data.code===1006){
-                    const deleteData=[...this.state.data];
-                    console.log("删除项",record.key)
-                    deleteData.forEach((item,index) => {
-                        if(item.key===record.key){
-                            deleteData.splice(index,1);
-                        }
-                    })
-                    this.setState({
-                        data:deleteData,
+                    // const deleteData=[...this.state.data];
+                    // console.log("删除项",record.key)
+                    // deleteData.forEach((item,index) => {
+                    //     if(item.key===record.key){
+                    //         deleteData.splice(index,1);
+                    //     }
+                    // })
+                    // this.setState({
+                    //     data:deleteData,
+                    // })
+                    let params={
+                        page:this.state.currentPage,
+                        pageSize:this.state.pageSize,
+                    }
+                    httpRequest('post','/test/list',params)
+                        .then(response=>{
+                            console.log(response.data.data)
+                            if(response.data!==[]) {
+                                this.setState({
+                                    data: response.data.data.info,
+                                    total: response.data.data.total,
+                                })
+                                const tempData=[...this.state.data];
+                                for(let i=0;i<tempData.length;i++){
+                                    tempData[i].key=this.state.currentPage*params.pageSize+i;
+                                }
+                                this.setState({
+                                    data:tempData
+                                })
+                            }
+                        }).catch(err => {
+                        console.log(err);
                     })
                 }
                 else{
@@ -271,20 +283,21 @@ export default class TestSet extends Component {
 
     //modal点击确认
     handleOk = e => {
-        console.log(e)
-        let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
+        //console.log(e)
+        //let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
         //let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
         //let flag=(this.form_modify.current) ? 1:0;//0添加1修改
         //console.log("0添加1修改",flag)
 
         //获取当前时间
-        var date=new Date();
-        let year=date.getFullYear();
-        let month=date.getMonth()+1;
-        let day=date.getDate();
-        let hour=date.getHours();
-        let minute=date.getMinutes();
-        let second=date.getSeconds();
+        // var date=new Date();
+        // let year=date.getFullYear();
+        // let month=date.getMonth()+1;
+        // let day=date.getDate();
+        // let hour=date.getHours();
+        // let minute=date.getMinutes();
+        // let second=date.getSeconds();
+
         // let _data=Object.assign({},this.state.currentItem,{
         //     key:key,
         //     testSetName:this.state.currentItem.testSetName,
@@ -292,7 +305,8 @@ export default class TestSet extends Component {
         //     insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
         // })
         //console.log("修改为/添加", _data)
-        const modifyData = [...this.state.data];
+
+        //const modifyData = [...this.state.data];
 
         let form = this.form.current;
         let form_modify=this.form_modify.current;
@@ -301,56 +315,75 @@ export default class TestSet extends Component {
             console.log("进入修改")
             form_modify.validateFields()//表单输入校验
                 .then((values) => {
-                    //form_modify.resetFields();
                     console.log("form_modify",values)
                     this.setState({
                         loading: true,
-                        //modifyVisible: true,
                     });
-                    let params={};
-                    let _index;
-                    modifyData.forEach((item,index) => {
-                        if (item.key === this.state.currentItem.key) {
-                            params={
-                                testSetId:item.testSetId,
-                                testSetName:values.testSet,
-                                description:values.description,
-                            }
-                            _index=index;
-                            console.log("修改参数",params)
-                        }
-                    })
+                    let params={
+                        testSetId:this.state.currentItem.testSetId,
+                        testSetName:values.testSet,
+                        description:values.description,
+                    }
+                    // let _index;
+                    // modifyData.forEach((item,index) => {
+                    //     if (item.key === this.state.currentItem.key) {
+                    //         params={
+                    //             testSetId:item.testSetId,
+                    //             testSetName:values.testSet,
+                    //             description:values.description,
+                    //         }
+                    //         _index=index;
+                    //         console.log("修改参数",params)
+                    //     }
+                    // })
                     httpRequest('post','/test/modify',params)
                         .then(response=>{
                             console.log(response)
                             if(response.data.code===1004){
-                                let _data=Object.assign({},this.state.currentItem,{
-                                    testSetName:values.testSet,
-                                    description:values.description,
-                                    insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
+                                let inital_param={
+                                    page:this.state.currentPage,
+                                    pageSize:this.state.pageSize,
+                                }
+                                httpRequest('post','/test/list',inital_param)
+                                    .then(response=>{
+                                        console.log(response.data.data)
+                                        if(response.data!==[]) {
+                                            this.setState({
+                                                data: response.data.data.info,
+                                                total: response.data.data.total,
+                                            })
+                                            const tempData=[...this.state.data];
+                                            for(let i=0;i<tempData.length;i++){
+                                                tempData[i].key=this.state.currentPage*inital_param.pageSize+i;
+                                            }
+                                            this.setState({
+                                                data:tempData
+                                            })
+                                        }
+                                    }).catch(err => {
+                                    console.log(err);
                                 })
-                                modifyData.splice(_index, 1,_data);
-                                {
+                                // let _data=Object.assign({},this.state.currentItem,{
+                                //     testSetName:values.testSet,
+                                //     description:values.description,
+                                //     insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
+                                // })
+                                // modifyData.splice(_index, 1,_data);
                                     setTimeout(() => {
                                         form_modify.resetFields();
                                         this.setState({
                                             loading:false,
                                             //addVisible: false,
                                             modifyVisible: false,
-                                            // currentItem:{
-                                            //     key: null,
-                                            //     testSetName:'',
-                                            //     insertDate:'',
-                                            //     description:'',
-                                            //     testSetId:null,
-                                            // },
+                                            currentItem:{
+                                                key: null,
+                                                testSetName:'',
+                                                insertDate:'',
+                                                description:'',
+                                                testSetId:null,
+                                            },
                                         });
                                     }, 1000);
-                                    this.setState({
-                                        data: modifyData,
-                                    })
-                                }
-
                             }
                         }).catch(err => {
                         console.log(err);
@@ -375,18 +408,42 @@ export default class TestSet extends Component {
                             .then(response => {
                                 console.log(response)
                                 if (response.data.code === 1002) {
-                                    let _data=Object.assign({},this.state.currentItem,{
-                                        key:key,
-                                        testSetName:values.testSetName,
-                                        description:values.description,
-                                        insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
+                                    let inital_params={
+                                        page:Math.ceil(this.state.total/this.state.pageSize),
+                                        pageSize:this.state.pageSize,
+                                    }
+                                    httpRequest('post','/test/list',inital_params)
+                                        .then(response=>{
+                                            console.log("初始化",response)
+                                            if(response.data!==[]) {
+                                                this.setState({
+                                                    data: response.data.data.info,
+                                                    total: response.data.data.total,
+                                                })
+                                                const tempData=[...this.state.data];
+                                                for(let i=0;i<tempData.length;i++){
+                                                    tempData[i].key=i+this.state.pageSize*(inital_params.page-1);
+                                                }
+                                                this.setState({
+                                                    data:tempData,
+                                                    currentPage:inital_params.page
+                                                })
+                                            }
+                                        }).catch(err => {
+                                        console.log(err);
                                     })
-                                    _data.testSetId = response.data.testSetId;
-                                    modifyData.push(_data);
+                                    // let _data=Object.assign({},this.state.currentItem,{
+                                    //     key:key,
+                                    //     testSetName:values.testSetName,
+                                    //     description:values.description,
+                                    //     insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
+                                    // })
+                                    // _data.testSetId = response.data.testSetId;
+                                    // modifyData.push(_data);
                                     {
-                                        this.setState({
-                                            data: modifyData,
-                                        })
+                                        // this.setState({
+                                        //     data: modifyData,
+                                        // })
                                         setTimeout(() => {
                                             form.resetFields();
                                             this.setState({
@@ -441,11 +498,11 @@ export default class TestSet extends Component {
                 testSet:value
             })
         }
-        else{
-            this.setState({
-                currentItem:Object.assign(this.state.currentItem,{[name]:value})
-            })
-        }
+        // else{
+        //     this.setState({
+        //         currentItem:Object.assign(this.state.currentItem,{[name]:value})
+        //     })
+        // }
 
 
     }
@@ -459,7 +516,7 @@ export default class TestSet extends Component {
 
         let params={
             page:page,
-            pageSize:10,
+            pageSize:this.state.pageSize,
         }
         httpRequest('post','/test/list',params)
             .then(response=>{
