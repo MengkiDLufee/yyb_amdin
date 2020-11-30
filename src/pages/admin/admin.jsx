@@ -1,7 +1,7 @@
 // 后台管理的路由组件
-import React, { Component } from 'react'
+import React, { Component, lazy, Suspense } from 'react'
 import {Route , Switch , Link ,Redirect } from 'react-router-dom'
-import { Layout, Menu } from 'antd';
+import { Layout, Menu , Spin } from 'antd';
 import {
     MenuUnfoldOutlined,
     MenuFoldOutlined,
@@ -16,56 +16,107 @@ import {
 import './index.less'
 import menuList from '../../config/menuConfig'
 // import './index.css'
+
 //首页
-import Home from '../home/home'
+// import Home from '../home/home'
+// //用户基础信息管理
+// import UserBasicInfoManagement from '../userBasicInfoManagement/userBasicInfoManagement'
+// import UserDeviceManagement from '../userBasicInfoManagement/userDeviceManagement'
+// import UserMobileMsgManagement from '../userBasicInfoManagement/userMobileMsgManagement'
+// import UserMsg from '../userBasicInfoManagement/userMsg'
+// import UserSMSmanagement from '../userBasicInfoManagement/userSMSmanagement'
+// import UserTestDataManagement from '../userBasicInfoManagement/userTestDataManagement'
+// import VerificationSMSinquire from '../userBasicInfoManagement/verificationSMSinquire'
+// //基础信息管理
+// import TestSet from '../basicInfoManagement/testSet'
+// import TestType from '../basicInfoManagement/testType'
+// import ReagentType from '../basicInfoManagement/reagentType'
+// import ReagentJudgeParams from '../basicInfoManagement/reagentJudgeParams'
+// import UnitManagement from '../basicInfoManagement/unitManagement'
+// import ProjectType from '../basicInfoManagement/projectType'
+// //专业测试管理
+// import ProfessionTestData from '../professionTestManagement/professionTestData'
+// import AccountInfo from '../professionTestManagement/accountInfo'
+// import PatientInfo from '../professionTestManagement/patientInfo'
+// //设备管理
+// import DeviceManagement from '../deviceManagement/deviceManagement'
+// // 实验管理
+// import ExperimentData from  '../experimentManagement/experimentData'
+// import Experimenter from  '../experimentManagement/experimenter'
+// // 优孕宝家庭版统计
+// import TestData from  '../yybHomeEditionStatistics/testData'
+// import ActualTest from  '../yybHomeEditionStatistics/actualTest'
+// import MissingTestThisPeriod from  '../yybHomeEditionStatistics/missingTestThisPeriod'
+// import UserInTest from  '../yybHomeEditionStatistics/userInTest'
+// import NewlyRegisteredUser from  '../yybHomeEditionStatistics/newlyRegisteredUser'
+// import NewlyRegisteredUsingUser from  '../yybHomeEditionStatistics/newlyRegisteredUsingUser'
+// import UserMedication from  '../yybHomeEditionStatistics/userMedication'
+// import AllUser from  '../yybHomeEditionStatistics/allUser'
+// import ValidUser from  '../yybHomeEditionStatistics/validUser'
+// import MissingTsetUser from  '../yybHomeEditionStatistics/missingTsetUser'
+// import TestUserThisPeriod from  '../yybHomeEditionStatistics/testUserThisPeriod'
+// // 优孕宝专业版统计
+// import YybProfessionEditionStatistics from '../yybProfessionEditionStatistics/yybProfessionEditionStatistics'
+// // 客服系统
+// import UserManagement from '../serviceSystem/userManagement'
+// import DeviceManagement_Serve from '../serviceSystem/deviceManagement'
+// import ServiceManagement from '../serviceSystem/serviceManagement'
+
+
+/*
+配置路由懒加载
+注意：懒加载组件需要在Suspense组件中才能渲染
+*/
+//首页
+const Home = lazy(() => import('../home/home'));
 //用户基础信息管理
-import UserBasicInfoManagement from '../userBasicInfoManagement/userBasicInfoManagement'
-import UserDeviceManagement from '../userBasicInfoManagement/userDeviceManagement'
-import UserMobileMsgManagement from '../userBasicInfoManagement/userMobileMsgManagement'
-import UserMsg from '../userBasicInfoManagement/userMsg'
-import UserSMSmanagement from '../userBasicInfoManagement/userSMSmanagement'
-import UserTestDataManagement from '../userBasicInfoManagement/userTestDataManagement'
-import VerificationSMSinquire from '../userBasicInfoManagement/verificationSMSinquire'
+const UserBasicInfoManagement= lazy(()=>import ('../userBasicInfoManagement/userBasicInfoManagement'));
+const UserDeviceManagement = lazy(() => import('../userBasicInfoManagement/userDeviceManagement'));
+const UserMobileMsgManagement = lazy(() => import('../userBasicInfoManagement/userMobileMsgManagement'));
+const UserMsg = lazy(() => import('../userBasicInfoManagement/userMsg'));
+const UserSMSmanagement = lazy(() => import('../userBasicInfoManagement/userSMSmanagement'));
+const UserTestDataManagement = lazy(() => import('../userBasicInfoManagement/userTestDataManagement'));
+const VerificationSMSinquire = lazy(() => import('../userBasicInfoManagement/verificationSMSinquire'));
 //基础信息管理
-import TestSet from '../basicInfoManagement/testSet'
-import TestType from '../basicInfoManagement/testType'
-import ReagentType from '../basicInfoManagement/reagentType'
-import ReagentJudgeParams from '../basicInfoManagement/reagentJudgeParams'
-import UnitManagement from '../basicInfoManagement/unitManagement'
-import ProjectType from '../basicInfoManagement/projectType'
+const TestSet = lazy(() => import('../basicInfoManagement/testSet'));
+const TestType = lazy(() => import('../basicInfoManagement/testType'));
+const ReagentType = lazy(() => import('../basicInfoManagement/reagentType'));
+const ReagentJudgeParams = lazy(() => import('../basicInfoManagement/reagentJudgeParams'));
+const UnitManagement = lazy(() => import('../basicInfoManagement/unitManagement'));
+const ProjectType = lazy(() => import('../basicInfoManagement/projectType'));
 //专业测试管理
-import ProfessionTestData from '../professionTestManagement/professionTestData'
-import AccountInfo from '../professionTestManagement/accountInfo'
-import PatientInfo from '../professionTestManagement/patientInfo'
+const ProfessionTestData = lazy(() => import('../professionTestManagement/professionTestData'));
+const AccountInfo = lazy(() => import('../professionTestManagement/accountInfo'));
+const PatientInfo = lazy(() => import('../professionTestManagement/patientInfo'));
 //设备管理
-import DeviceManagement from '../deviceManagement/deviceManagement'
+const DeviceManagement = lazy(() => import('../deviceManagement/deviceManagement'));
 // 实验管理
-import ExperimentData from  '../experimentManagement/experimentData'
-import Experimenter from  '../experimentManagement/experimenter'
+const ExperimentData = lazy(() => import('../experimentManagement/experimentData'));
+const Experimenter = lazy(() => import('../experimentManagement/experimenter'));
 // 优孕宝家庭版统计
-import TestData from  '../yybHomeEditionStatistics/testData'
-import ActualTest from  '../yybHomeEditionStatistics/actualTest'
-import MissingTestThisPeriod from  '../yybHomeEditionStatistics/missingTestThisPeriod'
-import UserInTest from  '../yybHomeEditionStatistics/userInTest'
-import NewlyRegisteredUser from  '../yybHomeEditionStatistics/newlyRegisteredUser'
-import NewlyRegisteredUsingUser from  '../yybHomeEditionStatistics/newlyRegisteredUsingUser'
-import UserMedication from  '../yybHomeEditionStatistics/userMedication'
-import AllUser from  '../yybHomeEditionStatistics/allUser'
-import ValidUser from  '../yybHomeEditionStatistics/validUser'
-import MissingTsetUser from  '../yybHomeEditionStatistics/missingTsetUser'
-import TestUserThisPeriod from  '../yybHomeEditionStatistics/testUserThisPeriod'
+const TestData = lazy(() => import('../yybHomeEditionStatistics/testData'));
+const ActualTest = lazy(() => import('../yybHomeEditionStatistics/actualTest'));
+const MissingTestThisPeriod = lazy(() => import('../yybHomeEditionStatistics/missingTestThisPeriod'));
+const UserInTest = lazy(() => import('../yybHomeEditionStatistics/userInTest'));
+const NewlyRegisteredUser = lazy(() => import('../yybHomeEditionStatistics/newlyRegisteredUser'));
+const NewlyRegisteredUsingUser = lazy(() => import('../yybHomeEditionStatistics/newlyRegisteredUsingUser'));
+const UserMedication = lazy(() => import('../yybHomeEditionStatistics/userMedication'));
+const AllUser = lazy(() => import('../yybHomeEditionStatistics/allUser'));
+const ValidUser = lazy(() => import('../yybHomeEditionStatistics/validUser'));
+const MissingTsetUser = lazy(() => import('../yybHomeEditionStatistics/missingTsetUser'));
+const TestUserThisPeriod = lazy(() => import('../yybHomeEditionStatistics/testUserThisPeriod'));
 // 优孕宝专业版统计
-import YybProfessionEditionStatistics from '../yybProfessionEditionStatistics/yybProfessionEditionStatistics'
+const YybProfessionEditionStatistics = lazy(() => import('../yybProfessionEditionStatistics/yybProfessionEditionStatistics'));
 // 客服系统
-import UserManagement from '../serviceSystem/userManagement'
-import DeviceManagement_Serve from '../serviceSystem/deviceManagement'
-import ServiceManagement from '../serviceSystem/serviceManagement'
+const UserManagement = lazy(() => import('../serviceSystem/userManagement'));
+const DeviceManagement_Serve = lazy(() => import('../serviceSystem/deviceManagement'));
+const ServiceManagement = lazy(() => import('../serviceSystem/serviceManagement'));
 
 
 
 
 const { SubMenu } = Menu;
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content ,Footer} = Layout;
 
 
 
@@ -152,7 +203,6 @@ export default class Admin extends Component {
                     mode="inline"
                     theme="dark"
                     style={{background:' #f05d73'}}
-                    
                     >
                       {/* 调用生成导航栏函数 */}
                        {this.getMenuNodes(menuList)}
@@ -254,6 +304,7 @@ export default class Admin extends Component {
               <Content
                 style={{ margin: '24px 16px', padding: 24,background:'white',minHeight:"800"}}
               >
+                <Suspense fallback={<Spin tip="Loading..."></Spin>}>
                 <Switch>
                   <Route path="/home" exact component={Home} />
 
@@ -300,7 +351,12 @@ export default class Admin extends Component {
                   <Route path="/service"  component={ServiceManagement} />
                   <Redirect to="/home" />
                 </Switch>
+                </Suspense>
               </Content>
+              <Footer style={{backgroundColor:'white'}}>
+                <a href="https://www.uestc.edu.cn/" target="_blank"  rel="noopener noreferrer" style={{float:'left',textDecoration:'none',color:'gray'}} >电子科技大学提供技术支持</a>
+                <div style={{float:'right',color:'gray'}}>优孕宝服务平台</div>
+              </Footer>
             </Layout>
           </Layout>
         )
