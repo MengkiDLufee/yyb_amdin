@@ -1,15 +1,16 @@
 // 后台管理的路由组件
 import React, { Component, lazy, Suspense } from 'react'
 import {Route , Switch , Link ,Redirect } from 'react-router-dom'
-import { Layout, Menu , Spin } from 'antd';
+import { Layout, Menu , Spin ,Dropdown } from 'antd';
 import {
     MenuUnfoldOutlined,
     MenuFoldOutlined,
     UserOutlined,
     ReloadOutlined,
     FullscreenOutlined,
+    FullscreenExitOutlined,
     EllipsisOutlined,
-    CaretDownOutlined,
+    DownOutlined,
     UnorderedListOutlined,
     MinusOutlined
   } from '@ant-design/icons';
@@ -93,6 +94,7 @@ const DeviceManagement = lazy(() => import('../deviceManagement/deviceManagement
 // 实验管理
 const ExperimentData = lazy(() => import('../experimentManagement/experimentData'));
 const Experimenter = lazy(() => import('../experimentManagement/experimenter'));
+const DevTest = lazy(() => import('../experimentManagement/devTest'))
 // 优孕宝家庭版统计
 const TestData = lazy(() => import('../yybHomeEditionStatistics/testData'));
 const ActualTest = lazy(() => import('../yybHomeEditionStatistics/actualTest'));
@@ -118,18 +120,40 @@ const ServiceManagement = lazy(() => import('../serviceSystem/serviceManagement'
 const { SubMenu } = Menu;
 const { Header, Sider, Content ,Footer} = Layout;
 
+const menu_user = (
+  <Menu>
+    <Menu.Item>
+      <span href="" rel="noopener noreferrer">个人中心</span>
+    </Menu.Item>
+    <Menu.Item>
+      <span  href="" rel="noopener noreferrer">修改密码</span>
+    </Menu.Item>
+    <Menu.Item>
+      <span  href="" rel="noopener noreferrer" >退出</span>
+    </Menu.Item>
+  </Menu>
+)
+
 
 
 
 export default class Admin extends Component {
     state = {
         collapsed: false,
+        screen:false,
       };
     //导航栏收缩扩张
       toggle = () => {
         this.setState({
           collapsed: !this.state.collapsed,
         });
+      };
+      //全屏
+      screen_out_exit = () => {
+        this.setState({
+          screen: !this.state.screen,
+        },()=>console.log(this.state.screen)
+        );
       };
       refresh = () => {
         console.log('刷新')
@@ -140,15 +164,15 @@ export default class Admin extends Component {
         return menuList.map(item =>{
           if(!item.children) {
             return (
-              <Menu.Item key={item.key} icon={<UserOutlined />}>
+              <Menu.Item key={item.key} icon={<UserOutlined/>}  >
                 <Link to={item.key}>
-                  <span>{item.title}</span>
+                    <span>{item.title}</span>
                 </Link>
               </Menu.Item>
             )
           } else {
             return (
-              <SubMenu key={item.key} title={item.title} icon={<UnorderedListOutlined />} >
+            <SubMenu key={item.key} title={item.title} icon={<UnorderedListOutlined/>} >
                 {this.getMenuNodes(item.children)}
               </SubMenu>
             )
@@ -278,12 +302,23 @@ export default class Admin extends Component {
                     <ReloadOutlined style={{fontSize:'18px'}} onClick={this.refresh} />
 
                     <span style={{fontSize:'18px',float:'right',marginRight:'20px'}} >
-                      <FullscreenOutlined  style={{fontSize:'18px',marginRight:'60px'}}/>
-                      {/* eupregna */}
-                      <span style={{fontSize:'21px' }}>eupregna</span>
-                      <CaretDownOutlined />
-                      <EllipsisOutlined rotate="90" style={{marginLeft:'20px'}} />
-                      </span>
+                      <div style={{fontSize:'18px',marginRight:'60px'}}>
+                          {React.createElement(this.state.screen ? FullscreenOutlined : FullscreenExitOutlined , {
+                            className:'trigger',
+                            onClick:this.screen_out_exit,
+                          })}
+                          {/* eupregna */}
+                          {/* <span style={{fontSize:'21px' }}>eupregna</span> */}
+                          <Dropdown overlay={menu_user} >
+                              <span onClick={e => e.preventDefault()} >
+                                eupregna
+                                <DownOutlined style={{marginLeft:3}} />
+                              </span>
+                          </Dropdown>
+                          
+                          <EllipsisOutlined rotate="90" style={{marginLeft:'20px'}} />
+                      </div>
+                    </span>
                   </div>
                 </div>
                 {/* 顶部下方 */}
@@ -331,6 +366,7 @@ export default class Admin extends Component {
 
                   <Route path="/exp/data"  component={ExperimentData} />
                   <Route path="/exp/member"  component={Experimenter} />
+                  <Route path="/exp/dev_test" component={DevTest} />
 
                   <Route path="/home_e/test"  component={TestData} />
                   <Route path="/home_e/test_real"  component={ActualTest} />

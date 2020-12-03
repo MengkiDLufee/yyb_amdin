@@ -21,6 +21,7 @@ import {
         } from '@ant-design/icons'
 import './index.less' //引入样式
 import moment from 'moment';
+import {exportFile} from '../../api/index'
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -77,18 +78,6 @@ for (let i = 0; i < 33; i++) {
   }
 }
 
-  
-  // function handleChange(value) {
-  //   console.log(`selected ${value}`);
-  // }
-// class InputClear extends Component {
-//   render(){
-//     return(
-//       <Input  placeholder={this.props.placeholder} className={this,props.className} onChange={this.props.onChange} value={this.props.value} />
-      
-//     ) 
-//   }
-// }
 
 export default class DeviceManagement extends Component {
 
@@ -361,6 +350,8 @@ columns_user = [
     this.setState({
       visible_add: false,
     });
+    let form = this.form.current;
+    form.resetFields();//清空表单内容
     console.log('添加关闭')
   };
 
@@ -375,6 +366,9 @@ columns_user = [
   //按搜索条件导出
   exportSearch = () =>{
     console.log('按搜索条件导出',this.state.input)
+    // Export1('/user/base/info/export/condition',{})
+    exportFile('/user/base/info/export/condition',{})
+    
   };
   //修改
   modify = (record)=> {
@@ -395,8 +389,8 @@ columns_user = [
             hard_ed:this.state.modal.hard_ed,
             soft_ed:this.state.modal.soft_ed,
             bluetooth:this.state.modal.bluetooth,
-            refresh_time:moment(this.state.modal.refresh_time),
-            time:moment(this.state.modal.time),
+            refresh_time:moment(this.state.modal.refresh_time,'YYYY/MM/DD'),
+            time:moment(this.state.modal.time,'YYYY-MM-DD'),
             status:record.status,
             type:record.type,
             correct:this.state.modal.correct,
@@ -654,7 +648,7 @@ columns_user = [
                       >
                       <Form.Item 
                         label="设备码"
-                        name="dev_code"
+                        name="add_dev_code"
                         rules={[
                           {required:'true',message:'请输入设备码'}
                         ]}
@@ -666,21 +660,21 @@ columns_user = [
                       </Form.Item>
                       <Form.Item 
                         label="硬件版本"
-                        name="hard_ed"
+                        name="add_hard_ed"
                         initialValue="1.0"
                       >
                         <Input/>
                       </Form.Item>
                       <Form.Item
                        label="软件版本"
-                       name="soft_ed"
+                       name="add_soft_ed"
                        initialValue="1.0"
                       >
                         <Input/>
                       </Form.Item>
                       <Form.Item
                        label="软件更新时间"
-                       name="refresh_time"
+                       name="add_refresh_time"
                       >
                         <DatePicker 
                           onChange={this.time_change} 
@@ -689,7 +683,7 @@ columns_user = [
                       </Form.Item>
                       <Form.Item
                        label="蓝牙密码"
-                       name="bluetooth"
+                       name="add_bluetooth"
                       >
                         <Input
                           name="bluetooth"
@@ -697,7 +691,7 @@ columns_user = [
                       </Form.Item>
                       <Form.Item 
                        label="是否可用" 
-                       name="is_valid"
+                       name="add_is_valid"
                        initialValue={0}
                       >
                         <Radio.Group >
@@ -707,7 +701,7 @@ columns_user = [
                       </Form.Item>
                       <Form.Item 
                        label="是否激活"
-                       name="is_on" 
+                       name="add_is_on" 
                        initialValue={0}
                       >
                         <Radio.Group>
@@ -717,7 +711,7 @@ columns_user = [
                       </Form.Item>
                       <Form.Item
                        label="激活时间"
-                       name="time"
+                       name="add_time"
                       >
                          <DatePicker 
                           onChange={this.time_change} 
@@ -727,7 +721,7 @@ columns_user = [
                       </Form.Item>
                       <Form.Item 
                        label="是否共享"
-                       name="is_share" 
+                       name="add_is_share" 
                        initialValue={0}
                       >
                         <Radio.Group >
@@ -737,7 +731,7 @@ columns_user = [
                       </Form.Item>
                       <Form.Item
                        label="矫正倍数"
-                       name="correct"
+                       name="add_correct"
                        rules={[
                          {required:true,message:'请输入矫正倍数！'}
                        ]}
@@ -747,7 +741,7 @@ columns_user = [
                       </Form.Item>
                       <Form.Item
                        label="类型"
-                       name="type"
+                       name="add_type"
                       >
                         <Select placeholder="请选择类型！">
                           <Option value={0}>正常</Option>
@@ -756,7 +750,7 @@ columns_user = [
                       </Form.Item>
                       <Form.Item
                        label="状态"
-                       name="status"
+                       name="add_status"
                       >
                         <Select placeholder="请选择状态！" >
                           <Option value={0}>测试通过</Option>
@@ -766,7 +760,7 @@ columns_user = [
                       
                       <Form.Item
                        label="备注"
-                       name="remark"
+                       name="add_remark"
                       >
                         <TextArea 
                           placeholder="备注信息" 
@@ -848,6 +842,7 @@ columns_user = [
                           <DatePicker 
                             onChange={this.time_change} 
                             style={{width:282}}
+                            format='MM/DD/YYYY'//指定日期显示样式
                           />
                         </Form.Item>
                         <Form.Item

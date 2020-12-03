@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import { Table ,Button , Input , Select, Space ,Modal,Form } from 'antd';
-import {ReloadOutlined,
-        SearchOutlined ,
-        PlusOutlined, 
-        CloudUploadOutlined, 
-        CloudDownloadOutlined,
-        PlusSquareFilled,
-        DeleteFilled
-        } from '@ant-design/icons'
+import {
+  ReloadOutlined,
+  SearchOutlined ,
+  PlusOutlined, 
+  CloudUploadOutlined, 
+  CloudDownloadOutlined,
+  PlusSquareFilled,
+  DeleteFilled
+} from '@ant-design/icons'
 
 import './index.less'
 

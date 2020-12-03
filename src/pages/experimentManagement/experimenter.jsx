@@ -324,10 +324,10 @@ export default class Experimenter extends Component {
           visible_modify:true,
         })
         form.setFieldsValue({
-          user : record.user,
-          name : record.name,
-          phone_num : record.phone_num,
-          state : record.state,
+          modify_user : record.user,
+          modify_name : record.name,
+          modify_phone_num : record.phone_num,
+          modify_state : record.state,
         })
       }
     };
@@ -513,7 +513,8 @@ export default class Experimenter extends Component {
                       >
                             <Form.Item
                              label="用户名"
-                             name="user"
+                             name="add_user"
+                             id="add_user"
                              rules={[
                                {required:true,message:'请输入用户名！'}
                              ]}
@@ -522,7 +523,8 @@ export default class Experimenter extends Component {
                             </Form.Item>
                             <Form.Item
                              label="姓名" 
-                             name="name"
+                             name="add_name"
+                             id="add_name"
                              rules={[
                                {required:true,message:'请输入姓名！'}
                              ]}
@@ -531,7 +533,8 @@ export default class Experimenter extends Component {
                             </Form.Item>
                             <Form.Item
                              label="电话号"
-                             name="phone_num"
+                             id="add_phone_num"
+                             name="add_phone_num"
                              rules={[
                                {required:true,message:'请输入电话号码！'}
                              ]}
@@ -540,7 +543,8 @@ export default class Experimenter extends Component {
                             </Form.Item>
                             <Form.Item
                              label="状态" 
-                             name="state"
+                             id="add_state"
+                             name="add_state"
                              initialValue={0}
                             >
                                 <Radio.Group >
@@ -586,7 +590,8 @@ export default class Experimenter extends Component {
                       >
                             <Form.Item
                              label="用户名"
-                             name="user"
+                             id="modify_user"
+                             name="modify_user"
                              rules={[
                                {required:true,message:'请输入用户名！'}
                              ]}
@@ -595,7 +600,8 @@ export default class Experimenter extends Component {
                             </Form.Item>
                             <Form.Item
                              label="姓名" 
-                             name="name"
+                             id="modify_name"
+                             name="modify_name"
                              rules={[
                                {required:true,message:'请输入姓名！'}
                              ]}
@@ -604,7 +610,8 @@ export default class Experimenter extends Component {
                             </Form.Item>
                             <Form.Item
                              label="电话号"
-                             name="phone_num"
+                             id="modify_phone_num"
+                             name="modify_phone_num"
                              rules={[
                                {required:true,message:'请输入电话号！'}
                              ]}
@@ -613,7 +620,8 @@ export default class Experimenter extends Component {
                             </Form.Item>
                             <Form.Item
                              label="状态"
-                             name="state"
+                             id="modify_state"
+                             name="modify_state"
                             >
                                 <Radio.Group buttonStyle="outline"  >
                                     <Radio value={0}>启用</Radio>
