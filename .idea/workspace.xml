@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +33,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../vue/xsr/xsr" />
+    <property name="last_opened_file_path" value="$USER_HOME$/todolist" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -71,7 +73,14 @@
       <workItem from="1606395533053" duration="5972000" />
       <workItem from="1606443514742" duration="15144000" />
       <workItem from="1606477819081" duration="6423000" />
-      <workItem from="1606628037153" duration="4081000" />
+      <workItem from="1606628037153" duration="5453000" />
+      <workItem from="1606651493335" duration="4155000" />
+      <workItem from="1606720793364" duration="871000" />
+      <workItem from="1606806730045" duration="3192000" />
+      <workItem from="1606872923034" duration="2710000" />
+      <workItem from="1606967381095" duration="1646000" />
+      <workItem from="1607243427959" duration="4287000" />
+      <workItem from="1607322750881" duration="3636000" />
     </task>
     <servers />
   </component>

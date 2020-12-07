@@ -3,7 +3,6 @@ import {Table, Button, Input, Row, Col, Select, Space, Modal, Form,} from 'antd'
 import {SearchOutlined,PlusSquareOutlined,ReloadOutlined} from '@ant-design/icons';
 import httpRequest from "../../http";
 
-//const { Option } = Select;
 const { TextArea } = Input;
 
 
@@ -13,7 +12,6 @@ export default class TestSet extends Component {
         super(props);
 
          //该方法返回一个ref 对象， 通过ref 属性绑定该对象，该对象下的current 属性就指向了绑定的元素或组件对象
-         //this.form = React.createRef();
         this.form_modify = React.createRef();
         this.handleAdd=this.handleAdd.bind(this);
         this.handleModify=this.handleModify.bind(this);
@@ -134,10 +132,6 @@ export default class TestSet extends Component {
         }, 1000);
     };
 
-    // onSelectChange = selectedRowKeys => {
-    //     console.log('selectedRowKeys changed: ', selectedRowKeys);
-    //     this.setState({ selectedRowKeys });
-    // };
 //添加展开modal
     handleAdd(){
         this.setState({
@@ -221,11 +215,7 @@ export default class TestSet extends Component {
              testSet:record.testSetName,
              description:record.description
          })
-
      }
-
-
-
     }
 
     //删除某一行
@@ -238,16 +228,6 @@ export default class TestSet extends Component {
             .then(response=>{
                 console.log(response)
                 if(response.data.code===1006){
-                    // const deleteData=[...this.state.data];
-                    // console.log("删除项",record.key)
-                    // deleteData.forEach((item,index) => {
-                    //     if(item.key===record.key){
-                    //         deleteData.splice(index,1);
-                    //     }
-                    // })
-                    // this.setState({
-                    //     data:deleteData,
-                    // })
                     let params={
                         page:this.state.currentPage,
                         pageSize:this.state.pageSize,
@@ -283,33 +263,11 @@ export default class TestSet extends Component {
 
     //modal点击确认
     handleOk = e => {
-        //console.log(e)
-        //let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
-        //let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
-        //let flag=(this.form_modify.current) ? 1:0;//0添加1修改
-        //console.log("0添加1修改",flag)
-
-        //获取当前时间
-        // var date=new Date();
-        // let year=date.getFullYear();
-        // let month=date.getMonth()+1;
-        // let day=date.getDate();
-        // let hour=date.getHours();
-        // let minute=date.getMinutes();
-        // let second=date.getSeconds();
-
-        // let _data=Object.assign({},this.state.currentItem,{
-        //     key:key,
-        //     testSetName:this.state.currentItem.testSetName,
-        //     description:this.state.currentItem.description,
-        //     insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
-        // })
-        //console.log("修改为/添加", _data)
-
-        //const modifyData = [...this.state.data];
-
         let form = this.form.current;
         let form_modify=this.form_modify.current;
+        this.setState({
+            loading:true
+        })
         //修改
         if(this.state.modifyVisible){
             console.log("进入修改")
@@ -324,18 +282,6 @@ export default class TestSet extends Component {
                         testSetName:values.testSet,
                         description:values.description,
                     }
-                    // let _index;
-                    // modifyData.forEach((item,index) => {
-                    //     if (item.key === this.state.currentItem.key) {
-                    //         params={
-                    //             testSetId:item.testSetId,
-                    //             testSetName:values.testSet,
-                    //             description:values.description,
-                    //         }
-                    //         _index=index;
-                    //         console.log("修改参数",params)
-                    //     }
-                    // })
                     httpRequest('post','/test/modify',params)
                         .then(response=>{
                             console.log(response)
@@ -363,12 +309,6 @@ export default class TestSet extends Component {
                                     }).catch(err => {
                                     console.log(err);
                                 })
-                                // let _data=Object.assign({},this.state.currentItem,{
-                                //     testSetName:values.testSet,
-                                //     description:values.description,
-                                //     insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
-                                // })
-                                // modifyData.splice(_index, 1,_data);
                                     setTimeout(() => {
                                         form_modify.resetFields();
                                         this.setState({
@@ -408,8 +348,9 @@ export default class TestSet extends Component {
                             .then(response => {
                                 console.log(response)
                                 if (response.data.code === 1002) {
+                                    let cu_page=(parseInt(this.state.total)+1)/this.state.pageSize;
                                     let inital_params={
-                                        page:Math.ceil(this.state.total/this.state.pageSize),
+                                        page:Math.ceil(cu_page),
                                         pageSize:this.state.pageSize,
                                     }
                                     httpRequest('post','/test/list',inital_params)
@@ -432,18 +373,7 @@ export default class TestSet extends Component {
                                         }).catch(err => {
                                         console.log(err);
                                     })
-                                    // let _data=Object.assign({},this.state.currentItem,{
-                                    //     key:key,
-                                    //     testSetName:values.testSetName,
-                                    //     description:values.description,
-                                    //     insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
-                                    // })
-                                    // _data.testSetId = response.data.testSetId;
-                                    // modifyData.push(_data);
                                     {
-                                        // this.setState({
-                                        //     data: modifyData,
-                                        // })
                                         setTimeout(() => {
                                             form.resetFields();
                                             this.setState({
@@ -498,13 +428,6 @@ export default class TestSet extends Component {
                 testSet:value
             })
         }
-        // else{
-        //     this.setState({
-        //         currentItem:Object.assign(this.state.currentItem,{[name]:value})
-        //     })
-        // }
-
-
     }
 
     //表格分页
@@ -534,17 +457,10 @@ export default class TestSet extends Component {
 
 //该方法返回一个ref 对象， 通过ref 属性绑定该对象，该对象下的current 属性就指向了绑定的元素或组件对象
    form = React.createRef();
-  // form_modify = React.createRef();
 
 
     render() {
         const { loading, selectedRowKeys } = this.state;
-        // const rowSelection = {
-        //     selectedRowKeys: selectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
-        //     onChange: this.onSelectChange,
-        // };
-        // const hasSelected = selectedRowKeys.length > 0;
-
         const formItemLayout = {
             labelCol: {
                 xs: {
@@ -588,7 +504,6 @@ export default class TestSet extends Component {
                 <div>
                     <Table
                         columns={this.columns}
-                        // rowSelection={rowSelection}
                         dataSource={this.state.data}
                         rowKey={record => record.key}
                         bordered={true}
