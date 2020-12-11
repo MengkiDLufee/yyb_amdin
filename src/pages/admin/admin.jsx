@@ -343,15 +343,15 @@ export default class Admin extends Component {
                 <Switch>
                   <Route path="/home" exact component={Home} />
 
-                  <Route path="/user"  component={UserBasicInfoManagement} />
+                  <Route path="/user" exact component={UserBasicInfoManagement} />
                   <Route path="/user/test"  component={UserTestDataManagement} />
-                  <Route path="user/device"  component={UserDeviceManagement} />
+                  <Route path="/user/device"  component={UserDeviceManagement} />
                   <Route path="/user/easemod/msg"  component={UserMsg} />
                   <Route path="/user/msg"  component={UserSMSmanagement} />
                   <Route path="/user/phone"  component={UserMobileMsgManagement} />
                   <Route path="/user/code"  component={VerificationSMSinquire} />
 
-                  <Route path="/test"  component={TestSet} />
+                  <Route path="/test" exact  component={TestSet} />
                   <Route path="/test/type"  component={TestType} />
                   <Route path="/reagent/type"  component={ReagentType} />
                   <Route path="/reagent/params"  component={ReagentJudgeParams} />

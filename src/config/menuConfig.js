@@ -13,7 +13,7 @@ const menuLsit =[
     },
     {
         title:'用户基础信息管理',
-        key:'/users',
+        key:'/userbasic',
         icon:'home',
         children: [
             {
