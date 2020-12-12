@@ -168,7 +168,6 @@ export default class UnitManagement extends Component {
             }).catch(err => {
             console.log(err);
         })
-        console.log(params);
     }
 
   //重置

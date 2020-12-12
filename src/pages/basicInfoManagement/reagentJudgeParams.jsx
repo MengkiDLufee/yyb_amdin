@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import {Table, Button, Input, Row, Col, Select, Space, Modal, Form} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined,ExportOutlined,ImportOutlined } from "@ant-design/icons";
 import httpRequest from "../../http";
+import exportFile from "../../exportFile";
 
 const { Option } = Select;
 
@@ -13,7 +14,9 @@ export default class ReagentJudgeParams extends Component {
     constructor(props) {
         super(props);
 
+        this.form_modify = React.createRef();
         this.handleAdd=this.handleAdd.bind(this);
+        this.handleExport=this.handleExport.bind(this);
         this.handleModify=this.handleModify.bind(this);
         this.inputOnChange=this.inputOnChange.bind(this);
         this.reset=this.reset.bind(this);
@@ -30,12 +33,18 @@ export default class ReagentJudgeParams extends Component {
         addVisible:false,
         modifyVisible: false,
         data:[],
+        //总数据数
+        total:null,
         //分页
         currentPage:1,
+        pageSize:10,
         //搜索框
         bathNumber:null,
         paperTypeId:null,
-        searchOrganization:'',
+        organization:null,
+        //搜索框选项
+        reagentTypeGroup:[],
+        organizationGroup:[],
         //修改
         currentItem:{
             key: null,
@@ -112,12 +121,157 @@ export default class ReagentJudgeParams extends Component {
         },
     ];
 
-    //初始页面请求数据
+    //初始页面请求数据（完成）
     componentDidMount() {
         let params={
             page:1,
             pageSize:10,
         }
+        httpRequest('post','/paper/param/pro/list',params)
+            .then(response=>{
+                console.log(response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i;
+                        if(tempData[i].qualitative===false){
+                            tempData[i].qualitative='否';
+                        }
+                        else{
+                            tempData[i].qualitative='是';
+                        }
+                        if(tempData[i].paperFade===false){
+                            tempData[i].paperFade='否';
+                        }
+                        else{
+                            tempData[i].paperFade='是';
+                        }
+                    }
+                    this.setState({
+                        data:tempData,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+        //请求试剂类型
+        httpRequest('post','/paper/list',{})
+            .then(response=>{
+                console.log("请求试剂类型",response)
+                if(response.data!==[]) {
+                    this.setState({
+                        reagentTypeGroup: response.data.data.info,
+                    })
+                    console.log("试剂类型",this.state.reagentTypeGroup)
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+        //请求单位数据
+        httpRequest('post','/unit/list',{})
+            .then(response=>{
+                console.log("请求单位数据",response)
+                if(response.data!==[]) {
+                    this.setState({
+                        organizationGroup: response.data.data.info,
+                    })
+                    console.log("试剂类型",this.state.organizationGroup)
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+    }
+
+
+    start = () => {
+        this.setState({ loading: true });
+        // ajax request after empty completing
+        setTimeout(() => {
+            this.setState({
+                selectedRowKeys: [],
+                loading: false,
+                addVisible:false,
+                modifyVisible:false,
+                addConfirmLoading:false,
+                modifyConfirmLoading:false,
+                data:[],
+                bathNumber:null,
+                paperTypeId:null,
+                organization:null,
+                currentPage:1,
+                //修改
+                currentItem:{
+                    key: null,
+                    paperParamProId:null,//试剂判读参数id生产
+                    bathNumber: null,//批号
+                    paperTypeName: '',//试剂类型名称
+                    reactiveTime: null,//反应时间(秒)
+                    organization:'',//所属单位
+                    qualitative:null,//是定性
+                    paperFade :null,//能效已降低
+                },
+
+
+            });
+        }, 1000);
+    };
+
+    //选择
+    onSelectChange = selectedRowKeys => {
+        console.log('selectedRowKeys changed: ', selectedRowKeys);
+        this.setState({ selectedRowKeys });
+    };
+
+    //添加展开modal（完成）
+    handleAdd(){
+        this.setState({
+            addVisible:true,
+        });
+    }
+
+    //导出
+    handleExport(){
+        console.log("导出")
+        let url='/paper/param/pro/export';
+        let params={
+            paperTypeId:1202936095629643778,
+            bathNumber:3,
+            organization:1,
+        }
+        let filename='判读参数';
+        console.log(params)
+        exportFile(url,params,filename)
+            .then(response=>{
+                console.log(response)
+            }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    //搜索（完成）
+    search(){
+        let params={};
+        if(this.state.bathNumber!==null){
+            params.bathNumber=this.state.bathNumber;
+        }
+        if(this.state.paperTypeId!==null){
+            params.paperTypeId=this.state.paperTypeId;
+        }
+        if(this.state.organization!==null){
+            params.organization=this.state.organization;
+        }
+        params.page=1;
+        params.pageSize=this.state.pageSize;
+        console.log(params);
         httpRequest('post','/paper/param/pro/list',params)
             .then(response=>{
                 console.log(response)
@@ -152,73 +306,77 @@ export default class ReagentJudgeParams extends Component {
         })
     }
 
-
-    start = () => {
-        this.setState({ loading: true });
-        // ajax request after empty completing
-        setTimeout(() => {
-            this.setState({
-                selectedRowKeys: [],
-                loading: false,
-                addVisible:false,
-                modifyVisible:false,
-                addConfirmLoading:false,
-                modifyConfirmLoading:false,
-                data:[],
-                bathNumber:null,
-                paperTypeId:null,
-                searchOrganization:'',
-                currentPage:1,
-                //修改
-                currentItem:{
-                    key: null,
-                    paperParamProId:null,//试剂判读参数id生产
-                    bathNumber: null,//批号
-                    paperTypeName: '',//试剂类型名称
-                    reactiveTime: null,//反应时间(秒)
-                    organization:'',//所属单位
-                    qualitative:null,//是定性
-                    paperFade :null,//能效已降低
-                },
-
-
-            });
-        }, 1000);
-    };
-
-    onSelectChange = selectedRowKeys => {
-        console.log('selectedRowKeys changed: ', selectedRowKeys);
-        this.setState({ selectedRowKeys });
-    };
-
-    //添加展开modal
-    handleAdd(){
-        this.setState({
-            addVisible:true,
-        });
-    }
-
-    //搜索
-    search(){
-        let params={};
-        if(this.state.bathNumber!==null){
-            params.bathNumber=this.state.bathNumber;
-        }
-        if(this.state.paperTypeId!==null){
-            params.paperTypeId=this.state.paperTypeId;
-        }
-        if(this.state.searchOrganization!==''){
-            params.organization=this.state.searchOrganization;
-        }
-        console.log(params);
-        //console.log(this.state.testTypeId)
-    }
-
-    //重置
+    //重置（完成）
     reset(){
         console.log("重置")
+        let params={
+            page:1,
+            pageSize:10,
+        }
+        httpRequest('post','/paper/param/pro/list',params)
+            .then(response=>{
+                console.log(response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i;
+                        if(tempData[i].qualitative===false){
+                            tempData[i].qualitative='否';
+                        }
+                        else{
+                            tempData[i].qualitative='是';
+                        }
+                        if(tempData[i].paperFade===false){
+                            tempData[i].paperFade='否';
+                        }
+                        else{
+                            tempData[i].paperFade='是';
+                        }
+                    }
+                    this.setState({
+                        data:tempData,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+        //请求试剂类型
+        httpRequest('post','/paper/list',{})
+            .then(response=>{
+                console.log("请求试剂类型",response)
+                if(response.data!==[]) {
+                    this.setState({
+                        reagentTypeGroup: response.data.data.info,
+                    })
+                    console.log("试剂类型",this.state.reagentTypeGroup)
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+        //请求单位数据
+        httpRequest('post','/unit/list',{})
+            .then(response=>{
+                console.log("请求单位数据",response)
+                if(response.data!==[]) {
+                    this.setState({
+                        organizationGroup: response.data.data.info,
+                    })
+                    console.log("试剂类型",this.state.organizationGroup)
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
         this.setState({
-            data:[],
             currentItem:{
                 key: null,
                 batchNumber: null,
@@ -232,106 +390,165 @@ export default class ReagentJudgeParams extends Component {
             //搜索框
             bathNumber:null,
             paperTypeId:null,
-            searchOrganization:'',
+            organization:null,
             //当前页
             currentPage:1,
         });
         console.log(this.state)
-
     }
 
-    //修改
+    //修改展开modal
     handleModify=(record)=>{
         console.log('修改',record)
-        let data=Object.assign({},this.state.currentItem,{
-            key: record.key,
-            batchNumber: record.batchNumber,
-            reagentType:record.reagentType,
-            responsTime: record.responsTime,
-            affiliation:record.affiliation,
-            isStable:record.isStable,
-            isEfficiency :record.isEfficiency,
-        })
 
         this.setState({
                 modifyVisible:true,
-                currentItem:data,
+                currentItem:record,
             },
             ()=>console.log(this.state.currentItem)
         );
+        // let form_modify=this.form_modify.current;
+        // if(this.form_modify.current){
+        //     form_modify.setFieldsValue({
+        //         testTypeId:record.testTypeId,
+        //         planTypeCode:record.planTypeCode,
+        //         testTypeName:record.testTypeName,
+        //         planTypeName:record.planTypeName,
+        //         planTypeValue:record.planTypeValue,
+        //         timeout:record.timeout
+        //     })
+        // }
+
+
+        // let data=Object.assign({},this.state.currentItem,{
+        //     key: record.key,
+        //     batchNumber: record.batchNumber,
+        //     reagentType:record.reagentType,
+        //     responsTime: record.responsTime,
+        //     affiliation:record.affiliation,
+        //     isStable:record.isStable,
+        //     isEfficiency :record.isEfficiency,
+        // })
+        //
+        // this.setState({
+        //         modifyVisible:true,
+        //         currentItem:data,
+        //     },
+        //     ()=>console.log(this.state.currentItem)
+        // );
 
     }
 
     //删除某一行
     handleDelete=(record)=>{
         console.log('删除',record)
-        const deleteData=[...this.state.data];
-        console.log("删除项",record.key)
-        deleteData.forEach((item,index) => {
-            if(item.key===record.key){
-                deleteData.splice(index,1);
-            }
-        })
-        this.setState({
-            data:deleteData,
-            //ES6中键和值相等时可直接写成list
+        let params={
+            paperParamProId:record.paperParamProId,
+        }
+        httpRequest('post','/paper/param/pro/delete',params)
+            .then(response=>{
+                console.log(params)
+                console.log("请求",response)
+                if(response.data.code===1006){
+                    let params={
+                        page:this.state.currentPage,
+                        pageSize:this.state.pageSize,
+                    }
+                    httpRequest('post','/paper/param/pro/list',params)
+                        .then(response=>{
+                            console.log(response)
+                            console.log(response.data.data)
+                            if(response.data!==[]) {
+                                this.setState({
+                                    data: response.data.data.info,
+                                    total: response.data.data.total,
+                                })
+                                const tempData=[...this.state.data];
+                                for(let i=0;i<tempData.length;i++){
+                                    tempData[i].key=i;
+                                    if(tempData[i].qualitative===false){
+                                        tempData[i].qualitative='否';
+                                    }
+                                    else{
+                                        tempData[i].qualitative='是';
+                                    }
+                                    if(tempData[i].paperFade===false){
+                                        tempData[i].paperFade='否';
+                                    }
+                                    else{
+                                        tempData[i].paperFade='是';
+                                    }
+                                }
+                                this.setState({
+                                    data:tempData,
+                                })
+                            }
+                        }).catch(err => {
+                        console.log(err);
+                    })
+                }
+                else{
+                    alert("删除失败，请稍后再试")
+                }
+            }).catch(err => {
+            console.log(err);
         })
     }
 
     //modal点击确认
     handleOk = e => {
-        this.setState({
-            loading: true,
-            //modifyVisible: true,
-        });
-        let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
-        let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
-        console.log(flag)
-        let data=Object.assign({},this.state.currentItem,{
-            key:key,
-            batchNumber:this.state.currentItem.batchNumber,
-            reagentType:this.state.currentItem.reagentType,
-            responsTime:this.state.currentItem.responsTime,
-            affiliation:this.state.currentItem.affiliation,
-            isStable:this.state.currentItem.isStable,
-            isEfficiency :this.state.currentItem.isEfficiency ,
-        })
-        console.log("修改为/添加", data)
-        const modifyData = [...this.state.data];
-        if(flag===1){
-            modifyData.forEach((item, index) => {
-                if (item.key === this.state.currentItem.key) {
-                    modifyData.splice(index, 1,data);
-                }
-            })
-        }
-        else{
-            modifyData.push(data);
-        }
-
-        this.setState({
-            data: modifyData,
-            //ES6中键和值相等时可直接写成list
-        })
-        setTimeout(() => {
-            this.setState({
-                loading:false,
-                addVisible: false,
-                modifyVisible: false,
-                currentItem:{
-                    key: null,
-                    batchNumber: null,
-                    reagentType: '',
-                    responsTime: null,
-                    affiliation:'',
-                    isStable:'',
-                    isEfficiency :'',
-                },
-            });
-        }, 1000);
+        // this.setState({
+        //     loading: true,
+        //     //modifyVisible: true,
+        // });
+        // let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
+        // let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
+        // console.log(flag)
+        // let data=Object.assign({},this.state.currentItem,{
+        //     key:key,
+        //     batchNumber:this.state.currentItem.batchNumber,
+        //     reagentType:this.state.currentItem.reagentType,
+        //     responsTime:this.state.currentItem.responsTime,
+        //     affiliation:this.state.currentItem.affiliation,
+        //     isStable:this.state.currentItem.isStable,
+        //     isEfficiency :this.state.currentItem.isEfficiency ,
+        // })
+        // console.log("修改为/添加", data)
+        // const modifyData = [...this.state.data];
+        // if(flag===1){
+        //     modifyData.forEach((item, index) => {
+        //         if (item.key === this.state.currentItem.key) {
+        //             modifyData.splice(index, 1,data);
+        //         }
+        //     })
+        // }
+        // else{
+        //     modifyData.push(data);
+        // }
+        //
+        // this.setState({
+        //     data: modifyData,
+        //     //ES6中键和值相等时可直接写成list
+        // })
+        // setTimeout(() => {
+        //     this.setState({
+        //         loading:false,
+        //         addVisible: false,
+        //         modifyVisible: false,
+        //         currentItem:{
+        //             key: null,
+        //             batchNumber: null,
+        //             reagentType: '',
+        //             responsTime: null,
+        //             affiliation:'',
+        //             isStable:'',
+        //             isEfficiency :'',
+        //         },
+        //     });
+        // }, 1000);
     };
 
-    //关闭modal
+    //关闭modal（完成）
     handleCancel = e => {
         console.log(e);
         this.setState({
@@ -339,17 +556,18 @@ export default class ReagentJudgeParams extends Component {
             modifyVisible: false,
             currentItem:{
                 key: null,
-                batchNumber: null,
-                reagentType: '',
-                responsTime: null,
-                affiliation:'',
-                isStable:'',
-                isEfficiency :'',
+                paperParamProId:null,//试剂判读参数id生产
+                bathNumber: null,//批号
+                paperTypeName: '',//试剂类型名称
+                reactiveTime: null,//反应时间(秒)
+                organization:'',//所属单位
+                qualitative:null,//是定性
+                paperFade :null,//能效已降低
             },
         });
     };
 
-//输入框变化
+   //输入框变化（完成）
     inputOnChange=e=>{
         console.log(e)
         const name=e.target.name;
@@ -361,22 +579,43 @@ export default class ReagentJudgeParams extends Component {
                 bathNumber:value
             })
         }
-        else{
-            this.setState({
-                currentItem:Object.assign(this.state.currentItem,{[name]:value})
-            })
-        }
+        // else{
+        //     this.setState({
+        //         currentItem:Object.assign(this.state.currentItem,{[name]:value})
+        //     })
+        // }
 
 
     }
 
-    //搜索选择框变化
+    //搜索选择框变化（完成）
     handleChange=(e,Option) =>{
         console.log(e)
+        console.log(Option)
             this.setState({
-                [Option.title]:e,
+                [Option.title]:Option.value,
         })
     }
+
+
+    //试剂类型选择框内容（完成）
+    reoption(){
+        return(
+                this.state.reagentTypeGroup.map((item)=>{
+                return(<Option title="paperTypeId" value={item.paperTypeId}>{item.paperTypeName}</Option>)
+            })
+        )
+    }
+
+    //试剂类型选择框内容（完成）
+    oroption(){
+        return(
+            this.state.organizationGroup.map((item)=>{
+                return(<Option title="organization" value={item.unitName}>{item.unitName}</Option>)
+            })
+        )
+    }
+
     //增加或修改选择框变化
     alerthandleChange=(e,Option) =>{
         console.log(e)
@@ -393,8 +632,45 @@ export default class ReagentJudgeParams extends Component {
         this.setState({
             currentPage: page,
         });
+        let params={
+            page:page,
+            pageSize:this.state.pageSize,
+        }
+        httpRequest('post','/paper/param/pro/list',params)
+            .then(response=>{
+                console.log(response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i;
+                        if(tempData[i].qualitative===false){
+                            tempData[i].qualitative='否';
+                        }
+                        else{
+                            tempData[i].qualitative='是';
+                        }
+                        if(tempData[i].paperFade===false){
+                            tempData[i].paperFade='否';
+                        }
+                        else{
+                            tempData[i].paperFade='是';
+                        }
+                    }
+                    this.setState({
+                        data:tempData,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
     };
 
+    form = React.createRef();
 
     render() {
         const { loading, selectedRowKeys } = this.state;
@@ -436,29 +712,21 @@ export default class ReagentJudgeParams extends Component {
                     </Col>
                     <Col span={4}>
                         <Select
-                            className="reagentType"
                             placeholder="请选择试剂类型 "
                             style={{width:'100%'}}
                             value={this.state.paperTypeId}
-                            allowClear
                             onChange={this.handleChange}>
-                            <Option title="paperTypeId" value={1}>试剂类型1</Option>
-                            <Option title="paperTypeId" value={2}>试剂类型2</Option>
-                            <Option title="paperTypeId" value={3}>试剂类型3</Option>
+                            {this.reoption()}
                         </Select>
                     </Col>
                     <Col span={4}>
                         <Select
                             placeholder="请选择所属单位"
-                            value={this.state.searchOrganization}
-                            allowClear
-                            className="affiliatedInstitutions"
+                            value={this.state.organization}
                             style={{width:'100%'}}
                             onChange={this.handleChange}>
-                            <Option title="searchOrganization" value="affiliatedInstitutions1">单位1</Option>
-                            <Option title="searchOrganization" value="affiliatedInstitutions2">单位2</Option>
-                            <Option title="searchOrganization" value="affiliatedInstitutions3">单位3</Option>
-                        </Select>
+                            {this.oroption()}
+                            </Select>
                     </Col>
                     <Col span={2}>
                         <Button type="primary" onClick={this.search}><SearchOutlined />搜索</Button>
@@ -470,7 +738,7 @@ export default class ReagentJudgeParams extends Component {
                         <Button type="primary" onClick={this.handleAdd}><PlusSquareOutlined />添加</Button>
                     </Col>
                     <Col span={2} >
-                        <Button type="primary" ><ExportOutlined />导出</Button>
+                        <Button type="primary" onClick={this.handleExport}><ExportOutlined />导出</Button>
                     </Col>
                     <Col span={2} >
                         <Button type="primary" ><ImportOutlined />导入</Button>
@@ -485,12 +753,12 @@ export default class ReagentJudgeParams extends Component {
                         rowSelection={rowSelection}
                         columns={this.columns}
                         dataSource={this.state.data}
-                        rowKey={record => record.key}
+                        //rowKey={record => record.key}
                         bordered={true}
                         style={{margin:'20px 0'}}
                         pagination={{
                             position: ['bottomLeft'] ,
-                            total:'data.length',
+                            total:this.state.total,
                             showTotal:total => `共 ${total} 条`,
                             showQuickJumper:true,
                             showSizeChanger:true,
@@ -570,14 +838,15 @@ export default class ReagentJudgeParams extends Component {
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     footer={[
-                        <Button key="back" onClick={this.handleCancel}>
-                            取消
-                        </Button>,
-                        <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
-                            修改
-                        </Button>,
-                    ]}
-                >
+                        <div style={{textAlign:"center"}}>
+                            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+                                添加
+                            </Button>,
+                            <Button key="back" onClick={this.handleCancel}>
+                                取消
+                            </Button>,
+                        </div>
+                    ]}>
                     <div>
                         <Form {...formItemLayout}>
                             <Form.Item label="批号"

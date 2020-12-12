@@ -126,7 +126,7 @@ export default class ProjectType extends Component {
             console.log(err);
         })
       //请求测试类型名称
-        httpRequest('post','/test/type/list',{page:1,pageSize:100})
+        httpRequest('post','/test/type/list',{})
             .then(response=>{
                 console.log("请求测试类型",response)
                 if(response.data!==[]) {
@@ -249,10 +249,7 @@ export default class ProjectType extends Component {
             console.log(err);
         })
         //请求测试类型名称
-        let param={
-            page:1,
-            pageSize:100,
-        }
+        let param={}
         httpRequest('post','/test/type/list',param)
             .then(response=>{
                 console.log(response.data.data)
