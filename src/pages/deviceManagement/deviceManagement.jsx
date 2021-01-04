@@ -22,6 +22,7 @@ import {
 import './index.less' //引入样式
 import moment from 'moment';
 import {exportFile} from '../../api/index'
+import ImportFile from '../../compenents/importfile'
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -100,6 +101,7 @@ export default class DeviceManagement extends Component {
     visible_add: false ,
     visible_modify :false,
     visible_user :false,
+    visible_import:false,
     selectedRowKeys: [], // Check here to configure the default column
     paginationProps : {//分页栏参数
       position: ['bottomLeft'] ,
@@ -358,7 +360,15 @@ columns_user = [
   //导入
   importStatic = () =>{
     console.log('导入')
+    this.setState({
+      visible_import:true,
+    })
   };
+  handleCancel_import = () => {
+    this.setState({
+      visible_import:false,
+    })
+  }
   //导出已选择数据
   exportChoose = () =>{
     console.log('导出已选择数据',this.state.selectedRowKeys)
@@ -945,24 +955,30 @@ columns_user = [
                   footer={null}
                   width="800"
                 >
-                      <div className="ant-modal-body" style={{height:"100%"}}>
-                          <div style={{fontWeight:'bold',marginTop:"-20px"}}>
-                            <div>设备码：{this.state.devCode}</div>
-                            <div>历史连接人数：{data_user.length}</div>
-                          </div>
-                        <div style={{height:"100%",width:"100%"}}>
-                          <Table 
-                          columns={this.columns_user} 
-                          dataSource={data_user} 
-                          bordered={true}      
-                          style={{margin:'20px 0',borderBottom:'1px,soild'}}
-                          pagination={ this.state.paginationProps_user}
-                          onChange={this.handTablechange_user}
-                          size="small"
-                          />
-                        </div>
+                  <div className="ant-modal-body" style={{height:"100%"}}>
+                      <div style={{fontWeight:'bold',marginTop:"-20px"}}>
+                        <div>设备码：{this.state.devCode}</div>
+                        <div>历史连接人数：{data_user.length}</div>
+                      </div>
+                    <div style={{height:"100%",width:"100%"}}>
+                      <Table 
+                      columns={this.columns_user} 
+                      dataSource={data_user} 
+                      bordered={true}      
+                      style={{margin:'20px 0',borderBottom:'1px,soild'}}
+                      pagination={ this.state.paginationProps_user}
+                      onChange={this.handTablechange_user}
+                      size="small"
+                      />
+                    </div>
                   </div>
                 </Modal>
+                {/* 导入弹窗 */}
+                <ImportFile
+                 url="http://123.57.33.240:8080/paper/param/pro/import" 
+                 visible={this.state.visible_import}
+                 onCancel={this.handleCancel_import}
+                />
             </div>
         )
     }

@@ -42,6 +42,7 @@
 
 .left-nav {
     background-color:#f05d73 ;
+    padding-bottom: 80px;
 }
 
 .ant-layout-content {
@@ -89,4 +90,23 @@
   cursor: pointer;
   -webkit-transition: color 0.3s;
   transition: color 0.3s;
+}
+//滚动条隐藏
+
+.outer {
+  width: 100%;
+  height: 100%;
+	position: relative;
+  overflow: hidden;
+  padding-bottom: 100px;
+}
+.inner {
+  position: absolute;
+	left: 0;
+	top: 0;
+	right: -17px;
+	bottom: 0;
+	overflow-x: hidden;
+  overflow-y: scroll;
+  padding-bottom: 80px;
 }

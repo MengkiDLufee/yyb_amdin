@@ -8,6 +8,7 @@ import {ReloadOutlined,
         } from '@ant-design/icons';
 // import './radio.less';//radio样式修改
 import './index.less'
+import {exp_person} from '../../api/index'
 
 
 
@@ -248,6 +249,15 @@ export default class Experimenter extends Component {
         phone_num_in:'',
         },
     )
+      exp_person({
+        page:1,
+        pageSize:20,
+      }).then(res=> {
+        console.log(res)
+      })
+      .catch(err=> {
+        console.log(err)
+      })
     };
     //添加
     add =() =>{

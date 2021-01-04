@@ -141,6 +141,7 @@ export default class Admin extends Component {
     state = {
         collapsed: false,
         screen:false,
+        keys:[],
       };
     //导航栏收缩扩张
       toggle = () => {
@@ -171,6 +172,7 @@ export default class Admin extends Component {
               </Menu.Item>
             )
           } else {
+
             return (
             <SubMenu key={item.key} title={item.title} icon={<UnorderedListOutlined/>} >
                 {this.getMenuNodes(item.children)}
@@ -215,78 +217,87 @@ export default class Admin extends Component {
             });
             return title
     }
+    onOpenChange = (e) => {
+      console.log(e)
+    }
 
     render() {
         return (
-            <Layout className="layout">
+            <Layout style={{'height':'100%','overflowY':'hidden'}} >
               {/* 左侧导航栏 */}
             <Sider trigger={null} collapsible collapsed={this.state.collapsed}  className="left-nav"> 
               <div className="logo" ><h1 style={{color:'white',paddingTop:'5px'}}>logo</h1></div>
-              <Menu
-                    defaultSelectedKeys={['1']}
-                    mode="inline"
-                    theme="dark"
-                    style={{background:' #f05d73'}}
-                    >
-                      {/* 调用生成导航栏函数 */}
-                       {this.getMenuNodes(menuList)}
+                <div className="outer">
+                  <div className="inner">
+                      <Menu
+                            defaultSelectedKeys={['1']}
+                            mode="inline"
+                            theme="dark"
+                            style={{background:' #f05d73'}}
+                            // openKeys={openKeys}
+                            onOpenChange={this.onOpenChange}
+                            >
+                              {/* 调用生成导航栏函数 */}
+                              {this.getMenuNodes(menuList)}
 
-                    {/* <Menu.Item key="1" icon={<UserOutlined />}>
-                        <Link to='/home' />首页
-                    </Menu.Item>
-                    <SubMenu key="sub1" icon={<UserOutlined />} title="用户基础信息管理"  >
-                        <Menu.Item key="2"><Link to='/user' />用户基础信息管理</Menu.Item>
-                        <Menu.Item key="3"><Link to='/user/test' />用户测试数据管理</Menu.Item>
-                        <Menu.Item key="4"><Link to='/user/device' />用户设备管理</Menu.Item>
-                        <Menu.Item key="5"><Link to='/user/easemod/msg' />用户消息</Menu.Item>
-                        <Menu.Item key="6"><Link to='/user/msg' />用户短信管理</Menu.Item>
-                        <Menu.Item key="7"><Link to='/user/phone' />用户手机信息管理</Menu.Item>
-                        <Menu.Item key="8"><Link to='/user/code' />验证短信查询</Menu.Item>
-                    </SubMenu>
-                    <SubMenu key="sub2" icon={<UserOutlined />} title="基础信息管理">
-                        <Menu.Item key="9"><Link to='/test' />测试集</Menu.Item>
-                        <Menu.Item key="10"><Link to='/test/type' />测试类型</Menu.Item>
-                        <Menu.Item key="11"><Link to='/reagent/type' />试剂类型</Menu.Item>
-                        <Menu.Item key="12"><Link to='/reagent/params' />试剂判读参数</Menu.Item>
-                        <Menu.Item key="13"><Link to='/unit' />单位管理</Menu.Item>
-                        <Menu.Item key="14"><Link to='/plan/type' />计划类型</Menu.Item>
-                    </SubMenu>
-                    <SubMenu key="sub3" title="专业测试管理">
-                        <Menu.Item key="15"><Link to='/prof/test' />专业测试数据</Menu.Item>
-                        <Menu.Item key="16"><Link to='/prof/account' />账号信息</Menu.Item>
-                        <Menu.Item key="17"><Link to='/prof/patient' />病人信息</Menu.Item>
-                    </SubMenu>
-                    <Menu.Item key="18" icon={<UserOutlined />}>
-                    <Link to='/device' />
-                      设备管理
-                    </Menu.Item>
-                    <SubMenu key="sub4" title="实验管理">
-                        <Menu.Item key="19"><Link to='/exp/data' />实验数据</Menu.Item>
-                        <Menu.Item key="20"><Link to='/exp/member' />实验人员</Menu.Item>
-                    </SubMenu>
-                    <SubMenu key="sub5" icon={<UserOutlined />} title="优孕宝家庭版统计">
-                        <Menu.Item key="21"><Link to='/home_e/test' />测试数据</Menu.Item>
-                        <Menu.Item key="22"><Link to='/home_e/test_real' />实际在测</Menu.Item>
-                        <Menu.Item key="23"><Link to='/home_e/miss' />本周期漏测</Menu.Item>
-                        <Menu.Item key="24"><Link to='/home_e/test_on' />在测用户</Menu.Item>
-                        <Menu.Item key="25"><Link to='/home_e/user_new' />新注册用户</Menu.Item>
-                        <Menu.Item key="26"><Link to='/home_e/using_new' />新注册使用用户</Menu.Item>
-                        <Menu.Item key="27"><Link to='/home_e/med' />用户用药</Menu.Item>
-                        <Menu.Item key="28"><Link to='/home_e/user_all' />所有用户</Menu.Item>
-                        <Menu.Item key="29"><Link to='/home_e/user_valid' />有效用户</Menu.Item>
-                        <Menu.Item key="30"><Link to='/home_e/user_miss' />漏测用户</Menu.Item>
-                        <Menu.Item key="31"><Link to='/home_e/user_period' />当前周期测试用户</Menu.Item>
-                    </SubMenu>
-                    <Menu.Item key="32" icon={<UserOutlined />}>
-                    <Link to='/pro_edition' />
-                        优孕宝专业版统计
-                    </Menu.Item>
-                    <SubMenu key="sub6" title="客服系统">
-                        <Menu.Item key="33"><Link to='/serve/user' />用户管理</Menu.Item>
-                        <Menu.Item key="34"><Link to='/serve/device' />设备管理</Menu.Item>
-                        <Menu.Item key="35"><Link to='/service' />客服管理</Menu.Item>
-                    </SubMenu> */}
-                    </Menu>
+                            {/* <Menu.Item key="1" icon={<UserOutlined />}>
+                                <Link to='/home' />首页
+                            </Menu.Item>
+                            <SubMenu key="sub1" icon={<UserOutlined />} title="用户基础信息管理"  >
+                                <Menu.Item key="2"><Link to='/user' />用户基础信息管理</Menu.Item>
+                                <Menu.Item key="3"><Link to='/user/test' />用户测试数据管理</Menu.Item>
+                                <Menu.Item key="4"><Link to='/user/device' />用户设备管理</Menu.Item>
+                                <Menu.Item key="5"><Link to='/user/easemod/msg' />用户消息</Menu.Item>
+                                <Menu.Item key="6"><Link to='/user/msg' />用户短信管理</Menu.Item>
+                                <Menu.Item key="7"><Link to='/user/phone' />用户手机信息管理</Menu.Item>
+                                <Menu.Item key="8"><Link to='/user/code' />验证短信查询</Menu.Item>
+                            </SubMenu>
+                            <SubMenu key="sub2" icon={<UserOutlined />} title="基础信息管理">
+                                <Menu.Item key="9"><Link to='/test' />测试集</Menu.Item>
+                                <Menu.Item key="10"><Link to='/test/type' />测试类型</Menu.Item>
+                                <Menu.Item key="11"><Link to='/reagent/type' />试剂类型</Menu.Item>
+                                <Menu.Item key="12"><Link to='/reagent/params' />试剂判读参数</Menu.Item>
+                                <Menu.Item key="13"><Link to='/unit' />单位管理</Menu.Item>
+                                <Menu.Item key="14"><Link to='/plan/type' />计划类型</Menu.Item>
+                            </SubMenu>
+                            <SubMenu key="sub3" title="专业测试管理">
+                                <Menu.Item key="15"><Link to='/prof/test' />专业测试数据</Menu.Item>
+                                <Menu.Item key="16"><Link to='/prof/account' />账号信息</Menu.Item>
+                                <Menu.Item key="17"><Link to='/prof/patient' />病人信息</Menu.Item>
+                            </SubMenu>
+                            <Menu.Item key="18" icon={<UserOutlined />}>
+                            <Link to='/device' />
+                              设备管理
+                            </Menu.Item>
+                            <SubMenu key="sub4" title="实验管理">
+                                <Menu.Item key="19"><Link to='/exp/data' />实验数据</Menu.Item>
+                                <Menu.Item key="20"><Link to='/exp/member' />实验人员</Menu.Item>
+                            </SubMenu>
+                            <SubMenu key="sub5" icon={<UserOutlined />} title="优孕宝家庭版统计">
+                                <Menu.Item key="21"><Link to='/home_e/test' />测试数据</Menu.Item>
+                                <Menu.Item key="22"><Link to='/home_e/test_real' />实际在测</Menu.Item>
+                                <Menu.Item key="23"><Link to='/home_e/miss' />本周期漏测</Menu.Item>
+                                <Menu.Item key="24"><Link to='/home_e/test_on' />在测用户</Menu.Item>
+                                <Menu.Item key="25"><Link to='/home_e/user_new' />新注册用户</Menu.Item>
+                                <Menu.Item key="26"><Link to='/home_e/using_new' />新注册使用用户</Menu.Item>
+                                <Menu.Item key="27"><Link to='/home_e/med' />用户用药</Menu.Item>
+                                <Menu.Item key="28"><Link to='/home_e/user_all' />所有用户</Menu.Item>
+                                <Menu.Item key="29"><Link to='/home_e/user_valid' />有效用户</Menu.Item>
+                                <Menu.Item key="30"><Link to='/home_e/user_miss' />漏测用户</Menu.Item>
+                                <Menu.Item key="31"><Link to='/home_e/user_period' />当前周期测试用户</Menu.Item>
+                            </SubMenu>
+                            <Menu.Item key="32" icon={<UserOutlined />}>
+                            <Link to='/pro_edition' />
+                                优孕宝专业版统计
+                            </Menu.Item>
+                            <SubMenu key="sub6" title="客服系统">
+                                <Menu.Item key="33"><Link to='/serve/user' />用户管理</Menu.Item>
+                                <Menu.Item key="34"><Link to='/serve/device' />设备管理</Menu.Item>
+                                <Menu.Item key="35"><Link to='/service' />客服管理</Menu.Item>
+                            </SubMenu> */}
+                      </Menu>
+                </div>
+                </div>
             </Sider>
 
             <Layout className="site-layout">

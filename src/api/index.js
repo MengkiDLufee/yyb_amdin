@@ -31,3 +31,16 @@ export function exportFile (url,data) {
           link.click();
     })
 }
+
+/*
+5.实验管理模块
+*/
+//5.1.1 实验数据
+export function exp_list (data) {
+  return ajax('/experiment/list',data,'POST')
+}
+//5.2.1 实验人员信息
+export function exp_person (data) {
+  return ajax('/testperson/list',data,'POST')
+}
+

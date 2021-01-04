@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons'
 
 import './index.less'
+import {exp_list} from '../../api/index'
 
 
 
@@ -263,6 +264,15 @@ export default class ExperimentData extends Component {
           input:data,
         },
       )
+      exp_list({
+        page:1,
+        pageSize:20
+      }).then(res=>{
+        console.log(res)
+      })
+      .catch(err => {
+        console.log(err)
+      })
     };
     //添加
     add =() =>{
