@@ -1,13 +1,18 @@
 import React, { Component } from 'react'
-import { Table ,Button , Input , Select, Space ,Modal,Form} from 'antd';
-import {ReloadOutlined,
-        SearchOutlined ,
-        PlusOutlined, 
-        CloudUploadOutlined, 
-        CloudDownloadOutlined,
-        PlusSquareFilled,
-        DeleteFilled
-        } from '@ant-design/icons'
+import { Table ,Button , Input , Select, Space ,Modal,Form } from 'antd';
+import {
+  ReloadOutlined,
+  SearchOutlined ,
+  PlusOutlined, 
+  CloudUploadOutlined, 
+  CloudDownloadOutlined,
+  PlusSquareFilled,
+  DeleteFilled
+} from '@ant-design/icons'
+
+import './index.less'
+import {exp_list} from '../../api/index'
+
 
 
 const { Option } = Select;
@@ -259,6 +264,15 @@ export default class ExperimentData extends Component {
           input:data,
         },
       )
+      exp_list({
+        page:1,
+        pageSize:20
+      }).then(res=>{
+        console.log(res)
+      })
+      .catch(err => {
+        console.log(err)
+      })
     };
     //添加
     add =() =>{
@@ -282,10 +296,19 @@ export default class ExperimentData extends Component {
   
   //点击添加完成
     handleOk_add = () => {
-      this.setState({
-        visible_add: false,
+      console.log(this.form)
+      let form = this.form.current;
+      form.validateFields()//表单输入校验
+      .then((values) => {
+        form.resetFields();
+        console.log(values)
+        this.setState({
+          visible_add:false
+        })
+      })
+      .catch((info) => {
+        console.log('Validate Failed:', info);
       });
-      console.log('添加完成')
     };
     //添加关闭
     handleCancel_add = () => {
@@ -380,6 +403,9 @@ export default class ExperimentData extends Component {
       })
     }
 
+    //表单验证
+    form = React.createRef();
+
     render() {
     const { selectedRowKeys } = this.state;
     const rowSelection = {
@@ -456,8 +482,6 @@ export default class ExperimentData extends Component {
                         >
                           按检索条件导出
                         </Button>
-                   
-                    
                 </div>
               </div>
 
@@ -493,19 +517,20 @@ export default class ExperimentData extends Component {
                         labelCol={{ span: 10 }}
                         wrapperCol={{ span: 14 }}
                         layout="horizontal"
+                        ref={this.form}//表单验证，通过ref获取
                       >
                         <div style={{display:'flex'}}>
                           <div style={{width:'400px'}}>
-                            <Form.Item label="选择实验人员">
-                              <Select style={{width:'150px'}} placeholder="实验人员">
+                            <Form.Item label="选择实验人员" name="exp_member" rules={[{required:true,message:' 请选择实验人员'}]}>
+                              <Select style={{width:'150px'}} placeholder="实验人员" >
                                 <Option value="henan">河南</Option>
                                 <Option value="sicuan">四川</Option>
                               </Select>
                             </Form.Item>
                           </div>
                           <div style={{width:'400px'}} >
-                            <Form.Item label="选择试剂类型" >
-                              <Select  style={{width:'150px'}} placeholder="试剂类型">
+                            <Form.Item label="选择试剂类型" name="type" rules={[{required:true,message:' 请选择试剂类型'}]} >
+                              <Select  style={{width:'150px'}} placeholder="试剂类型" >
                                 <Option value="henan">河南</Option>
                                 <Option value="sicuan">四川</Option>
                               </Select>
@@ -514,40 +539,73 @@ export default class ExperimentData extends Component {
                         </div>
                         <div style={{display:'flex'}}>
                           <div style={{width:'400px'}}>
-                            <Form.Item label="批号">
-                              <Select style={{width:'150px'}} placeholder="批号">
+                            <Form.Item label="批号" name="batch_num" rules={[{required:true,message:' 请选择批号'}]} >
+                              <Select style={{width:'150px'}} placeholder="批号" >
                                 <Option value="henan">河南</Option>
                                 <Option value="sicuan">四川</Option>
                               </Select>
                             </Form.Item>
                           </div>
                           <div style={{width:'400px'}} >
-                            <Form.Item label="试剂卡反应时间（分）" >
-                              <Input style={{width:'150px'}} placeholder="试剂卡反应时间"/>
+                            <Form.Item label="试剂卡反应时间（分）" name="time" rules={[{required:true,message:' 请填写试剂卡反应时间'}]} >
+                              <Input style={{width:'150px'}} placeholder="试剂卡反应时间" />
                             </Form.Item>
                           </div>
                         </div>
-                        <div style={{display:'flex',marginTop:'30px',height:'50px',border:'1px solid gray'}}>
-                          <div style={{width:'400px',display:'flex'}}>
-                            <PlusSquareFilled style={{color:'#f05d73',fontSize:'30px',margin:'10px'}} />
-                            <div style={{fontSize:'20px',margin:'8px'}}>试剂浓度值</div>
-                          </div>
-                          <div style={{width:'400px',borderLeft:'1px solid gray'}} >
-                            <div style={{fontSize:'20px',lineHeight:'50px',marginLeft:'10px'}}>所需实验试剂卡数量（个）</div>
-                          </div>
-                        </div>
-                        <div style={{display:'flex',height:'50px',borderBottom:'1px solid gray',borderLeft:'1px solid gray',borderRight:'1px solid gray'}}>
-                          <div style={{width:'400px'}}>
-                            <Input style={{width:'350px',margin:'8px'}} />
-                            
-                          </div>
-                          <div style={{width:'400px',borderLeft:'1px solid gray',display:'flex'}} >
-                              <Input style={{width:'250px',margin:'8px'}} />
-                              <DeleteFilled style={{color:'white',backgroundColor:'#f05d73',fontSize:'20px',height:'30px',width:'30px',margin:'8px',padding:'5px 5px'}}/>
-                          </div>
-                        </div>
-
-
+                        <Form.List name="sights">
+                          {(fields, { add, remove }) => (
+                            <>
+                                <div style={{display:'flex'}}>
+                                  <div style={{width:'400px'}}>
+                                    <Form.Item>
+                                      <div style={{width:'400px',display:'flex'}}>
+                                        <PlusSquareFilled style={{color:'#f05d73',fontSize:'30px',margin:'10px 10px 10px 60px'}} onClick={() => add()} />
+                                        <div style={{fontSize:'20px',margin:'8px'}}>试剂浓度值</div>
+                                      </div>
+                                    </Form.Item>
+                                  </div>
+                                  <div style={{width:'400px'}} >
+                                    <Form.Item >
+                                      <div style={{width:'400px',display:'flex'}} >
+                                        <div style={{fontSize:'20px',lineHeight:'50px',marginLeft:'10px'}}>所需实验试剂卡数量（个）</div>
+                                      </div>
+                                    </Form.Item>
+                                  </div>
+                                </div>
+                              {fields.map(field => (
+                                <Space key={field.key} align="baseline">
+                                  <Form.Item
+                                    noStyle
+                                    shouldUpdate={(prevValues, curValues) =>
+                                      prevValues.area !== curValues.area || prevValues.sights !== curValues.sights
+                                    }
+                                  >
+                                    {() => (
+                                      <Form.Item
+                                        {...field}
+                                        name={[field.name, 'reagent']}
+                                        fieldKey={[field.fieldKey, 'reagent']}
+                                        rules={[{ required: true, message: '请填写试剂浓度！' }]}
+                                        style={{marginLeft:'60px'}}
+                                      >
+                                          <Input placeholder="试剂浓度" style={{width:'300px'}} />
+                                        </Form.Item>
+                                      )}
+                                    </Form.Item>
+                                    <Form.Item
+                                      {...field}
+                                      name={[field.name, 'card_num']}
+                                      fieldKey={[field.fieldKey, 'card_num']}
+                                      rules={[{ required: true, message: '请填写实验试剂卡数量！' }]}
+                                    >
+                                      <Input placeholder="实验试剂卡数量" style={{width:'300px'}} />
+                                    </Form.Item>
+                                    <DeleteFilled onClick={() => remove(field.name)} style={{color:'#f05d73'}} />
+                                </Space>
+                              ))}
+                            </>
+                          )}
+                        </Form.List>
                       </Form>
                     </div>
                 </Modal>

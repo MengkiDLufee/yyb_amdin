@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { Table ,Button , Input , Row, Col ,Select } from 'antd';
+import { Table ,Button , Input , Row, Col ,Select ,DatePicker } from 'antd';
 
 const { Option } = Select;
+const { RangePicker } = DatePicker
 
 const columns = [
     {
@@ -81,6 +82,7 @@ export default class TestData extends Component {
           type:undefined,
           stage:undefined,
           dev_num:'',
+          time:[],
         }
     }
 
@@ -114,6 +116,16 @@ export default class TestData extends Component {
       console.log(e)
       this.setState({
         input:Object.assign(this.state.input,{stage:e})
+      })
+    }
+    timeChange = (value,dateString) => {
+      console.log(value);
+      let time = [];
+      time.push(dateString[0] +' 00:00:00')
+      time.push(dateString[1] + ' 23:59:59')
+      console.log(time)
+      this.setState({
+        input:Object.assign(this.state.input,{time:time})
       })
     }
     //搜索按钮
@@ -184,12 +196,10 @@ export default class TestData extends Component {
           </Col>
           
           <Col span={4}>
-            <Input  
-                placeholder="测试时间" 
-                value={this.state.input.time} 
-                onChange={this.searchChange}  
-                id="time"
-             />
+              <RangePicker 
+                format="YYYY-MM-DD"
+                onChange={this.timeChange}
+              />
           </Col>
           
           <Col span={3}>

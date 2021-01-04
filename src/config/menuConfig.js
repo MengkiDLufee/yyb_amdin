@@ -2,53 +2,54 @@
 //这样方便修改，也便于权限管理
 
 
+
 //此方法没有生成对应的icon，还需要修改
 
 const menuLsit =[
     {
         title:'首页',//菜单标题
         key:'/home',//对应的path
-        icon:'home',//图标名称
+        icon:'HomeOutlined',//图标名称
     },
     {
         title:'用户基础信息管理',
-        key:'/users',
+        key:'/userbasic',
         icon:'home',
         children: [
             {
                 title:'用户基础信息管理',
                 key:'/user',
-                icon:'<UserOutlined/>' ,
+                icon:'UserOutlined',
             },
             {
                 title:'用户测试数据管理',
                 key:'/user/test',
-                icon:'home', 
+                icon:'UserOutlined', 
             },
             {
                 title:'用户设备管理',
                 key:'/user/device',
-                icon:'home', 
+                icon:'UserOutlined', 
             },
             {
                 title:'用户消息',
                 key:'/user/easemod/msg',
-                icon:'home', 
+                icon:'UserOutlined', 
             },
             {
                 title:'用户短信管理',
                 key:'/user/msg',
-                icon:'home', 
+                icon:'UserOutlined', 
             },
             {
                 title:'用户手机信息管理',
                 key:'/user/phone',
-                icon:'home', 
+                icon:'UserOutlined', 
             },
             {
                 title:'验证短信查询',
                 key:'/user/code',
-                icon:'home', 
+                icon:'UserOutlined', 
             },
         ]
     },
@@ -129,6 +130,11 @@ const menuLsit =[
             {
                 title:'实验人员',
                 key:'/exp/member',
+                icon:'home', 
+            },
+            {
+                title:'设备测试管理',
+                key:'/exp/dev_test',
                 icon:'home', 
             },
 

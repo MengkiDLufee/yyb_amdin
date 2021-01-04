@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { Table ,Button , Input , Row, Col ,Select } from 'antd';
+import { Table ,Button , Input , Row, Col ,Select ,DatePicker } from 'antd';
 
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 const columns = [
     {
@@ -91,21 +92,27 @@ const columns = [
       align:'center'
     },
     {
-      title: '排卵峰起始时间',
+      title: '排卵峰起时间',
       width:150,
       dataIndex: 'time',
       align:'center'
     },
     {
-      title: '排卵峰降',
+      title: '排卵峰降时间',
       width:150,
       dataIndex: 'time',
       align:'center'
     },
     {
-      title: '后面表格无参考',
+      title: '怀孕时间',
       width:150,
-      dataIndex: 'wait',
+      dataIndex: 'time',
+      align:'center'
+    },
+    {
+      title: '同房时间',
+      width:150,
+      dataIndex: 'time',
       align:'center'
     },
   ];
@@ -146,7 +153,13 @@ export default class ValidUser extends Component {
       },
       ()=>{console.log('表格参数',this.state.current,this.state.pageSize)}
       )
-      
+    }
+    timeChange = (value,dateString) => {
+      console.log(value);
+      console.log(dateString);
+      let startTime =  dateString[0] + ' 00:00:00';
+      let endTime = dateString[1] + ' 23:59:59';
+      console.log(startTime,endTime)
     }
     render() {
         return (
@@ -162,13 +175,19 @@ export default class ValidUser extends Component {
                 </Col>
                 <Col span={3}>
                     <Select placeholder="请选择测试阶段" style={{width:'100%'}} onChange={handleChange}>
-                    <Option value="reagent1">阶段1</Option>
-                    <Option value="reagent2">阶段2</Option>
-                    <Option value="reagent3">阶段3</Option>
+                      <Option value="1">精液液化能力</Option>
+                      <Option value="2">生精功能检测</Option>
+                      <Option value="3">卵巢功能评估</Option>
+                      <Option value="4">寻找黄金优孕期</Option>
+                      <Option value="5">早期妊娠确认</Option>
+                      <Option value="6">早期胚胎发育监测</Option>
                     </Select>
                 </Col> 
                 <Col span={3}>
-                    <Input  placeholder="测试时间"  />
+                    <RangePicker 
+                      format="YYYY-MM-DD"
+                      onChange={this.timeChange}
+                    />
                 </Col>         
                 <Col span={2} >
                     <Button type="primary" style={{marginRight:'10px'}}>搜索</Button>

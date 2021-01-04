@@ -6,7 +6,9 @@ import {ReloadOutlined,
         CloudUploadOutlined, 
         CloudDownloadOutlined,
         } from '@ant-design/icons';
-import './radio.less';//radio样式修改
+// import './radio.less';//radio样式修改
+import './index.less'
+import {exp_person} from '../../api/index'
 
 
 
@@ -53,6 +55,12 @@ import './radio.less';//radio样式修改
   }
 
 export default class Experimenter extends Component {
+  constructor(props){
+    super(props);
+    //创建获取表单数据域的ref
+    this.form_add = React.createRef();//添加表单
+    this.form_modify = React.createRef();//修改表单
+  }
     state = { 
         visible_add: false ,//添加弹窗
         visible_password:false,//查看面膜弹窗
@@ -100,7 +108,7 @@ export default class Experimenter extends Component {
         //历史设备弹窗
         user_dev:'',
       };
-     
+     //主页面表格头
       columns = [
         {
           title: '用户名',
@@ -144,7 +152,7 @@ export default class Experimenter extends Component {
               if(state === 0){
                   return ('启用')
               }else {
-                  return ('停用')
+                  return ('冻结')
                 } 
           }
         },
@@ -165,7 +173,7 @@ export default class Experimenter extends Component {
         }
       ];
 
-     
+     //历史设备表格头
       columns_dev_past = [
         {
           title: '设备号',
@@ -205,8 +213,30 @@ export default class Experimenter extends Component {
         ()=>{console.log('所选择行',this.state.selectedRowKeys)}
     )
     };
+
+    inputChange = (e) => {
+      console.log(e.target);
+      let name = e.target.name;
+      let value = e.target.value;
+      this.setState({
+        [name]:value
+      }
+      )
+    }
+
     search = () =>{
     console.log('搜索')
+    let params={}
+    if(this.state.user_in !== ''){
+      params.user = this.state.user_in
+    }
+    if(this.state.name_in !== ''){
+      params.name = this.state.name_in
+    }
+    if(this.state.phone_num_in !== ''){
+      params.phone_num = this.state.phone_num_in
+    }
+    console.log(params)
     };
     //重置
     reset = () => {
@@ -219,6 +249,15 @@ export default class Experimenter extends Component {
         phone_num_in:'',
         },
     )
+      exp_person({
+        page:1,
+        pageSize:20,
+      }).then(res=> {
+        console.log(res)
+      })
+      .catch(err=> {
+        console.log(err)
+      })
     };
     //添加
     add =() =>{
@@ -227,48 +266,31 @@ export default class Experimenter extends Component {
         visible_add: true,
     });
     };
-//点击添加完成
+  //点击添加完成
     handleOk_add = () => {
-    this.setState({
-        visible_add: false,
-    });
-    console.log('添加完成',this.state.add)
+      let form = this.form_add.current;
+      form.validateFields()//表单验证
+      .then((value)=>{
+        this.setState({
+          visible_add:false
+        })
+        form.resetFields();//清空表单内容
+        console.log(value)
+      })
+      .catch(err => {
+        console.log("验证不通过：",err)
+      })
+    console.log('添加完成')
     };
     //添加关闭
     handleCancel_add = () => {
-    this.setState({
-        visible_add: false,
-    });
-    console.log('添加关闭')
+      let form = this.form_add.current;
+      form.resetFields();//清空表单内容
+      this.setState({
+          visible_add: false,
+      });
+      console.log('添加关闭')
     };
-    //添加弹窗用户名变化
-    add_userChange = (e) =>  {
-        console.log(e.target.value)
-        this.setState({
-            add:Object.assign(this.state.add,{user:e.target.value})
-        })
-    }
-    //添加弹窗姓名变化
-    add_nameChange = (e) =>  {
-    console.log(e.target.value)
-    this.setState({
-        add:Object.assign(this.state.add,{name:e.target.value})
-    })
-}
-    //添加弹窗电话号变化
-    add_phoneChange = (e) =>  {
-        console.log(e.target.value)
-        this.setState({
-            add:Object.assign(this.state.add,{phone_num:e.target.value})
-        })
-    }
-    //添加弹窗状态变化
-    add_stateChange = (e) =>  {
-        console.log(e.target.value)
-        this.setState({
-            add:Object.assign(this.state.add,{state:e.target.value})
-        })
-    }
       //导入
     importStatic = () =>{
     console.log('导入')
@@ -305,23 +327,37 @@ export default class Experimenter extends Component {
     }
     //修改
     modify = (record)=> {
-    console.log('修改',record)
-    let data = Object.assign(this.state.modify,{
-        user:record.user,
-        name:record.name,
-        phone_num:record.phone_num,
-        state:record.state,
-    })
-    this.setState({
-        visible_modify:true,
-        modify:data,
-    })
+      console.log('修改',record)
+      let form = this.form_modify.current;
+      if(form){
+        this.setState({
+          visible_modify:true,
+        })
+        form.setFieldsValue({
+          modify_user : record.user,
+          modify_name : record.name,
+          modify_phone_num : record.phone_num,
+          modify_state : record.state,
+        })
+      }
     };
+    //完成修改
     handleOk_modify = () => {
-    this.setState({
-        visible_modify:false,
-    })
-    console.log(this.state.modify)
+      let form = this.form_modify.current;
+      form.validateFields()
+      .then(
+        value => {
+          console.log(value)
+          this.setState({
+            visible_modify:false,
+          })
+        }
+      )
+      .catch(
+        err => {
+          console.log(err)
+        }
+      )
     };
     handleCancel_modify = () =>{
     this.setState({
@@ -329,34 +365,6 @@ export default class Experimenter extends Component {
     })
     console.log('修改弹窗关闭')
     };
-    //修改弹窗用户名变化
-    modify_userChange = (e) =>  {
-        console.log(e.target.value)
-        this.setState({
-            add:Object.assign(this.state.modify,{user:e.target.value})
-        })
-    }
-    //修改弹窗姓名变化
-    modify_nameChange = (e) =>  {
-        console.log(e.target.value)
-        this.setState({
-            add:Object.assign(this.state.modify,{name:e.target.value})
-        })
-    }
-    //修改弹窗电话号变化
-    modify_phoneChange = (e) =>  {
-        console.log(e.target.value)
-        this.setState({
-            add:Object.assign(this.state.modify,{phone_num:e.target.value})
-        })
-    }
-    //修改弹窗状态变化
-    modify_stateChange = (e) =>  {
-        console.log(e.target.value)
-        this.setState({
-            modify:Object.assign(this.state.modify,{state:e.target.value})
-        })
-    }
     //删除
     delete = (record) =>{
     console.log('删除',record)
@@ -389,28 +397,6 @@ export default class Experimenter extends Component {
     handTablechange_dev_past = (pagination) =>{
         console.log(pagination)
     };
-    //用户名输入框
-    userChange = (e) => {
-        console.log(e.target.value)
-        this.setState({
-        batch_in:e.target.value,
-        })
-    }
-    //姓名输入框
-    nameChange = (e) => {
-        console.log(e)
-        this.setState({
-        exper_in:e
-        })
-    }
-    //电话号输入框
-    phonenumChange = (e) => {
-        console.log(e.target.value)
-        this.setState({
-          type_in:e.target.value,
-        })
-    }
-
     render() {
         const { selectedRowKeys } = this.state;
         const rowSelection = {
@@ -423,9 +409,27 @@ export default class Experimenter extends Component {
                  {/* 输入框等 */}
               <div style={{'margin':'0 0 15px  0'}} >
                 <div justify="space-between" gutter="15" style={{display:"flex" }}  >
-                        <Input  placeholder="用户名" className="input1" onChange={this.userChange} value={this.state.user_in} />
-                        <Input  placeholder="姓名" className="input1" onChange={this.nameChange} value={this.state.name_in} />
-                        <Input  placeholder="电话号码" className="input1" onChange={this.phonenumChange} value={this.state.phone_num_in} />
+                        <Input
+                          placeholder="用户名"
+                          name="user_in"
+                           className="input1"
+                           onChange={this.inputChange}
+                           value={this.state.user_in}
+                        />
+                        <Input
+                          placeholder="姓名"
+                          name="name_in"
+                          className="input1"
+                          onChange={this.inputChange}
+                          value={this.state.name_in}
+                       />
+                        <Input
+                          placeholder="电话号码"
+                          name="phone_num_in"
+                          className="input1"
+                          onChange={this.inputChange}
+                          value={this.state.phone_num_in}
+                       />
 
                         <Button 
                           type="primary" 
@@ -507,26 +511,53 @@ export default class Experimenter extends Component {
                   cancelText="关闭"
                   className="modal1"
                   width="500px"
+                  forceRender={true}
                 >
                   <div style={{borderBottom:'1px solid gray'}}>基本信息</div>
-                    
                     <div className="modal-body" style={{height:"300px",marginTop:'20px'}}>
                       <Form
                         labelCol={{ span: 4 }}
                         wrapperCol={{ span: 18 }}
                         layout="horizontal"
+                        ref={this.form_add}
                       >
-                            <Form.Item label="用户名">
-                                <Input onChange={this.add_userChange} value={this.state.add.user} />
+                            <Form.Item
+                             label="用户名"
+                             name="add_user"
+                             id="add_user"
+                             rules={[
+                               {required:true,message:'请输入用户名！'}
+                             ]}
+                            >
+                                <Input placeholder="请输入用户名" />
                             </Form.Item>
-                            <Form.Item label="姓名" >
-                                <Input onChange={this.add_nameChange} value={this.state.add.name} />
+                            <Form.Item
+                             label="姓名" 
+                             name="add_name"
+                             id="add_name"
+                             rules={[
+                               {required:true,message:'请输入姓名！'}
+                             ]}
+                            >
+                                <Input placeholder="请输入姓名" />
                             </Form.Item>
-                            <Form.Item label="电话号">
-                                <Input onChange={this.add_phoneChange} value={this.state.add.phone_num} />
+                            <Form.Item
+                             label="电话号"
+                             id="add_phone_num"
+                             name="add_phone_num"
+                             rules={[
+                               {required:true,message:'请输入电话号码！'}
+                             ]}
+                            >
+                                <Input placeholder="请输入电话号" />
                             </Form.Item>
-                            <Form.Item label="状态">
-                                <Radio.Group onChange={this.add_stateChange} value={this.state.add.state}  >
+                            <Form.Item
+                             label="状态" 
+                             id="add_state"
+                             name="add_state"
+                             initialValue={0}
+                            >
+                                <Radio.Group >
                                     <Radio value={0}>启用</Radio>
                                     <Radio value={1}>冻结</Radio>
                                 </Radio.Group>
@@ -556,6 +587,7 @@ export default class Experimenter extends Component {
                   onCancel={this.handleCancel_modify}
                   cancelText="关闭"
                   width="600px"
+                  forceRender={true}
                 >
                   <div style={{borderBottom:'1px solid gray'}}>基本信息</div>
                     
@@ -564,18 +596,44 @@ export default class Experimenter extends Component {
                         labelCol={{ span: 4 }}
                         wrapperCol={{ span: 18 }}
                         layout="horizontal"
+                        ref={this.form_modify}
                       >
-                            <Form.Item label="用户名">
-                                <Input onChange={this.modify_userChange} value={this.state.modify.user} />
+                            <Form.Item
+                             label="用户名"
+                             id="modify_user"
+                             name="modify_user"
+                             rules={[
+                               {required:true,message:'请输入用户名！'}
+                             ]}
+                            >
+                                <Input/>
                             </Form.Item>
-                            <Form.Item label="姓名" >
-                                <Input onChange={this.modify_nameChange} value={this.state.modify.name} />
+                            <Form.Item
+                             label="姓名" 
+                             id="modify_name"
+                             name="modify_name"
+                             rules={[
+                               {required:true,message:'请输入姓名！'}
+                             ]}
+                            >
+                                <Input/>
                             </Form.Item>
-                            <Form.Item label="电话号">
-                                <Input onChange={this.modify_phoneChange} value={this.state.modify.phone_num} />
+                            <Form.Item
+                             label="电话号"
+                             id="modify_phone_num"
+                             name="modify_phone_num"
+                             rules={[
+                               {required:true,message:'请输入电话号！'}
+                             ]}
+                            >
+                                <Input/>
                             </Form.Item>
-                            <Form.Item label="状态">
-                                <Radio.Group onChange={this.modify_stateChange} value={this.state.modify.state} buttonStyle="outline"  >
+                            <Form.Item
+                             label="状态"
+                             id="modify_state"
+                             name="modify_state"
+                            >
+                                <Radio.Group buttonStyle="outline"  >
                                     <Radio value={0}>启用</Radio>
                                     <Radio value={1}>冻结</Radio>
                                 </Radio.Group>
