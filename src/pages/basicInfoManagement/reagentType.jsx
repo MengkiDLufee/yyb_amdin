@@ -1,31 +1,11 @@
 import React, { Component } from 'react'
 import {Table, Button, Input, Row, Col, Select, Space, Modal, Form} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined,ExportOutlined} from "@ant-design/icons";
+import exportFile from "../../exportFile";
+import httpRequest from "../../http";
 
 const { Option } = Select;
 
-
-
-const data = [];
-for (let i = 0; i < 46; i++) {
-    data.push({
-        key: i,
-        reagentName: `生成素${i}`,
-        code: `MFSH ${i}`,
-        resultUnit: `mu ${i}`,
-        barcode:`${i}`,
-        referenceLow:i,
-        referenceHigh :46-i,
-        sampleType :`尿液${i}`,
-        affiliatedInstitutions : `起跑线 ${i}`,
-        updateTime:`2019-12-06 17:51:${i}`,
-    });
-}
-
-
-// function handleChange(value) {
-//     console.log(`selected ${value}`);
-// }
 
 
 export default class ReagentType extends Component {
@@ -34,28 +14,35 @@ export default class ReagentType extends Component {
     constructor(props) {
         super(props);
 
+        this.form_modify = React.createRef();
         this.handleAdd=this.handleAdd.bind(this);
-        this.inputOnChange=this.inputOnChange.bind(this);
+        this.handleExport=this.handleExport.bind(this);
         this.handleModify=this.handleModify.bind(this);
+        this.inputOnChange=this.inputOnChange.bind(this);
         this.reset=this.reset.bind(this);
         this.search=this.search.bind(this);
-        this.onChange=this.onChange.bind(this);
         this.handleChange=this.handleChange.bind(this);
-
+        this.onChange=this.onChange.bind(this);
     }
-
+    //状态管理
     state = {
         selectedRowKeys: [], // Check here to configure the default column
         loading: false,
         addVisible:false,
         modifyVisible: false,
-        data:data,
+        data:[],
         //搜索框
         paperTypeName:'',
         sampleType:null,
         organization:null,
-
+        //搜索框选项
+        sampleTypeGroup:[],
+        organizationGroup:[],
+        //总数据数
+        total:null,
+        //分页
         currentPage:1,
+        pageSize:10,
         //修改
         currentItem:{
             key: null,
@@ -74,8 +61,8 @@ export default class ReagentType extends Component {
     columns = [
         {
             title: '试剂名称',
-            dataIndex: 'reagentName',
-            sorter: (a,b) => a.reagentName.length - b.reagentName.length,
+            dataIndex: 'paperTypeName',
+            sorter: (a,b) => a.paperTypeName.length - b.paperTypeName.length,
             sortDirections: ['descend','ascend'],
         },
         {
@@ -86,8 +73,8 @@ export default class ReagentType extends Component {
         },
         {
             title: '结果单位',
-            dataIndex: 'resultUnit',
-            sorter: (a,b) => a.resultUnit.length - b.resultUnit.length,
+            dataIndex: 'unit',
+            sorter: (a,b) => a.unit.length - b.unit.length,
             sortDirections: ['descend','ascend'],
         },
         {
@@ -98,14 +85,14 @@ export default class ReagentType extends Component {
         },
         {
             title: '参考值下限',
-            dataIndex: 'referenceLow',
-            sorter: (a,b) => a.referenceLow - b.referenceLow,
+            dataIndex: 'rangeBegin',
+            sorter: (a,b) => a.rangeBegin - b.rangeBegin,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '参考值上限',
-            dataIndex: 'referenceHigh',
-            sorter: (a,b) => a.referenceHigh - b.referenceHigh,
+            dataIndex: 'rangeEnd',
+            sorter: (a,b) => a.rangeEnd - b.rangeEnd,
             sortDirections: ['descend','ascend'],
         },
         {
@@ -116,16 +103,16 @@ export default class ReagentType extends Component {
         },
         {
             title: '所属单位',
-            dataIndex: 'affiliatedInstitutions',
-            sorter: (a,b) => a.affiliatedInstitutions.length - b.affiliatedInstitutions.length,
+            dataIndex: 'organizationName',
+            sorter: (a,b) => a.organizationName.length - b.organizationName.length,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '更新时间',
-            dataIndex: 'updateTime',
+            dataIndex: 'updateDate',
             sorter:(a,b)=>{
-                let atimeString=a.updateTime;
-                let btimeString=b.updateTime;
+                let atimeString=a.updateDate;
+                let btimeString=b.updateDate;
                 let atime=new Date(atimeString).getTime();
                 let btime=new Date(btimeString).getTime();
                 return atime-btime;
@@ -148,6 +135,59 @@ export default class ReagentType extends Component {
             ),
         },
     ];
+//初始页面请求数据
+    componentDidMount() {
+        let params={
+            page:1,
+            pageSize:10,
+        }
+        httpRequest('post','/paper/list',params)
+            .then(response=>{
+                console.log('试剂类型')
+                console.log(response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+
+        //请求样本类型
+        httpRequest('post','/unit/list',{})
+            .then(response=>{
+                console.log("请求样本类型",response)
+                if(response.data!==[]) {
+                    this.setState({
+                        sampleTypeGroup: response.data.data.info,
+                    })
+                    console.log("样本类型",this.state.sampleTypeGroup)
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+
+        //请求单位名称
+        httpRequest('post','/unit/list',{})
+            .then(response=>{
+                console.log("请求单位数据",response)
+                if(response.data!==[]) {
+                    this.setState({
+                        organizationGroup: response.data.data.info,
+                    })
+                    console.log("单位名称",this.state.organizationGroup)
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+    }
 
     start = () => {
         this.setState({ loading: true });
@@ -160,7 +200,7 @@ export default class ReagentType extends Component {
                 modifyVisible:false,
                 addConfirmLoading:false,
                 modifyConfirmLoading:false,
-                data:data,
+                data:[],
                 //搜索框
                 paperTypeName:'',
                 sampleType:'',
@@ -172,15 +212,19 @@ export default class ReagentType extends Component {
                 //修改
                 currentItem:{
                     key: null,
-                    reagentName:'',
-                    code:'',
-                    resultUnit:'',
-                    barcode:'',
-                    referenceLow:null,
-                    referenceHigh :null,
-                    sampleType :'',
-                    affiliatedInstitutions :'',
-                    updateTime:'',
+                    barcode: '',
+                    code: '',
+                    organization: null,
+                    organizationName: '',
+                    paperTypeId: '',
+                    paperTypeName: '',
+                    paperTypeNameEn:'',
+                    rangeBegin: null,
+                    rangeEnd: null,
+                    sampleType: '',
+                    unit: '',
+                    updateDate: '',
+
                 },
 
             });
@@ -199,6 +243,19 @@ export default class ReagentType extends Component {
         });
     }
 
+    //导出
+    handleExport(){
+        console.log("导出");
+        let paperTypeIdList=[];
+        this.state.selectedRowKeys.forEach((item)=>{
+            paperTypeIdList.push(this.state.data[item].paperTypeId)
+        })
+
+        console.log(paperTypeIdList)
+        exportFile('/paper/export',{paperTypeIdList:paperTypeIdList},'试剂类型')
+
+    }
+
     //搜索
     search(){
         let params={};
@@ -209,17 +266,82 @@ export default class ReagentType extends Component {
             params.sampleType=this.state.sampleType;
         }
         if(this.state.organization!==""){
-            params.organization=this.state.organization;
+            params.organizationName=this.state.organization;
         }
+        params.page=1;
+        params.pageSize=this.state.pageSize;
         console.log(params);
-        //console.log(this.state.testTypeId)
+
+        httpRequest('post','/paper/list',params)
+            .then(response=>{
+                console.log(response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
     }
 
     //重置
     reset(){
         console.log("重置")
+        let params={
+            page:1,
+            pageSize:10,
+        }
+        httpRequest('post','/paper/list',params)
+            .then(response=>{
+                console.log('试剂类型')
+                console.log(response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+
+        //请求样本类型
+        httpRequest('post','/unit/list',{})
+            .then(response=>{
+                console.log("请求样本类型",response)
+                if(response.data!==[]) {
+                    this.setState({
+                        sampleTypeGroup: response.data.data.info,
+                    })
+                    console.log("样本类型",this.state.sampleTypeGroup)
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+
+        //请求单位名称
+        httpRequest('post','/unit/list',{})
+            .then(response=>{
+                console.log("请求单位数据",response)
+                if(response.data!==[]) {
+                    this.setState({
+                        organizationGroup: response.data.data.info,
+                    })
+                    console.log("单位名称",this.state.organizationGroup)
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
         this.setState({
-            data:data,
             currentItem:{
                 key: null,
                 reagentName:'',
@@ -235,13 +357,13 @@ export default class ReagentType extends Component {
 
             //搜索框
             paperTypeName:'',
-            sampleType:'',
-            organization:'',
-
-
+            sampleType:null,
+            organization:null,
+            //当前页
             currentPage:1,
         });
         console.log(this.state)
+
 
     }
     //修改展开modal
@@ -369,6 +491,18 @@ export default class ReagentType extends Component {
         })
     }
 
+    //导出
+    handleExport(){
+        console.log("导出");
+        let paperTypeIdList=[];
+        this.state.selectedRowKeys.forEach((item)=>{
+            console.log(this.state.data)
+            paperTypeIdList.push(this.state.data[item].paperTypeId)
+        })
+        console.log(paperTypeIdList)
+        exportFile('paper/export',{paperTypeIdList:paperTypeIdList},'判读参数')
+
+    }
 
     //关闭modal
     handleCancel = e => {
@@ -418,6 +552,23 @@ export default class ReagentType extends Component {
             currentPage: page,
         });
     };
+    //单位选择框内容（完成）
+    oroption(){
+        return(
+            this.state.organizationGroup.map((item)=>{
+                return(<Option title="organization" value={item.unitName}>{item.unitName}</Option>)
+            })
+        )
+    }
+
+    //样本类型选择框内容
+    saoption(){
+        return(
+            this.state.sampleTypeGroup.map((item)=>{
+                return(<Option title="sampleType" value={item.sampleType}>{item.sampleType}</Option>)
+            })
+        )
+    }
 
     render() {
 
@@ -458,23 +609,20 @@ export default class ReagentType extends Component {
                         </Col>
                         <Col span={4}>
                             <Select
-                                placeholder="请选择样本类型"
-                                style={{width:'100%'}}
+                                placeholder="请选择所属单位"
                                 value={this.state.sampleType}
+                                style={{width:'100%'}}
                                 onChange={this.handleChange}>
-                                <Option title="sampleType" value="sampleType1">样本类型1</Option>
-                                <Option title="sampleType" value="sampleType2">样本类型2</Option>
-                                <Option title="sampleType" value="sampleType3">样本类型3</Option>
+                                {this.saoption()}
                             </Select>
                         </Col>
                         <Col span={4}>
-                            <Select placeholder="请选择所属单位"
-                                    style={{width:'100%'}}
-                                    value={this.state.organization}
-                                    onChange={this.handleChange}>
-                                <Option title="organization" value="affiliatedInstitutions1">单位1</Option>
-                                <Option title="organization" value="affiliatedInstitutions2">单位2</Option>
-                                <Option title="organization" value="affiliatedInstitutions3">单位3</Option>
+                            <Select
+                                placeholder="请选择所属单位"
+                                value={this.state.organization}
+                                style={{width:'100%'}}
+                                onChange={this.handleChange}>
+                                {this.oroption()}
                             </Select>
                         </Col>
                         <Col span={2}>
@@ -487,7 +635,7 @@ export default class ReagentType extends Component {
                             <Button type="primary" onClick={this.handleAdd} ><PlusSquareOutlined />添加</Button>
                         </Col>
                         <Col span={2} >
-                            <Button type="primary" ><ExportOutlined />导出</Button>
+                            <Button type="primary" onClick={this.handleExport}><ExportOutlined />导出</Button>
                         </Col>
                         <Col span={5} >
 
