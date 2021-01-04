@@ -2,39 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
-      <change afterPath="$PROJECT_DIR$/src/importFile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/yyb_amdin.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/yyb_amdin.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config-overrides.js" beforeDir="false" afterPath="$PROJECT_DIR$/config-overrides.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ajax.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/ajax.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config/menuConfig.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/menuConfig.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exportFile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/exportFile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/http.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/http.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/admin/admin.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/admin/admin.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/admin/index.less" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/admin/index.less" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/deviceManagement/deviceManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/deviceManagement/deviceManagement.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/deviceManagement/index.less" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/deviceManagement/index.less" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/experimentManagement/experimentData.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/experimentManagement/experimentData.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/experimentManagement/experimenter.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/experimentManagement/experimenter.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/home/home.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/home/home.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/login/login.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/login/login.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/login/login.less" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/login/login.less" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/userBasicInfoManagement/userBasicInfoManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/userBasicInfoManagement/userBasicInfoManagement.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/yybHomeEditionStatistics/allUser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/yybHomeEditionStatistics/allUser.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/yybHomeEditionStatistics/testData.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/yybHomeEditionStatistics/testData.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/yybHomeEditionStatistics/validUser.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/yybHomeEditionStatistics/validUser.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/style.less" beforeDir="false" afterPath="$PROJECT_DIR$/src/style.less" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/compenents/importfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/compenents/importfile.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/importFile.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,6 +104,7 @@
       <workItem from="1609320324378" duration="15725000" />
       <workItem from="1609576098727" duration="5063000" />
       <workItem from="1609658011249" duration="6415000" />
+      <workItem from="1609762854517" duration="904000" />
     </task>
     <servers />
   </component>

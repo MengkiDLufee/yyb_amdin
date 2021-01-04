@@ -34,8 +34,6 @@ export default class ImportFile extends Component {
     };
 
     return (
-    
-
           <Modal
           title="上传"
           centered
