@@ -232,6 +232,39 @@ const menuLsit =[
 
         ]
     },
+    {
+        title:'系统管理',
+        key:'/system',
+        icon:'home',
+        children: [
+            {
+                title:'用户管理',
+                key:'/system/user',
+                icon:'home', 
+            },
+            {
+                title:'角色管理',
+                key:'/system/role',
+                icon:'home', 
+            },
+            {
+                title:'部门管理',
+                key:'/system/partment',
+                icon:'home', 
+            },
+            {
+                title:'登录日志',
+                key:'/system/loginlog',
+                icon:'home', 
+            },
+            {
+                title:'业务日志',
+                key:'/system/worklog',
+                icon:'home', 
+            },
+
+        ]
+    },
 
 
 ]

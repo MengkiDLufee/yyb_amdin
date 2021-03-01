@@ -1,3 +1,5 @@
+//导入组件封装
+
 import React, { Component } from 'react'
 import { Upload, message ,Modal } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
