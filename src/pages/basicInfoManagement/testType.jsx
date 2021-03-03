@@ -1,47 +1,15 @@
 import React, { Component } from 'react'
 import {Table, Button, Input, Row, Col, Select, Space, Modal, Form} from 'antd';
 import {SearchOutlined,PlusSquareOutlined,ReloadOutlined} from '@ant-design/icons';
-
+import httpRequest from "../../http";
 
 const { Option } = Select;
-
-
-const data = [];
-for (let i = 0; i < 46; i++) {
-    data.push({
-        key: i,
-        testType: `啦啦啦${i}`,
-        testSet: `客户 ${i}`,
-        testTypeCode: i,
-        createTime : `2019-12-06 17:51:${i}`,
-        reagent:`精液液化${i}`,
-        reagentNameEN:"SEMEN",
-        insertDate:"2019-12-06 17:54:41",
-    });
-}
-
-const associatedData = [];
-for (let i = 0; i < 46; i++) {
-    associatedData.push({
-        key:i,
-        testTypeId :`精液液化${i}`,
-        paperTypeName:`精液液化${i}`,
-        insertDate:"2019-12-06 17:54:41",
-    });
-}
-
-
-
-// function handleChange(value) {
-//     console.log(`selected ${value}`);
-// }
-
 
 export default class TestType extends Component {
     //初始化
     constructor(props) {
         super(props);
-
+        this.form_modify = React.createRef();
         this.handleAdd=this.handleAdd.bind(this);
         this.inputOnChange=this.inputOnChange.bind(this);
         this.handleModify=this.handleModify.bind(this);
@@ -58,38 +26,38 @@ export default class TestType extends Component {
     state = {
         selectedRowKeys: [], // Check here to configure the default column
         associtedSelectedRowKeys:[],
+        associtedSelectedRows:[],
         loading: false,
         addVisible:false,
         modifyVisible: false,
         associatedModifyVisible:false,
         associateVisible:false,
         logicVisible:false,
-        data:data,
-        associatedData:associatedData,
+        data:[],
+        total:null,
+        associatedTotal:null,
+        reagentTotal:null,
+        associatedData:[],
+        reagentData:[],
         //搜索框
         testTypeName:'',
         testSetId:null,
 
+        //分页
         currentPage:1,
+        pageSize:10,
         associatedcurrentPage:1,
-        //修改
-        currentItem:{
-            key:null,
-            testType: '',
-            testSet: '',
-            testTypeCode: '',
-            reagent:'',
-            reagentNameEN:'',
-            insertDate:'',
-        },
+        associatedPageSize:10,
+        reagentCurrentPage:1,
+        reagentPageSize:10,
 
-        //关联的试剂类型
-        associatedItem:{
-            key:null,
-            reagent:'',
-            reagentNameEN:'',
-            insertDate:'',
-        },
+        //选择框
+        testSetGroup:[],
+
+        //标记数据
+        testTypeId:null,
+
+        currentId:null,
 
     };
 
@@ -97,14 +65,14 @@ export default class TestType extends Component {
    columns = [
         {
             title: '测试类型名称',
-            dataIndex: 'testType',
-            sorter: (a,b) => a.testType.length - b.testType.length,
+            dataIndex: 'testTypeName',
+            sorter: (a,b) => a.testTypeName.length - b.testTypeName.length,
             sortDirections: ['descend','ascend'],
         },
         {
             title: '测试集名称',
-            dataIndex: 'testSet',
-            sorter: (a,b) => a.testSet.length - b.testSet.length,
+            dataIndex: 'testSetName',
+            sorter: (a,b) => a.testSetName.length - b.testSetName.length,
             sortDirections: ['descend','ascend'],
         },
         {
@@ -115,10 +83,10 @@ export default class TestType extends Component {
         },
         {
             title: '创建时间',
-            dataIndex: 'createTime',
+            dataIndex: 'insertDate',
             sorter:(a,b)=>{
-                let atimeString=a.createTime;
-                let btimeString=b.createTime;
+                let atimeString=a.insertDate;
+                let btimeString=b.insertDate;
                 let atime=new Date(atimeString).getTime();
                 let btime=new Date(btimeString).getTime();
                 return atime-btime;
@@ -173,63 +141,138 @@ export default class TestType extends Component {
         },
 
     ];
+//所有可关联的试剂类型
+    reagentcolumns = [
+        {
+            title: '试剂名称',
+            dataIndex: 'paperTypeName',
+            sorter: (a,b) => a.paperTypeName.length - b.paperTypeName.length,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '结果单位',
+            dataIndex: 'unit',
+            sorter: (a,b) => a.unit.length - b.unit.length,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '条码(不包括批号)',
+            dataIndex: 'barcode',
+            sorter: (a,b) => a.barcode.length - b.barcode.length,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '样本类型',
+            dataIndex: 'sampleType',
+            sorter: (a,b) => a.sampleType.length - b.sampleType.length,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '所属单位',
+            dataIndex: 'organization',
+            sorter: (a,b) => a.organization.length - b.organization.length,
+            sortDirections: ['descend','ascend'],
+        },
 
+
+    ];
 
     start = () => {
         this.setState({ loading: true });
         // ajax request after empty completing
         setTimeout(() => {
             this.setState({
-                selectedRowKeys: [],// Check here to configure the default column
+                selectedRowKeys: [], // Check here to configure the default column
                 associtedSelectedRowKeys:[],
                 loading: false,
                 addVisible:false,
-                modifyVisible:false,
+                modifyVisible: false,
                 associatedModifyVisible:false,
                 associateVisible:false,
-                addConfirmLoading:false,
-                modifyConfirmLoading:false,
-                data:data,
+                logicVisible:false,
+                data:[],
+                associatedData:[],
                 //搜索框
                 testTypeName:'',
                 testSetId:null,
 
+                //分页
                 currentPage:1,
+                pageSize:10,
                 associatedcurrentPage:1,
+                associatedPageSize:10,
 
-                //修改
-                currentItem:{
-                    key:null,
-                    testType: '',
-                    testSet: '',
-                    testTypeCode: '',
-                    reagent:'',
-                    reagentNameEN:'',
-                    insertDate:'',
-                },
-
-                // //关联的试剂类型
-                // associatedItem:{
-                //     key:null,
-                //     reagent:'',
-                //     reagentNameEN:'',
-                //     insertDate:'',
-                // },
-
+                //选择框
+                testSetGroup:[],
+                currentId:null,
             });
         }, 1000);
     };
+
+    //初始页面请求数据
+    componentDidMount() {
+        let params={
+            page:1,
+            pageSize:10,
+        }
+        httpRequest('post','/test/type/list',params)
+            .then(response=>{
+                console.log("请求测试类型",response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i;
+                    }
+                    this.setState({
+                        data:tempData,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+        //请求测试集
+        httpRequest('post','/test/list',{})
+            .then(response=>{
+                console.log("请求测试集",response)
+                if(response.data!==[]) {
+                    this.setState({
+                        testSetGroup: response.data.data.info,
+                    })
+                    console.log("测试集",this.state.testSetGroup)
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+    }
+
+
 
     //行选择
     onSelectChange = selectedRowKeys => {
         //已选中的行数
         console.log('selectedRowKeys changed: ', selectedRowKeys);
-
         this.setState({ selectedRowKeys });
     };
-    associatedOnSelectChange = associtedSelectedRowKeys => {
-        console.log('associtedSelectedRowKeys changed: ', associtedSelectedRowKeys);
-        this.setState({ associtedSelectedRowKeys });
+    associatedOnSelectChange = (associtedSelectedRowKeys,associtedSelectedRows) => {
+        console.log("this.state.associtedSelectedRowKeys",this.state.associtedSelectedRowKeys)
+        //console.log("associtedSelectedRows",associtedSelectedRows);
+        //console.log('associtedSelectedRowKeys changed: ', associtedSelectedRowKeys);
+        let row=this.state.associtedSelectedRowKeys;
+        row.push(associtedSelectedRowKeys[associtedSelectedRowKeys.length-1])
+        this.setState({
+            associtedSelectedRowKeys:row,
+            associtedSelectedRows},()=>{
+            console.log(this.state.associtedSelectedRowKeys)
+        });
+
     };
 
 
@@ -243,6 +286,8 @@ export default class TestType extends Component {
     //搜索
     search(){
         let params={};
+        params.page=1;
+        params.pageSize=this.state.pageSize;
         if(this.state.testTypeName!==""){
             params.testTypeName=this.state.testTypeName;
         }
@@ -250,55 +295,153 @@ export default class TestType extends Component {
             params.testSetId=this.state.testSetId;
         }
         console.log(params);
-        //console.log(this.state.testTypeId)
+        httpRequest('post','/test/type/list',params)
+            .then(response=>{
+                console.log("搜索测试类型",response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i;
+                    }
+                    this.setState({
+                        data:tempData,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
     }
 
     //重置
     reset(){
         console.log("重置")
+        let params={
+            page:1,
+            pageSize:10,
+        }
+        httpRequest('post','/test/type/list',params)
+            .then(response=>{
+                console.log("请求测试类型",response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i;
+                    }
+                    this.setState({
+                        data:tempData,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
+        //请求测试集
+        httpRequest('post','/test/list',{})
+            .then(response=>{
+                console.log("请求测试集",response)
+                if(response.data!==[]) {
+                    this.setState({
+                        testSetGroup: response.data.data.info,
+                    })
+                    console.log("测试集",this.state.testSetGroup)
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
         this.setState({
-            data:data,
-            currentItem:{
-                key:null,
-                testType: '',
-                testSet: '',
-                testTypeCode: '',
-            },
             //搜索框
             testTypeName:'',
             testSetId:null,
-
+            //当前页
             currentPage:1,
-            associatedcurrentPage:1,
         });
-        console.log(this.state)
-
     }
 
     //修改展开modal
     handleModify=(record)=>{
         console.log('修改',record)
-        let data=Object.assign({},this.state.currentItem,{
-            key:record.key,
-            testType: record.testType,
-            testSet: record.testSet,
-            testTypeCode: record.testTypeCode,
-        })
         this.setState({
                 modifyVisible:true,
-                currentItem:data,
+                testTypeId:record.testTypeId,
             },
             ()=>console.log(this.state.currentItem)
         );
+        let form_modify=this.form_modify.current;
+        console.log("修改表格",form_modify)
+        if(form_modify){
+            form_modify.setFieldsValue({
+                testSetId:record.testSetId,
+                testTypeCode:record.testTypeCode,
+                testTypeName:record.testTypeName
+            })
+        }
     }
 
     //挑选可关联的试剂类型
-    Modify(){
-        console.log('所有可关联的试剂类型')
+    Modify(e){
+        console.log('所有可关联的试剂类型',e)
         this.setState({
                 associatedModifyVisible:true,
+                testTypeId:e.testTypeId,
             },
-            ()=>console.log(this.state)
+            ()=> {
+                let params={
+                    page:1,
+                    pageSize:this.state.pageSize,
+                }
+                httpRequest('post','/paper/list',params)
+                    .then(response=>{
+                        console.log(response)
+                        console.log(response.data.data)
+                        if(response.data!==[]) {
+                            this.setState({
+                                reagentData: response.data.data.info,
+                                reagentTotal: response.data.data.total,
+                            })
+                            const tempData=[...this.state.reagentData];
+                            for(let i=0;i<tempData.length;i++){
+                                tempData[i].key=i;
+                            }
+                            let defaultSelected=[];
+                            let defaultRows=[];
+                            this.state.associatedData.forEach((item)=>{
+                                tempData.forEach((it,index)=>{
+                                    if(it.paperTypeId===item.paperTypeId){
+                                        console.log()
+                                        defaultSelected.push(index);
+                                        defaultRows.push(it);
+                                    }
+                                })
+                            })
+                            this.setState({
+                                associtedSelectedRowKeys:defaultSelected,
+                                reagentData:tempData,
+                                associtedSelectedRows:defaultRows,
+                            },()=>{
+                                console.log("this.state.associtedSelectedRowKeys",this.state.associtedSelectedRowKeys)
+
+                                // this.setState({
+                                //     reagentData:tempData,
+                                // })
+                            })
+                        }
+                    }).catch(err => {
+                    console.log(err);
+                })
+            }
         );
     }
 
@@ -307,13 +450,40 @@ export default class TestType extends Component {
         console.log('所关联的试剂类型',record)
         this.setState({
                 associateVisible:true,
+                currentId:record.testTypeId,
                 currentItem:{
                     reagent:record.reagent,
                     reagentNameEN:record.reagentNameEN,
                     insertDate:record.insertDate,
                 }
             },
-            ()=>console.log(this.state.currentItem)
+            ()=>{
+                let params={
+                    page:1,
+                    pageSize:this.state.pageSize,
+                    testTypeId:this.state.currentId,
+                }
+                httpRequest('post','/test/type/paper/list',params)
+                    .then(response=>{
+                        console.log(response)
+                        console.log(response.data.data)
+                        if(response.data!==[]) {
+                            this.setState({
+                                associatedData: response.data.data.info,
+                                associatedTotal: response.data.data.total,
+                            })
+                            const tempData=[...this.state.associatedData];
+                            for(let i=0;i<tempData.length;i++){
+                                tempData[i].key=i;
+                            }
+                            this.setState({
+                                associatedData:tempData,
+                            })
+                        }
+                    }).catch(err => {
+                    console.log(err);
+                })
+            }
         );
     }
 
@@ -335,88 +505,171 @@ export default class TestType extends Component {
     //删除某一行
     handleDelete=(record)=>{
         console.log('删除',record)
-        const deleteData=[...this.state.data];
-        console.log("删除项",record.key)
-        deleteData.forEach((item,index) => {
-            if(item.key===record.key){
-                deleteData.splice(index,1);
-            }
-        })
-        this.setState({
-            data:deleteData,
-            //ES6中键和值相等时可直接写成list
+        let params={
+            testTypeId:record.testTypeId,
+        }
+        httpRequest('post','/test/type/delete',params)
+            .then(response=>{
+                console.log(params)
+                console.log("请求",response)
+                if(response.data.code===1006){
+                    let params={
+                        page:this.state.currentPage,
+                        pageSize:this.state.pageSize,
+                    }
+                    httpRequest('post','/test/type/list',params)
+                        .then(response=>{
+                            console.log(response)
+                            console.log(response.data.data)
+                            if(response.data!==[]) {
+                                this.setState({
+                                    data: response.data.data.info,
+                                    total: response.data.data.total,
+                                })
+                                const tempData=[...this.state.data];
+                                for(let i=0;i<tempData.length;i++){
+                                    tempData[i].key=i;
+                                }
+                                this.setState({
+                                    data:tempData,
+                                })
+                            }
+                        }).catch(err => {
+                        console.log(err);
+                    })
+                }
+                else{
+                    alert("删除失败，请稍后再试")
+                }
+            }).catch(err => {
+            console.log(err);
         })
     }
 
     //modal点击确认
     handleOk = e => {
-        console.log("已选中",this.state.associtedSelectedRowKeys)
+        let form = this.form.current;
+        let form_modify=this.form_modify.current;
         this.setState({
             loading: true,
         });
-        let key=(this.state.currentItem.key!==null) ? this.state.currentItem.key:this.state.data.length;
-        let flag=(this.state.currentItem.key!==null) ? 1:0;//0添加1修改
-
-        //获取当前时间
-        var date=new Date();
-        let year=date.getFullYear();
-        let month=date.getMonth()+1;
-        month=(month>9)?month:`0${month}`;
-        let day=date.getDate();
-        day=(day>9)?day:`0${day}`;
-        let hour=date.getHours();
-        hour=(hour>9)?hour:`0${hour}`;
-        let minute=date.getMinutes();
-        minute=(minute>9)?minute:`0${minute}`;
-        let second=date.getSeconds();
-        second=(second>9)?second:`0${second}`;
-
-        let modifydata=Object.assign({},this.state.currentItem,{
-            key: key,
-            testType: this.state.currentItem.testType,
-            testSet: this.state.currentItem.testSet,
-            testTypeCode: this.state.currentItem.testTypeCode,
-            createTime:`${year}-${month}-${day} ${hour}:${minute}:${second}`,
-            reagent:this.state.currentItem.reagent,
-            reagentNameEN:this.state.currentItem.reagentNameEN,
-            insertDate:`${year}-${month}-${day} ${hour}:${minute}:${second}`
-        })
-        console.log("修改为/添加", modifydata)
-        const modifyData = [...this.state.data];
-        if(flag===1){
-            modifyData.forEach((item, index) => {
-                if (item.key === this.state.currentItem.key) {
-                    modifyData.splice(index, 1,data);
-                }
-            })
+        //修改
+        if(this.state.modifyVisible){
+            console.log("进入修改")
+            form_modify.validateFields()//表单输入校验
+                .then((values) => {
+                    console.log("form_modify",values)
+                    let params={
+                        testTypeId:this.state.testTypeId,
+                        testTypeName:values.testTypeName,
+                        testSetId:values.testSetId,
+                        testTypeCode:values.testTypeCode,
+                    }
+                    console.log("参数",params)
+                    httpRequest('post','/test/type/modify',params)
+                        .then(response=>{
+                            console.log(response)
+                            if(response.data.code===1004){
+                                let inital_param={
+                                    page:this.state.currentPage,
+                                    pageSize:this.state.pageSize,
+                                }
+                                httpRequest('post','/test/type/list',inital_param)
+                                    .then(response=>{
+                                        console.log(response.data.data)
+                                        if(response.data!==[]) {
+                                            this.setState({
+                                                data: response.data.data.info,
+                                                total: response.data.data.total,
+                                            })
+                                            const tempData=[...this.state.data];
+                                            for(let i=0;i<tempData.length;i++){
+                                                tempData[i].key=i;
+                                            }
+                                            this.setState({
+                                                data:tempData,
+                                            })
+                                        }
+                                    }).catch(err => {
+                                    console.log(err);
+                                })
+                                setTimeout(() => {
+                                    form_modify.resetFields();
+                                    this.setState({
+                                        loading:false,
+                                        modifyVisible: false,
+                                    });
+                                }, 1000);
+                            }
+                        }).catch(err => {
+                        console.log(err);
+                    })
+                })
+                .catch((info) => {
+                    console.log('Validate Failed:', info);
+                });
         }
-        else{
-            modifyData.push(modifydata);
+        //添加
+        if(this.state.addVisible){
+            console.log("进入添加")
+            console.log("form",form)
+            form.validateFields()//触发表单验证
+                .then((values) => {
+                    console.log("form validate", values)
+                    this.setState({
+                        loading: true,
+                    });
+                    let params={
+                        testTypeName:values.testTypeName,
+                        testSetId:values.testSetId,
+                        testTypeCode:values.testTypeCode,
+                    }
+                    console.log("参数",params)
+                    httpRequest('post','/test/type/add',params)
+                        .then(response=>{
+                            console.log(response)
+                            if(response.data.code===1002){
+                                let cu_page=(parseInt(this.state.total)+1)/this.state.pageSize;
+                                let inital_params={
+                                    page:Math.ceil(cu_page),
+                                    pageSize:this.state.pageSize,
+                                }
+                                httpRequest('post','/test/type/list',inital_params)
+                                    .then(response=>{
+                                        console.log(response.data.data)
+                                        if(response.data!==[]) {
+                                            this.setState({
+                                                data: response.data.data.info,
+                                                total: response.data.data.total,
+                                            })
+                                            const tempData=[...this.state.data];
+                                            for(let i=0;i<tempData.length;i++){
+                                                tempData[i].key=i;
+                                            }
+                                            this.setState({
+                                                data:tempData,
+                                                currentPage:inital_params.page
+                                            })
+                                        }
+                                    }).catch(err => {
+                                    console.log(err);
+                                })
+                                setTimeout(() => {
+                                    form.resetFields();
+                                    this.setState({
+                                        loading:false,
+                                        addVisible: false,
+                                    });
+                                }, 1000);
+                            }
+                        }).catch(err => {
+                        console.log(err);
+                    })
+                })
+                .catch((info) => {
+                    console.log('Validate Failed:', info);
+                });
         }
-
-        this.setState({
-            data: modifyData,
-            //ES6中键和值相等时可直接写成list
-        })
-        console.log(this.state.data)
-        setTimeout(() => {
-            this.setState({
-                loading:false,
-                addVisible: false,
-                modifyVisible: false,
-                associateVisible:false,
-                associatedModifyVisible:false,
-                currentItem:{
-                    key:null,
-                    testType: '',
-                    testSet: '',
-                    testTypeCode: '',
-                    reagent:'',
-                    reagentNameEN:'',
-                    insertDate:'',
-                },
-            });
-        }, 1000);
     };
 
     //搜索选择框变化
@@ -435,7 +688,7 @@ export default class TestType extends Component {
             modifyVisible: false,
             associatedModifyVisible:false,
             associateVisible:false,
-
+            testTypeId:'',
             currentItem:{
                 key:null,
                 testType: '',
@@ -458,6 +711,89 @@ export default class TestType extends Component {
         });
     };
 
+    //返回
+    handleReturn = e => {
+        console.log(e);
+        this.setState({
+            associatedModifyVisible:false,
+        });
+    };
+
+    //提交
+    handleSubmit=e=>{
+        console.log("提交",e)
+        let params={};
+        console.log("currentId",this.state.currentId)
+        if(this.state.currentId!==undefined){
+            params.testTypeId=this.state.currentId;
+            params.paperTypeIdList=[];
+            if(this.state.associtedSelectedRows!==[]){
+                this.state.associtedSelectedRows.forEach(e=>{
+                    params.paperTypeIdList.push(e.paperTypeId);
+                })
+                console.log("提交button的网络请求",params)
+                httpRequest('post','/test/type/paper/modify',params)
+                    .then(response=>{
+                        console.log(response)
+                        if(response.data.code===1004){
+                            this.setState({
+                                associatedModifyVisible:false,
+                                associtedSelectedRowKeys:[],
+                                associtedSelectedRows:[],
+                            },()=>{
+                                let params={
+                                    page:1,
+                                    pageSize:this.state.pageSize,
+                                    testTypeId:this.state.currentId,
+                                }
+                                console.log("查询时发的请求",params,this.state.associtedSelectedRowKeys)
+                                httpRequest('post','/test/type/paper/list',params)
+                                    .then(response=>{
+                                        console.log(response)
+                                        console.log(response.data.data)
+                                        if(response.data!==[]) {
+                                            this.setState({
+                                                associatedData: response.data.data.info,
+                                                associatedTotal: response.data.data.total,
+                                            })
+                                            const tempData=[...this.state.associatedData];
+                                            for(let i=0;i<tempData.length;i++){
+                                                tempData[i].key=i;
+                                            }
+                                            this.setState({
+                                                associatedData:tempData,
+                                            })
+                                        }
+                                    }).catch(err => {
+                                    console.log(err);
+                                })
+
+                            })
+                        }
+
+                    }).catch(err=>{
+                        console.log(err);
+                })
+            }
+            else{
+                this.setState({
+                    associatedModifyVisible:false,
+                    associtedSelectedRowKeys:[],
+                    associtedSelectedRows:[],
+                })
+            }
+        }
+        else{
+            alert("不可修改");
+            this.setState({
+                associatedModifyVisible:false,
+                associtedSelectedRowKeys:[],
+                associtedSelectedRows:[],
+            })
+        }
+
+    }
+
     //输入框变化
     inputOnChange=e=>{
         console.log(e)
@@ -477,15 +813,57 @@ export default class TestType extends Component {
         }
     }
 
-    //表格分页
+    //主页面表格分页
     onChange = page => {
         console.log(page);
         this.setState({
             currentPage: page,
-            associatedcurrentPage:page,
         });
+        let params={
+            page:page,
+            pageSize:this.state.pageSize,
+        }
+        httpRequest('post','/test/type/list',params)
+            .then(response=>{
+                console.log("请求测试类型",response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        data: response.data.data.info,
+                        total: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i;
+                    }
+                    this.setState({
+                        data:tempData,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
     };
 
+    onChangeAssociated=page=>{
+        console.log(page);
+    }
+
+    onChangeReagent=page=>{
+        console.log(page);
+    }
+
+    //测试集选择框内容
+    teoption(){
+        return(
+            this.state.testSetGroup.map((item)=>{
+                return(<Option title="testSetId" value={item.testSetId}>{item.testSetName}</Option>)
+            })
+        )
+    }
+
+    form = React.createRef();
     render() {
         const { loading, selectedRowKeys, associtedSelectedRowKeys} = this.state;
         const rowSelection = {
@@ -533,9 +911,7 @@ export default class TestType extends Component {
                             style={{width:'100%'}}
                             value={this.state.testSetId}
                             onChange={this.handleChange}>
-                            <Option title="testSetId" value={1}>测试集1</Option>
-                            <Option title="testSetId" value={2}>测试集2</Option>
-                            <Option title="testSetId" value={3}>测试集3</Option>
+                            {this.teoption()}
                         </Select>
                     </Col>
                         <Col span={2}>
@@ -553,7 +929,6 @@ export default class TestType extends Component {
                     </Row>
                 <div>
                     <Table
-                        rowSelection={rowSelection}
                         columns={this.columns}
                         dataSource={this.state.data}
                         rowKey={record => record.key}
@@ -561,7 +936,7 @@ export default class TestType extends Component {
                         style={{margin:'20px 0'}}
                         pagination={{
                             position: ['bottomLeft'] ,
-                            total:'data.length',
+                            total:this.state.total,
                             showTotal:total => `共 ${total} 条`,
                             showQuickJumper:true,
                             showSizeChanger:true,
@@ -577,73 +952,76 @@ export default class TestType extends Component {
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     footer={[
-                        <Button key="back" onClick={this.handleCancel}>
-                            取消
-                        </Button>,
-                        <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
-                            添加
-                        </Button>,
-                    ]}
-                >
-                    <Form {...formItemLayout}>
-                        <Form.Item label="测试类型名称"
-                                   rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.testType}
-                                   name="testType"
-                                   onChange={this.inputOnChange}
-                                   allowClear/>
-                        </Form.Item>
-                        <Form.Item label="测试集名称"
-                                   rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.testSet}
-                                   name="testSet"
-                                   onChange={this.inputOnChange}
-                                   allowClear/>
+                        <div style={{textAlign:"center"}}>
+                            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+                                添加
+                            </Button>,
+                            <Button key="back" onClick={this.handleCancel}>
+                                取消
+                            </Button>,
+                        </div>
+                    ]}>
+                    <Form {...formItemLayout}
+                          name="add"
+                          ref={this.form}>
+                        <Form.Item label="测试集"
+                                   name="testSetId"
+                                   rules={[{required:true,message:"必填项不能为空"}]}>
+                            <Select placeholder="请选择测试集">
+                                {this.teoption()}
+                            </Select>
                         </Form.Item>
                         <Form.Item label="测试类型代码"
-                                   rules={[{required:true}]}>
-                            <Input value={this.state.currentItem.testTypeCode}
                                    name="testTypeCode"
-                                   onChange={this.inputOnChange}
+                                   rules={[{required:true,message:"必填项不能为空"}]}>
+                            <Input allowClear
+                                   placeholder="请输入测试类型代码"/>
+                        </Form.Item>
+                        <Form.Item label="测试类型名称"
+                                   name="testTypeName"
+                                   rules={[{required:true,message:"必填项不能为空"}]}>
+                            <Input placeholder="请输入测试类型名称"
                                    allowClear/>
                         </Form.Item>
                     </Form>
                 </Modal>
                 <Modal
+                    forceRender={true}
                     title="修改测试类型数据"
                     visible={this.state.modifyVisible}
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     footer={[
-                        <Button key="back" onClick={this.handleCancel}>
-                            取消
-                        </Button>,
-                        <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
-                            修改
-                        </Button>,
-                    ]}
-                >
+                        <div style={{textAlign:"center"}}>
+                            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+                                修改
+                            </Button>,
+                            <Button key="back" onClick={this.handleCancel}>
+                                取消
+                            </Button>,
+                        </div>
+                    ]}>
                     <div>
-                        <Form {...formItemLayout}>
-                            <Form.Item label="测试类型名称"
-                                       rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.testType}
-                                       name="testType"
-                                       onChange={this.inputOnChange}
-                                       allowClear/>
-                            </Form.Item>
-                            <Form.Item label="测试集名称"
-                                       rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.testSet}
-                                       name="testSet"
-                                       onChange={this.inputOnChange}
-                                       allowClear/>
+                        <Form {...formItemLayout}
+                              name="modify"
+                              ref={this.form_modify}>
+                            <Form.Item label="测试集"
+                                       name="testSetId"
+                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                <Select placeholder="请选择测试集">
+                                    {this.teoption()}
+                                </Select>
                             </Form.Item>
                             <Form.Item label="测试类型代码"
-                                       rules={[{required:true}]}>
-                                <Input value={this.state.currentItem.testTypeCode}
                                        name="testTypeCode"
-                                       onChange={this.inputOnChange}
+                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                <Input allowClear
+                                       placeholder="请输入测试类型代码"/>
+                            </Form.Item>
+                            <Form.Item label="测试类型名称"
+                                       name="testTypeName"
+                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                <Input placeholder="请输入测试类型名称"
                                        allowClear/>
                             </Form.Item>
                         </Form>
@@ -653,22 +1031,18 @@ export default class TestType extends Component {
                 <Modal
                     title="已关联的试剂类型"
                     visible={this.state.associateVisible}
-                    onOk={this.handleOk}
                     onCancel={this.handleCancel}
                     footer={[
-                        <Button key="back" onClick={this.handleCancel}>
-                            取消
-                        </Button>,
-                        <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
-                            修改
-                        </Button>,
-                    ]}
-                >
+                        <div style={{textAlign:"center"}}>
+                            <Button key="back" onClick={this.handleCancel}>
+                                取消
+                            </Button>,
+                        </div>
+                    ]}>
                     <div>
                         <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
                                 onClick={this.Modify}>修改</Button>
                         <Table
-                            rowSelection={associatedRowSelection}
                             columns={this.associatedcolumns}
                             dataSource={this.state.associatedData}
                             rowKey={record => record.key}
@@ -676,45 +1050,47 @@ export default class TestType extends Component {
                             style={{margin:'20px 0'}}
                             pagination={{
                                 position: ['bottomLeft'] ,
-                                total:'data.length',
+                                total:this.state.associatedTotal,
                                 showTotal:total => `共 ${total} 条`,
                                 showQuickJumper:true,
                                 showSizeChanger:true,
                                 current:this.state.associatedcurrentPage,
-                                onChange:this.onChange,
+                                onChange:this.onChangeAssociated,
                             }}
                         />
                     </div>
                     <Modal
                         title="修改测试类型数据"
                         visible={this.state.associatedModifyVisible}
-                        onOk={this.handleOk}
-                        onCancel={this.handleCancel}
+                        onOk={this.handleSubmit}
+                        width={1400}
+                        onCancel={this.handleReturn}
                         footer={[
-                            <Button key="back" onClick={this.handleCancel}>
-                                返回
-                            </Button>,
-                            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
-                                提交
-                            </Button>,
-                        ]}
-                    >
+                            <div style={{textAlign:"center"}}>
+                                <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmit}>
+                                    提交
+                                </Button>,
+                                <Button key="back" onClick={this.handleReturn}>
+                                    返回
+                                </Button>,
+                            </div>
+                        ]}>
                         <div>
                             <Table
                                 rowSelection={associatedRowSelection}
-                                columns={this.associatedcolumns}
-                                dataSource={this.state.associatedData}
+                                columns={this.reagentcolumns}
+                                dataSource={this.state.reagentData}
                                 rowKey={record => record.key}
                                 bordered={true}
                                 style={{margin:'20px 0'}}
                                 pagination={{
                                     position: ['bottomLeft'] ,
-                                    total:'data.length',
+                                    total:this.state.reagentTotal,
                                     showTotal:total => `共 ${total} 条`,
                                     showQuickJumper:true,
                                     showSizeChanger:true,
-                                    current:this.state.associatedcurrentPage,
-                                    onChange:this.onChange,
+                                    current:this.state.reagentCurrentPage,
+                                    onChange:this.onChangeReagent,
                                 }}
                             />
                         </div>

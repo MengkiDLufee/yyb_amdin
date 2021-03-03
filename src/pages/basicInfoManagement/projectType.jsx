@@ -371,14 +371,23 @@ export default class ProjectType extends Component {
                     this.setState({
                         loading: true,
                     });
+                    // values.planTypeCode=form_modify.getFieldsValue('planTypeCode');
+                    // console.log("lll",values.planTypeCode);
+                    if(values.planTypeCode==="普通"){
+                        values.planTypeCode="normal";
+                    }
+                    if(values.planTypeCode==="起峰前"){
+                        values.planTypeCode="prelayegg";
+                    }
                     let params={
                         planTypeId:this.state.currentItem.planTypeId,
                         planTypeCode:values.planTypeCode,
-                        testTypeId:this.state.testTypeId,
+                        testTypeId:values.testTypeId,
                         planTypeName:values.planTypeName,
                         planTypeValue:values.planTypeValue,
                         timeout:values.timeout
                     }
+                    console.log("params",params)
                     httpRequest('post','/plan/modify',params)
                         .then(response=>{
                             console.log(response)
@@ -705,7 +714,7 @@ export default class ProjectType extends Component {
                         <Form.Item label="测试类型"
                                    name="testTypeId">
                             <Select placeholder="请选择测试类型"
-                                    onChange={this.handleChange}
+                                   // onChange={this.handleChange}
                                     value={this.state.testTypeId}>
                                 {this.option()}
                             </Select>
@@ -761,8 +770,9 @@ export default class ProjectType extends Component {
                             <Form.Item label="测试类型"
                                        name="testTypeId">
                                 <Select placeholder="请选择测试类型"
-                                        onChange={this.handleChange}
-                                        value={this.state.testTypeId}>
+                                       // onChange={this.handleChange}
+                                        //value={this.state.testTypeId}
+                                >
                                     {this.option()}
                                 </Select>
                             </Form.Item>

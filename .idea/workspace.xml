@@ -2,9 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/yyb_amdin.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/yyb_amdin.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/compenents/importfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/compenents/importfile.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/importFile.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/exportFile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/exportFile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/http.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/http.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +117,34 @@
       <workItem from="1609320324378" duration="15725000" />
       <workItem from="1609576098727" duration="5063000" />
       <workItem from="1609658011249" duration="6415000" />
-      <workItem from="1609762854517" duration="904000" />
+      <workItem from="1609762854517" duration="5006000" />
+      <workItem from="1609812056355" duration="6513000" />
+      <workItem from="1609989962454" duration="2567000" />
+      <workItem from="1610084136037" duration="1071000" />
+      <workItem from="1610283559773" duration="611000" />
+      <workItem from="1610285222338" duration="1263000" />
+      <workItem from="1610339926045" duration="8270000" />
+      <workItem from="1610416924342" duration="18058000" />
+      <workItem from="1610503283877" duration="10077000" />
+      <workItem from="1610537322682" duration="7525000" />
+      <workItem from="1610592545373" duration="6548000" />
+      <workItem from="1610610784523" duration="1624000" />
+      <workItem from="1610673965632" duration="8467000" />
+      <workItem from="1610783853005" duration="2306000" />
+      <workItem from="1610860173363" duration="10061000" />
+      <workItem from="1610975580091" duration="604000" />
+      <workItem from="1611033960752" duration="90000" />
+      <workItem from="1611228852584" duration="620000" />
+      <workItem from="1611232189608" duration="906000" />
+      <workItem from="1611298256340" duration="1051000" />
+      <workItem from="1611736962479" duration="1375000" />
+      <workItem from="1612081738492" duration="3162000" />
+      <workItem from="1614178774030" duration="1865000" />
+      <workItem from="1614412828386" duration="3347000" />
+      <workItem from="1614509373860" duration="603000" />
+      <workItem from="1614596598649" duration="353000" />
+      <workItem from="1614652912717" duration="6276000" />
+      <workItem from="1614760999631" duration="8388000" />
     </task>
     <servers />
   </component>

@@ -1,9 +1,15 @@
 import React, { Component } from 'react'
 import {DatePicker,Table, Button, Input, Row, Col, Select, Space, Modal, Form,Checkbox} from 'antd';
-import {PlusSquareOutlined, ReloadOutlined, SearchOutlined,ExportOutlined,ImportOutlined } from "@ant-design/icons";
+import {
+    PlusSquareOutlined,
+    ReloadOutlined,
+    SearchOutlined,
+    CloudDownloadOutlined, CloudUploadOutlined
+} from "@ant-design/icons";
 import httpRequest from "../../http";
 import exportFile from "../../exportFile";
 import moment from 'moment';
+import ImportFile from "../../compenents/importfile";
 
 
 const { Option } = Select;
@@ -17,6 +23,7 @@ export default class ReagentJudgeParams extends Component {
         super(props);
 
         this.form_modify = React.createRef();
+        this.form_view = React.createRef();
         this.handleAdd=this.handleAdd.bind(this);
         this.handleExport=this.handleExport.bind(this);
         this.handleModify=this.handleModify.bind(this);
@@ -30,6 +37,11 @@ export default class ReagentJudgeParams extends Component {
         this.checkboxOnChangeQualitative=this.checkboxOnChangeQualitative.bind(this);
         this.checkboxOnChangedocrop=this.checkboxOnChangedocrop.bind(this);
         this.dateOnChange=this.dateOnChange.bind(this);
+        this.handleImport=this.handleImport.bind(this);
+        this.handleCancel_import=this.handleCancel_import.bind(this);
+        this.handleRevisions=this.handleRevisions.bind(this);
+        this.handleView=this.handleView.bind(this);
+        this.handleSetting=this.handleSetting.bind(this);
     }
 
     //状态管理
@@ -38,9 +50,13 @@ export default class ReagentJudgeParams extends Component {
         loading: false,
         addVisible:false,
         modifyVisible: false,
+        historyVisible:false,
+        visible_import:false,
         data:[],
+        dataHistory:[],
         //总数据数
         total:null,
+        totalHistory:null,
         //分页
         currentPage:1,
         pageSize:10,
@@ -56,8 +72,19 @@ export default class ReagentJudgeParams extends Component {
         qualitative:null,
         docrop:null,
 
+        //查看checkbox
+        paperFadeHistory:null,
+        qualitativeHistory:null,
+        docropHistory:null,
+
         paperParamProId:null,
         dateString:"",
+
+        //历史版本
+        historyBathNumber:'',
+        historyPaperTypeName:'',
+        paperParamHisId:'',
+        currentPageHistory:1,
     };
 
     //表格列头
@@ -105,7 +132,7 @@ export default class ReagentJudgeParams extends Component {
             dataIndex: 'revisions',
             render: (text, record) => (
                 <Space size="middle">
-                    <Button type="link" style={{color:'#000000'}}>历史版本</Button>
+                    <Button type="link" style={{color:'#000000'}} onClick={()=>{this.handleRevisions(record)}}>历史版本</Button>
                 </Space>
             ),
         },
@@ -118,6 +145,62 @@ export default class ReagentJudgeParams extends Component {
                     <Button style={{color:'black',background:'white'}} onClick={()=>{this.handleModify(record)}}>修改</Button>
                     <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
                             onClick={()=>{this.handleDelete(record)}}>删除</Button>
+                </Space>
+            ),
+        },
+    ];
+
+    //历史表格
+    columnsHistory = [
+        {
+            title: '开始时间',
+            dataIndex: 'startDate',
+            sorter: (a,b) => a.startDate - b.startDate,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '结束时间',
+            dataIndex: 'endDate',
+            sorter: (a,b) => a.endDate.length - b.endDate.length,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '制定人员',
+            dataIndex: 'makePerson',
+            sorter: (a,b) => a.makePerson - b.makePerson,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '是否为当前标曲',
+            dataIndex: 'proparam',
+            sorter: (a,b) => a.proparam.length - b.proparam.length,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '关联实验数据',
+            dataIndex: 'qualitative',
+            //sorter: (a,b) => a.qualitative.localeCompare(b.qualitative, 'zh'),
+            sorter: (a,b) => a.qualitative-b.qualitative,
+            sortDirections: ['descend','ascend'],
+        },
+        {
+            title: '操作',
+            dataIndex: 'operation',
+            render: (text, record) => (
+                <Space size="middle">
+                    <Button style={{color:'black',background:'white'}} onClick={()=>{this.handleView(record)}}>查看</Button>
+                </Space>
+            ),
+        },
+        {
+            title: '设置',
+            dataIndex: 'setting',
+            render: (text, record) => (
+                <Space size="middle">
+                    <Button style={record.proparam==="是"?{backgroundColor:'lightgray', color:'#FFFAFA'}:{color:'black',background:'white'}}
+                            onClick={()=>{this.handleSetting(record)}}
+                            disabled={record.proparam==="是"? true:false}
+                    >设为生产标曲</Button>
                 </Space>
             ),
         },
@@ -216,7 +299,14 @@ export default class ReagentJudgeParams extends Component {
                 paperParamProId:null,
                 dateString:"",
 
+                //查看checkbox
+                paperFadeHistory:null,
+                qualitativeHistory:null,
+                docropHistory:null,
 
+                //历史版本
+                historyBathNumber:'',
+                historyPaperTypeName:'',
             });
         }, 1000);
     };
@@ -243,8 +333,22 @@ export default class ReagentJudgeParams extends Component {
         })
 
         console.log(paperParamProIdList)
-        exportFile('/paper/param/pro/export',{paperParamProIdList:paperParamProIdList},'判读参数')
+        exportFile('/paper/param/pro/export',{paperParamProIdList:paperParamProIdList},'试剂判读参数')
 
+    }
+
+    //导入弹窗开启
+    handleImport(){
+        this.setState({
+            visible_import:true,
+        })
+    }
+
+    //导入弹窗关闭
+    handleCancel_import = () => {
+        this.setState({
+            visible_import:false,
+        })
     }
 
     //搜索（完成）
@@ -370,19 +474,6 @@ export default class ReagentJudgeParams extends Component {
         })
 
          this.setState({
-        //     currentItem:{
-        //         key: null,
-        //         paperParamProId:null,//试剂判读参数id生产
-        //         bathNumber: null,//批号
-        //         paperTypeName: '',//试剂类型名称
-        //         reactiveTime: null,//反应时间(秒)
-        //         organization:'',//所属单位
-        //         qualitative:null,//是定性
-        //         paperFade :null,//能效已降低
-        //         madeTime:'',
-        //     },
-
-
             //搜索框
             bathNumber:null,
             paperTypeId:null,
@@ -785,7 +876,7 @@ export default class ReagentJudgeParams extends Component {
                                     console.log(err);
                                 })
                                 setTimeout(() => {
-                                    form_modify.resetFields();
+                                    form.resetFields();
                                     this.setState({
                                         loading:false,
                                         addVisible: false,
@@ -808,7 +899,10 @@ export default class ReagentJudgeParams extends Component {
         this.setState({
             addVisible: false,
             modifyVisible: false,
+            viewVisible:false,
             paperParamProId:null,
+            historyVisible:false,
+            historyBathNumber:'',
         });
     };
 
@@ -824,13 +918,6 @@ export default class ReagentJudgeParams extends Component {
                 bathNumber:value
             })
         }
-        // else{
-        //     this.setState({
-        //         currentItem:Object.assign(this.state.currentItem,{[name]:value})
-        //     })
-        // }
-
-
     }
 
     //搜索选择框变化（完成）
@@ -922,6 +1009,46 @@ export default class ReagentJudgeParams extends Component {
         })
     };
 
+    //历史版本表格分页
+    onChangeHistory = page => {
+        console.log("翻页",page);
+        this.setState({
+            currentPageHistory: page,
+        });
+        let params={
+            page:page,
+            pageSize:this.state.pageSize,
+            bathNumber:this.state.historyBathNumber,
+        }
+        console.log("翻页参数",params)
+        httpRequest('post','/paper/param/history/list',params)
+            .then(response=>{
+                console.log(response)
+                console.log(response.data.data)
+                if(response.data!==[]) {
+                    this.setState({
+                        dataHistory: response.data.data.info,
+                        totalHistory: response.data.data.total,
+                    })
+                    const tempData=[...this.state.data];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i;
+                        if(tempData[i].proparam===false){
+                            tempData[i].proparam='否';
+                        }
+                        else{
+                            tempData[i].proparam='是';
+                        }
+                    }
+                    this.setState({
+                        dataHistory:tempData,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+    };
+
     //checkbox选择
     checkboxOnChange(e) {
         this.setState({
@@ -939,6 +1066,216 @@ export default class ReagentJudgeParams extends Component {
         })
     }
 
+    //历史版本
+    handleRevisions=(record)=>{
+        console.log("历史版本",record)
+        console.log("历史版本",record.bathNumber)
+        this.setState({
+            historyVisible:true,
+            historyBathNumber:record.bathNumber,
+            historyPaperTypeName:record.paperTypeName
+        },()=>{
+            console.log("pihao",this.state.historyBathNumber)
+            let params={
+                bathNumber:this.state.historyBathNumber,
+                page:1,
+                pageSize:this.state.pageSize
+            }
+            console.log("历史版本参数",params)
+            httpRequest('post','/paper/param/history/list',params)
+                .then(response=>{
+                    console.log("查看历史版本",response.data.data)
+                    if(response.data.data!==[]) {
+                        this.setState({
+                            dataHistory: response.data.data.info,
+                            totalHistory: response.data.data.total,
+                        })
+                        const tempData=[...this.state.dataHistory];
+                        for(let i=0;i<tempData.length;i++){
+                            tempData[i].key=i;
+                            if(tempData[i].proparam===true){
+                                tempData[i].proparam="是";
+                            }
+                            else{
+                                tempData[i].proparam="否";
+                            }
+                        }
+                        console.log("数据temp",tempData)
+                        this.setState({
+                            dataHistory:tempData,
+                        })
+                        console.log("数据",this.state.dataHistory)
+                    }
+                    else{
+                        alert("删除失败，请稍后再试")
+                    }
+                }).catch(err => {
+                console.log(err);
+            })
+        })
+    }
+
+    //查看
+    handleView=(record)=>{
+        console.log("查看");
+        console.log('修改',record)
+        this.setState({
+                viewVisible:true,
+                paperParamProId:record.paperParamProId,
+                paperFadeHistory:record.paperFade,
+                qualitativeHistory:record.qualitative,
+                docropHistory:record.doCrop,
+
+            },
+        );
+        if(record.madeTime!==null)
+            record.madeTime=moment(record.madeTime);
+        console.log("时间",record.madeTime)
+            this.form_view.current.setFieldsValue({
+                paperTypeName:record.paperTypeName,
+                bathNumber:record.bathNumber,
+                madeTime:record.madeTime,
+                reactiveTime:record.reactiveTime,
+                organization:record.organizationName,
+                lineWidth:record.lineWidth,
+                lineLength:record.lineLength,
+                linePx:record.linePx,
+                linePy:record.linePy,
+                line0r:record.line0r,
+                line0l:record.line0l,
+                linel:record.linel,
+                liner:record.liner,
+                line2l:record.line2l,
+                line2r:record.line2r,
+                qualitativeGod12:record.qualitativeGod12,
+                qualitativeGod:record.qualitativeGod,
+                qualitativeGod11:record.qualitativeGod11,
+                lineN0:record.lineN0,
+                lineN1:record.lineN1,
+                lineN2:record.lineN2,
+                lineN3:record.lineN3,
+                lineN4:record.lineN4,
+                lineN5:record.lineN5,
+                lineN6:record.lineN6,
+                lineN7:record.lineN7,
+                lineN8:record.lineN8,
+                lineGod0:record.lineGod0,
+                lineGod1:record.lineGod1,
+                lineGod2:record.lineGod2,
+                lineGod3:record.lineGod3,
+                lineGod4:record.lineGod4,
+                lineGod5:record.lineGod5,
+                lineGod6:record.lineGod6,
+                lineGod7:record.lineGod7,
+                lineGod8:record.lineGod8,
+                description:record.description,
+                topGod:record.topGod,
+                lowerGod:record.lowerGod,
+                lineWei:record.lineWei,
+                lineShowtype:record.lineShowtype,
+                lineMethod:record.lineMethod,
+                crop1Px:record.crop1Px,
+                crop1Py:record.crop1Py,
+                crop1Width:record.crop1Width,
+                crop1Height:record.crop1Height,
+                qualitativeGod2:record.qualitativeGod2,
+                qualitativeGod3:record.qualitativeGod3,
+                qualitativeGod4:record.qualitativeGod4,
+                qualitativeGod5:record.qualitativeGod5,
+            })
+
+
+    }
+
+    //设为生产标曲
+    handleSetting=(record)=>{
+        console.log("设为生产标曲")
+        this.setState({
+            paperParamHisId:record.paperParamHisId
+        },()=> {
+            let params = {
+                paperParamHisId: this.state.paperParamHisId,
+            }
+            httpRequest('post', '/paper/param/history/production', params)
+                .then(response => {
+                    console.log(response.data)
+                    if (response.data.code === 1004) {
+                        //历史版本内状态更新
+                        let inital_param = {
+                            page: this.state.currentPageHistory,
+                            pageSize: this.state.pageSize,
+                            bathNumber:record.bathNumber
+                        }
+                        httpRequest('post', '/paper/param/history/list', inital_param)
+                            .then(response => {
+                                console.log(inital_param)
+                                console.log(response.data)
+                                if (response.data.data!== []) {
+                                    this.setState({
+                                        dataHistory: response.data.data.info,
+                                        totalHistory: response.data.data.total,
+                                    })
+                                    const tempData = [...this.state.dataHistory];
+                                    for (let i = 0; i < tempData.length; i++) {
+                                        tempData[i].key = i;
+                                        if (tempData[i].proparam === true) {
+                                            tempData[i].proparam = "是";
+                                        } else {
+                                            tempData[i].proparam = "否";
+                                        }
+                                    }
+                                    this.setState({
+                                        dataHistory: tempData,
+                                    })
+                                }
+                            }).catch(err => {
+                            console.log(err);
+                        })
+                    } else {
+                        alert("设置失败，请稍后再试")
+                    }
+                }).catch(err => {
+                console.log(err);
+            })
+
+
+            let page_param = {
+                page: this.state.currentPage,
+                pageSize: this.state.pageSize,
+            }
+            httpRequest('post', '/paper/param/pro/list', page_param)
+                .then(response => {
+                    console.log(response.data.data)
+                    if (response.data !== []) {
+                        this.setState({
+                            data: response.data.data.info,
+                            total: response.data.data.total,
+                        })
+                        const tempData = [...this.state.data];
+                        for (let i = 0; i < tempData.length; i++) {
+                            tempData[i].key = i;
+                            if (tempData[i].qualitative === false) {
+                                tempData[i].qualitative = '否';
+                            } else {
+                                tempData[i].qualitative = '是';
+                            }
+                            if (tempData[i].paperFade === false) {
+                                tempData[i].paperFade = '否';
+                            } else {
+                                tempData[i].paperFade = '是';
+                            }
+                        }
+                        this.setState({
+                            data: tempData,
+                        })
+                    } else {
+                        alert("删除失败，请稍后再试")
+                    }
+                }).catch(err => {
+                console.log(err);
+            })
+                })
+    }
     form = React.createRef();
 
     render() {
@@ -1007,10 +1344,10 @@ export default class ReagentJudgeParams extends Component {
                         <Button type="primary" onClick={this.handleAdd}><PlusSquareOutlined />添加</Button>
                     </Col>
                     <Col span={2} >
-                        <Button type="primary" onClick={this.handleExport}><ExportOutlined />导出</Button>
+                        <Button type="primary" onClick={this.handleExport}><CloudDownloadOutlined className="icon1"/>导出</Button>
                     </Col>
                     <Col span={2} >
-                        <Button type="primary" ><ImportOutlined />导入</Button>
+                        <Button type="primary" onClick={this.handleImport} ><CloudUploadOutlined className="icon1"/>导入</Button>
                     </Col>
 
                     <Col span={2} >
@@ -1804,6 +2141,432 @@ export default class ReagentJudgeParams extends Component {
                         </Form>
                     </div>
                 </Modal>
+            <Modal
+                rowKey={record => record.key}
+                title="试剂判读参数（历史）"
+                visible={this.state.historyVisible}
+                onOk={this.handleOk}
+                onCancel={this.handleCancel}
+                width={1400}
+                footer={[
+                    <div style={{textAlign:"center"}}>
+                        <Button key="back" onClick={this.handleCancel}>
+                            取消
+                        </Button>,
+                    </div>
+                ]}>
+                <div>
+                    <div style={{font:14}}>
+                        批号：{this.state.historyBathNumber}
+                    </div>
+                    <div style={{font:14}}>
+                        试剂类型：{this.state.historyPaperTypeName}
+                    </div>
+                    <div>
+                        <Table
+                            columns={this.columnsHistory}
+                            dataSource={this.state.dataHistory}
+                            rowKey={record => record.key}
+                            bordered={true}
+                            style={{margin:'20px 0'}}
+                            pagination={{
+                                position: ['bottomLeft'] ,
+                                total:this.state.totalHistory,
+                                showTotal:total => `共 ${total} 条`,
+                                showQuickJumper:true,
+                                showSizeChanger:true,
+                                current:this.state.currentPageHistory,
+                                onChange:this.onChangeHistory,
+                            }}
+                        />
+                    </div>
+                    <div>
+                        <Modal
+                            forceRender={true}
+                            title="基本信息"
+                            visible={this.state.viewVisible}
+                            onCancel={this.handleCancel}
+                            width={1400}>
+                            <div>
+                                <Form {...formItemLayout}
+                                      name="view"
+                                      ref={this.form_view}>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={8}>
+                                            <Form.Item label="试剂类型"
+                                                       name="paperTypeName"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Select placeholder="请选择试剂类型" disabled={true}>
+                                                    {this.reoption()}
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Form.Item label="批号"
+                                                       name="bathNumber"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input placeholder="请输入批号"
+                                                       disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Form.Item label="生产日期"
+                                                       name="madeTime"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <DatePicker onChange={this.dateOnChange}
+                                                            placeholder="请选择生产日期 "
+                                                            disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={1}></Col>
+                                        <Col span={7}>
+                                            <Form.Item name="paperFadeHistory">
+                                                <Checkbox checked={this.state.paperFadeHistory}
+                                                          disabled={true}>
+                                                    能效已降低
+                                                </Checkbox>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Form.Item label="反应时间"
+                                                       name="reactiveTime"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input placeholder="请输入反应时间"
+                                                       disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Form.Item label="所属单位"
+                                                       name="organization"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input placeholder="请输入单位"
+                                                       disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_WIDTH"
+                                                       name="lineWidth"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_LENGTH"
+                                                       name="lineLength"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_PX"
+                                                       name="linePx"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_PY"
+                                                       name="linePy"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={6}>
+                                            <Form.Item label="LINE0R"
+                                                       name="line0r"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE0L"
+                                                       name="line0l"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINEL"
+                                                       name="linel"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINER"
+                                                       name="liner"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={12}>
+                                            <Form.Item label="LINE2L"
+                                                       name="line2l"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Form.Item label="LINE2R"
+                                                       name="line2r"
+                                                       rules={[{required:true,message:"必填项不能为空"}]}>
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={24}>
+                                            <Form.Item name="qualitativeHistory">
+                                                <Checkbox disabled={true}
+                                                          checked={this.state.qualitativeHistory}>
+                                                    是定性
+                                                </Checkbox>
+                                            </Form.Item>
+                                        </Col>
+
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={8}>
+                                            <Form.Item label="定性阴性GOD值"
+                                                       name="qualitativeLGod">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Form.Item label="定性阳性+GOD值"
+                                                       name="qualitativeGod">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={8}>
+                                            <Form.Item label="定性弱阳性GOD值"
+                                                       name="qualitativeGod11">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_N0"
+                                                       name="lineN0">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_N1"
+                                                       name="lineN1">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_N2"
+                                                       name="lineN2">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_N3"
+                                                       name="lineN3">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_N4"
+                                                       name="lineN4">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_N5"
+                                                       name="lineN5">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_N6"
+                                                       name="lineN6">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_N7"
+                                                       name="lineN7">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_N8"
+                                                       name="lineN8">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={18}>
+                                        </Col>
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_GOD0"
+                                                       name="lineGod0">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_GOD1"
+                                                       name="lineGod1">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_GOD2"
+                                                       name="lineGod2">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_GOD3"
+                                                       name="lineGod3">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_GOD4"
+                                                       name="lineGod4">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_GOD5"
+                                                       name="lineGod5">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_GOD6"
+                                                       name="lineGod6">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_GOD7"
+                                                       name="lineGod7">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={6}>
+                                            <Form.Item label="LINE_GOD8"
+                                                       name="lineGod8">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={18}>
+                                        </Col>
+                                    </Row>
+
+                                    <Form.Item label="描述"
+                                               name="description">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                    <Form.Item label="TOP_GOD"
+                                               name="topGod">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                    <Form.Item label="LOWER_GOD"
+                                               name="lowerGod">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                    <Form.Item label="LINE_WEI"
+                                               name="lineWei">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                    <Form.Item label="LINE_SHOWTYPE"
+                                               name="lineShowtype">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                    <Form.Item label="LINE_METHOD"
+                                               name="lineMethod">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                    <Form.Item label="LINE_JUDGE_METHOD"
+                                               name="lineJudgeMethod">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                    <Form.Item name="docropHistory">
+                                        <Checkbox disabled={true}
+                                                  checked={this.state.docropHistory}>
+                                            DO_CROP
+                                        </Checkbox>
+                                    </Form.Item>
+                                    <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                                        <Col span={6}>
+                                            <Form.Item label="CROP1_PX"
+                                                       name="CROP1_PX">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="CROP1_PY"
+                                                       name="CROP1_PY">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="CROP1_WIDTH"
+                                                       name="CROP1_WIDTH">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="CROP1_HEIGHT"
+                                                       name="CROP1_HEIGHT">
+                                                <Input disabled={true}/>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                    <Form.Item label="定性阳性GOD值++"
+                                               name="qualitativeGod2">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                    <Form.Item label="定性阳性GOD值+++"
+                                               name="qualitativeGod3">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                    <Form.Item label="定性阳性GOD值++++"
+                                               name="qualitativeGod4">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                    <Form.Item label="定性阳性GOD值+++++"
+                                               name="qualitativeGod5">
+                                        <Input disabled={true}/>
+                                    </Form.Item>
+                                </Form>
+                            </div>
+                        </Modal>
+                    </div>
+                </div>
+            </Modal>
+                {/*导入弹窗*/}
+                <ImportFile
+                    url="http://123.57.33.240:8080/paper/param/pro/import"
+                    visible={this.state.visible_import}
+                    onCancel={this.handleCancel_import}
+                />
             </div>
         )
     }

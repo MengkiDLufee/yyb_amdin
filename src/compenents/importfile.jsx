@@ -34,14 +34,12 @@ export default class ImportFile extends Component {
     };
 
     return (
-          <Modal
-          title="上传"
-          centered
-          visible={this.props.visible}
-          onCancel={this.props.onCancel}
-          footer={null}
-          width="800"
-          >
+          <Modal title="上传"
+                 centered
+                 visible={this.props.visible}
+                 onCancel={this.props.onCancel}
+                 footer={null}
+                 width="800">
             <div className="ant-modal-body" style={{height:"100%"}}>
               <div style={{height:"100%",width:"100%"}}>
                 <Dragger {...props}>
@@ -50,8 +48,7 @@ export default class ImportFile extends Component {
                   </p>
                   <p className="ant-upload-text">点击或拖动文件到此区域进行上传</p>
                   <p className="ant-upload-hint">
-                    Support for a single or bulk upload. Strictly prohibit from uploading company data or other
-                    band files
+                    支持单个或批量上传
                   </p>
               </Dragger>
               </div>
