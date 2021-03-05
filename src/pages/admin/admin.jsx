@@ -113,6 +113,12 @@ const YybProfessionEditionStatistics = lazy(() => import('../yybProfessionEditio
 const UserManagement = lazy(() => import('../serviceSystem/userManagement'));
 const DeviceManagement_Serve = lazy(() => import('../serviceSystem/deviceManagement'));
 const ServiceManagement = lazy(() => import('../serviceSystem/serviceManagement'));
+//系统管理
+const User  = lazy(() => import('../system/user'));
+const Role = lazy(() => import('../system/role'));
+const Partment = lazy(() => import('../system/partment'));
+const LoginLog = lazy(() => import('../system/loginLog'));
+const WorkLog = lazy(() => import('../system/workLog'));
 
 
 
@@ -348,7 +354,7 @@ export default class Admin extends Component {
 
               {/* 内容部分二级路由配置 */}
               <Content
-                style={{ margin: '24px 16px', padding: 24,background:'white',minHeight:"800"}}
+                style={{ margin: '24px 16px', padding: 24,background:'white',minHeight:"800",overflow:'auto'}}
               >
                 <Suspense fallback={<Spin tip="Loading..."></Spin>}>
                 <Switch>
@@ -396,6 +402,12 @@ export default class Admin extends Component {
                   <Route path="/serve/user"  component={UserManagement} />
                   <Route path="/serve/device"  component={DeviceManagement_Serve} />
                   <Route path="/service"  component={ServiceManagement} />
+
+                  <Route path="/system/user"  component={User} />
+                  <Route path="/system/role"  component={Role} />
+                  <Route path="/system/partment"  component={Partment} />
+                  <Route path="/system/loginlog"  component={LoginLog} />
+                  <Route path="/system/worklog"  component={WorkLog} />
                   <Redirect to="/home" />
                 </Switch>
                 </Suspense>

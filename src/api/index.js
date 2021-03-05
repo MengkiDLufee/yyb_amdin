@@ -1,6 +1,8 @@
-//根据接口文档定义接口函数
-//包含应用中所有请求接口的模块
-//每个函数返回值都是promise
+/*
+  根据接口文档定义接口函数
+  包含应用中所有请求接口的模块
+  每个函数返回值都是promise
+*/
 import ajax from './ajax'
 
 
@@ -36,9 +38,30 @@ export function exportFile (url,data) {
 5.实验管理模块
 */
 //5.1.1 实验数据
-export function exp_list (data) {
+export function expList (data) {
   return ajax('/experiment/list',data,'POST')
 }
+//5.1.2.1 得到所有实验人员
+export function getExpPerson(){
+  return ajax('/experiment/get_test_people',{},'GET')
+}
+
+//5.1.2.2 得到所有试剂种类
+export function getPaper(){
+  return ajax('/experiment/get_paper_type',{},'GET')
+}
+
+
+//5.1.2.3 根据试剂种类选择批号
+
+//5.1.2.4添加实验数据
+
+//5.1.3 修改（修改实验计划相关信息，正在进行实验的计划无法修改）
+
+//5.1.4删除（删除实验计划相关信息）
+
+
+
 //5.2.1 实验人员信息
 export function exp_person (data) {
   return ajax('/testperson/list',data,'POST')
