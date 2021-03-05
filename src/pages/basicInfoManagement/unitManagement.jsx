@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Row, Col, Select, Space, Modal, Form} from 'antd';
+import {Table, Button, Input, Row, Col, Space, Modal, Form} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import httpRequest from "../../http";
 
@@ -459,7 +459,7 @@ export default class UnitManagement extends Component {
     form = React.createRef();
 
     render() {
-        const { loading, selectedRowKeys } = this.state;
+        const { loading } = this.state;
         const formItemLayout = {
             labelCol: {
                 xs: {

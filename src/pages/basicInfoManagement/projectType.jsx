@@ -616,7 +616,7 @@ export default class ProjectType extends Component {
     form = React.createRef();
 
     render() {
-        const { loading, selectedRowKeys } = this.state;
+        const { loading } = this.state;
 
         const formItemLayout = {
             labelCol: {

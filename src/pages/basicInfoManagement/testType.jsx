@@ -59,6 +59,9 @@ export default class TestType extends Component {
 
         currentId:null,
 
+        //已关联试剂中修改弹窗中的已选中的行
+        selectRowkey_modify:[]
+
     };
 
     //表格列名
@@ -865,16 +868,14 @@ export default class TestType extends Component {
 
     form = React.createRef();
     render() {
-        const { loading, selectedRowKeys, associtedSelectedRowKeys} = this.state;
-        const rowSelection = {
-            selectedRowKeys: selectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
-            onChange: this.onSelectChange,
-        };
+        const { loading, associtedSelectedRowKeys} = this.state;
+        
         const associatedRowSelection = {
-            associtedSelectedRowKeys: associtedSelectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
+            //associtedSelectedRowKeys: associtedSelectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
             onChange: this.associatedOnSelectChange,
+            selectedRowKeys:associtedSelectedRowKeys
         };
-        const hasSelected = selectedRowKeys.length > 0;
+        // const hasSelected = selectedRowKeys.length > 0;
 
         const formItemLayout = {
             labelCol: {
@@ -894,6 +895,13 @@ export default class TestType extends Component {
                 },
             },
         };
+
+        // const rowSelection_1 = {
+        //     onChange: (selectedRowKeys, selectedRows) => {
+        //       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+        //     },
+        //     // selectedRowKeys:[1]
+        // };
 
         return (
             <div>
@@ -1078,6 +1086,7 @@ export default class TestType extends Component {
                         <div>
                             <Table
                                 rowSelection={associatedRowSelection}
+                                // rowSelection={rowSelection_1}
                                 columns={this.reagentcolumns}
                                 dataSource={this.state.reagentData}
                                 rowKey={record => record.key}
