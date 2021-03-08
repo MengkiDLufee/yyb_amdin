@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import {Table, Button, Input, Row, Col, Select, Space, Modal, Form} from 'antd';
 import {SearchOutlined,PlusSquareOutlined,ReloadOutlined} from '@ant-design/icons';
 import httpRequest from "../../http";
+import ImportFile from "../../compenents/importfile";
 
 const { Option } = Select;
 
@@ -20,7 +21,9 @@ export default class TestType extends Component {
         this.handleChange=this.handleChange.bind(this);
         this.handleAssociate=this.handleAssociate.bind(this);
         this.handleLogic=this.handleLogic.bind(this);
-
+        this.uploadTemplete=this.uploadTemplete.bind(this);
+        this.handleCancel_import=this.handleCancel_import.bind(this);
+        this.viewHistory=this.viewHistory.bind(this);
     }
 
     state = {
@@ -33,12 +36,15 @@ export default class TestType extends Component {
         associatedModifyVisible:false,
         associateVisible:false,
         logicVisible:false,
+        visible_import:false,
+        historyVisible:false,
         data:[],
         total:null,
         associatedTotal:null,
         reagentTotal:null,
         associatedData:[],
         reagentData:[],
+        historyData:[],
         //搜索框
         testTypeName:'',
         testSetId:null,
@@ -50,15 +56,15 @@ export default class TestType extends Component {
         associatedPageSize:10,
         reagentCurrentPage:1,
         reagentPageSize:10,
+        historycurrentPage:1,
+        historyPageSize:10,
 
         //选择框
         testSetGroup:[],
 
         //标记数据
         testTypeId:null,
-
         currentId:null,
-
     };
 
     //表格列名
@@ -96,14 +102,17 @@ export default class TestType extends Component {
         {
             title: '操作',
             dataIndex: 'operation',
+            align:'center',
             render: (text, record) => (
                 <Space size="middle">
                     <Button style={{color:'black',background:'white'}}
                             onClick={()=>{this.handleAssociate(record)}}>已关联试剂类型</Button>
                     <Button style={{color:'black',background:'white'}}
                             onClick={()=>{this.handleLogic(record)}}>当前生产判读逻辑</Button>
-                    <Button>上传模板</Button>
-                    <Button>查看历史</Button>
+                    <Button style={{color:'black',background:'white'}}
+                            onClick={()=>{this.uploadTemplete()}}>上传模板</Button>
+                    <Button style={{color:'black',background:'white'}}
+                            onClick={()=>{this.viewHistory(record)}}>查看历史</Button>
                     <Button style={{color:'black',background:'white'}}
                             onClick={()=>{this.handleModify(record)}}>修改</Button>
                     <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
@@ -176,13 +185,83 @@ export default class TestType extends Component {
 
 
     ];
+    //判读逻辑历史
+    historycolumns=[
+        {
+            title: '函数方法名',
+            dataIndex: 'functionMethod',
+            sorter: (a,b) => a.functionMethod.localeCompare(b.functionMethod),
+            sortDirections: ['descend','ascend'],
+            ellipsis:true,
 
+        },
+        {
+            title: '版本号',
+            dataIndex: 'version',
+            sorter: (a,b) => a.version-b.version,
+            sortDirections: ['descend','ascend'],
+            width:150,
+        },
+        {
+            title: '生效时间',
+            dataIndex: 'startDate',
+            sorter:(a,b)=>{
+                let atimeString=a.startDate;
+                let btimeString=b.startDate;
+                let atime=new Date(atimeString).getTime();
+                let btime=new Date(btimeString).getTime();
+                return atime-btime;
+            },
+            sortDirections: ['descend','ascend'],
+            width:200,
+        },
+        {
+            title: '失效时间',
+            dataIndex: 'endDate',
+            sorter:(a,b)=>{
+                let atimeString=a.endDate;
+                let btimeString=b.endDate;
+                let atime=new Date(atimeString).getTime();
+                let btime=new Date(btimeString).getTime();
+                return atime-btime;
+            },
+            sortDirections: ['descend','ascend'],
+            width:200,
+        },
+        {
+            title: '当前状态',
+            dataIndex: 'production',
+            sorter: (a,b) => a.production-b.production,
+            sortDirections: ['descend','ascend'],
+            width:150,
+        },
+        {
+            title: '操作',
+            dataIndex: 'operation',
+            width: 400,
+            align:'center',
+            render: (text, record) => (
+                <Space size="middle">
+                    <Button style={{color:'black',background:'white',}}
+                            onClick={()=>{this.viewDetail(record)}}>查看详细信息</Button>
+                    <Button style={{color:'black',background:'white'}}
+                            onClick={()=>{this.handleModifyHistory(record)}}>修改</Button>
+                    <Button style={{color:'black',background:'white'}}
+                            onClick={()=>{this.handleProduct()}}>设置为生产</Button>
+                    <Button style={{color:'black',background:'white'}}
+                            onClick={()=>{this.handleDeleteHistory(record)}}>删除</Button>
+                </Space>
+            ),
+        },
+    ]
+//在翻页时存储已选中的表格项
+    selectedStorage=[];
     start = () => {
         this.setState({ loading: true });
         // ajax request after empty completing
         setTimeout(() => {
             this.setState({
-                selectedRowKeys: [], // Check here to configure the default column
+                selectedRowKeys: [],
                 associtedSelectedRowKeys:[],
                 loading: false,
                 addVisible:false,
@@ -190,8 +269,11 @@ export default class TestType extends Component {
                 associatedModifyVisible:false,
                 associateVisible:false,
                 logicVisible:false,
+                visible_import:false,
+                historyVisible:false,
                 data:[],
                 associatedData:[],
+                historyData:[],
                 //搜索框
                 testTypeName:'',
                 testSetId:null,
@@ -201,6 +283,8 @@ export default class TestType extends Component {
                 pageSize:10,
                 associatedcurrentPage:1,
                 associatedPageSize:10,
+                historycurrentPage:1,
+                historyPageSize:10,
 
                 //选择框
                 testSetGroup:[],
@@ -217,8 +301,6 @@ export default class TestType extends Component {
         }
         httpRequest('post','/test/type/list',params)
             .then(response=>{
-                console.log("请求测试类型",response)
-                console.log(response.data.data)
                 if(response.data!==[]) {
                     this.setState({
                         data: response.data.data.info,
@@ -262,16 +344,10 @@ export default class TestType extends Component {
         this.setState({ selectedRowKeys });
     };
     associatedOnSelectChange = (associtedSelectedRowKeys,associtedSelectedRows) => {
-        console.log("this.state.associtedSelectedRowKeys",this.state.associtedSelectedRowKeys)
-        //console.log("associtedSelectedRows",associtedSelectedRows);
-        //console.log('associtedSelectedRowKeys changed: ', associtedSelectedRowKeys);
-        let row=this.state.associtedSelectedRowKeys;
-        row.push(associtedSelectedRowKeys[associtedSelectedRowKeys.length-1])
+        this.selectedStorage.push(associtedSelectedRows[associtedSelectedRows.length-1].paperTypeId);
         this.setState({
-            associtedSelectedRowKeys:row,
-            associtedSelectedRows},()=>{
-            console.log(this.state.associtedSelectedRowKeys)
-        });
+            associtedSelectedRowKeys,
+            associtedSelectedRows},()=>{console.log('selectedRowKeys changed: ', associtedSelectedRowKeys);});
 
     };
 
@@ -392,7 +468,7 @@ export default class TestType extends Component {
 
     //挑选可关联的试剂类型
     Modify(e){
-        console.log('所有可关联的试剂类型',e)
+        console.log('修改button，所有可关联的试剂类型',e)
         this.setState({
                 associatedModifyVisible:true,
                 testTypeId:e.testTypeId,
@@ -413,14 +489,13 @@ export default class TestType extends Component {
                             })
                             const tempData=[...this.state.reagentData];
                             for(let i=0;i<tempData.length;i++){
-                                tempData[i].key=i;
+                                tempData[i].key=i+(this.state.reagentCurrentPage-1)*this.state.reagentPageSize;
                             }
                             let defaultSelected=[];
                             let defaultRows=[];
                             this.state.associatedData.forEach((item)=>{
                                 tempData.forEach((it,index)=>{
                                     if(it.paperTypeId===item.paperTypeId){
-                                        console.log()
                                         defaultSelected.push(index);
                                         defaultRows.push(it);
                                     }
@@ -430,12 +505,6 @@ export default class TestType extends Component {
                                 associtedSelectedRowKeys:defaultSelected,
                                 reagentData:tempData,
                                 associtedSelectedRows:defaultRows,
-                            },()=>{
-                                console.log("this.state.associtedSelectedRowKeys",this.state.associtedSelectedRowKeys)
-
-                                // this.setState({
-                                //     reagentData:tempData,
-                                // })
                             })
                         }
                     }).catch(err => {
@@ -478,6 +547,75 @@ export default class TestType extends Component {
                             }
                             this.setState({
                                 associatedData:tempData,
+                            },()=>{
+                                if(this.state.associatedData!==[]){
+                                    this.state.associatedData.forEach(e=>{
+                                        this.selectedStorage.push(e.paperTypeId);
+                                    })}
+                            })
+                        }
+                    }).catch(err => {
+                    console.log(err);
+                })
+            }
+        );
+
+    }
+
+    //查看当前生产判读逻辑
+    handleLogic=(record)=>{
+        console.log('当前生产判读逻辑',record)
+
+    }
+
+    //上传模板
+    uploadTemplete(){
+        this.setState({
+            visible_import:true,
+        })
+    }
+
+    //导入弹窗关闭
+    handleCancel_import = () => {
+        this.setState({
+            visible_import:false,
+        })
+    }
+
+    //查看历史
+    viewHistory=(record)=>{
+        console.log("查看历史",record)
+        let params={
+            page:1,
+            pageSize:10,
+            testTypeId:record.testTypeId
+        };
+
+        this.setState({
+                historyVisible:true,
+                testTypeId:record.testTypeId,
+            },
+            ()=>{
+                httpRequest('post','/test/type/judge/history/list',params)
+                    .then(response=>{
+                        console.log("发送的参数",params)
+                        let res=response.data;
+                        console.log("回应",res);
+                        if(res.code===1000){
+                            let tempData=[...res.data.info];
+                            for(let i=0;i<tempData.length;i++){
+                                tempData[i].key=i;
+                                if(tempData[i].production===true){
+                                    tempData[i].production="生产";
+                                }
+                                else {
+                                    tempData[i].production="历史";
+                                }
+                            }
+                            this.setState({
+                                historyData:tempData
+                            },()=>{
+                                console.log("lalala",this.state.historyData)
                             })
                         }
                     }).catch(err => {
@@ -486,22 +624,6 @@ export default class TestType extends Component {
             }
         );
     }
-
-    //查看当前生产判读逻辑
-    handleLogic=(record)=>{
-        console.log('当前生产判读逻辑',record)
-        this.setState({
-                associateVisible:true,
-                currentItem:{
-                    reagent:record.reagent,
-                    reagentNameEN:record.reagentNameEN,
-                    insertDate:record.insertDate,
-                }
-            },
-            ()=>console.log(this.state.currentItem)
-        );
-    }
-
     //删除某一行
     handleDelete=(record)=>{
         console.log('删除',record)
@@ -519,7 +641,6 @@ export default class TestType extends Component {
                     }
                     httpRequest('post','/test/type/list',params)
                         .then(response=>{
-                            console.log(response)
                             console.log(response.data.data)
                             if(response.data!==[]) {
                                 this.setState({
@@ -688,7 +809,10 @@ export default class TestType extends Component {
             modifyVisible: false,
             associatedModifyVisible:false,
             associateVisible:false,
+            logicVisible:false,
+            historyVisible:false,
             testTypeId:'',
+            associatedcurrentPage:1,
             currentItem:{
                 key:null,
                 testType: '',
@@ -700,13 +824,7 @@ export default class TestType extends Component {
                 insertDate:'',
             },
 
-            //
-            // associatedItem:{
-            //     key:null,
-            //     reagent:'',
-            //     reagentNameEN:'',
-            //     insertDate:'',
-            // },
+
 
         });
     };
@@ -716,6 +834,7 @@ export default class TestType extends Component {
         console.log(e);
         this.setState({
             associatedModifyVisible:false,
+            reagentCurrentPage:1,
         });
     };
 
@@ -727,61 +846,59 @@ export default class TestType extends Component {
         if(this.state.currentId!==undefined){
             params.testTypeId=this.state.currentId;
             params.paperTypeIdList=[];
-            if(this.state.associtedSelectedRows!==[]){
+
+            if(this.state.reagentCurrentPage===1){
                 this.state.associtedSelectedRows.forEach(e=>{
                     params.paperTypeIdList.push(e.paperTypeId);
                 })
-                console.log("提交button的网络请求",params)
-                httpRequest('post','/test/type/paper/modify',params)
-                    .then(response=>{
-                        console.log(response)
-                        if(response.data.code===1004){
-                            this.setState({
-                                associatedModifyVisible:false,
-                                associtedSelectedRowKeys:[],
-                                associtedSelectedRows:[],
-                            },()=>{
-                                let params={
-                                    page:1,
-                                    pageSize:this.state.pageSize,
-                                    testTypeId:this.state.currentId,
-                                }
-                                console.log("查询时发的请求",params,this.state.associtedSelectedRowKeys)
-                                httpRequest('post','/test/type/paper/list',params)
-                                    .then(response=>{
-                                        console.log(response)
-                                        console.log(response.data.data)
-                                        if(response.data!==[]) {
-                                            this.setState({
-                                                associatedData: response.data.data.info,
-                                                associatedTotal: response.data.data.total,
-                                            })
-                                            const tempData=[...this.state.associatedData];
-                                            for(let i=0;i<tempData.length;i++){
-                                                tempData[i].key=i;
-                                            }
-                                            this.setState({
-                                                associatedData:tempData,
+            }
+            else{
+                console.log("this.selectedStorage",this.selectedStorage)
+                params.paperTypeIdList=this.selectedStorage;
+            }
+            this.selectedStorage=[];
+            console.log("提交button的网络请求",params)
+            httpRequest('post','/test/type/paper/modify',params)
+                .then(response=>{
+                    console.log(response)
+                    if(response.data.code===1004){
+                        this.setState({
+                            associatedModifyVisible:false,
+                            associtedSelectedRowKeys:[],
+                            associtedSelectedRows:[],
+                            reagentCurrentPage:1,
+                        },()=>{
+                            let params={
+                                page:1,
+                                pageSize:this.state.pageSize,
+                                testTypeId:this.state.currentId,
+                            }
+                            console.log("查询时发的请求",params,this.state.associtedSelectedRowKeys)
+                            httpRequest('post','/test/type/paper/list',params)
+                                .then(response=>{
+                                    console.log(response)
+                                    console.log(response.data.data)
+                                    if(response.data!==[]) {
+                                        this.setState({
+                                            associatedData: response.data.data.info,
+                                            associatedTotal: response.data.data.total,
+                                        })
+                                        const tempData=[...this.state.associatedData];
+                                        for(let i=0;i<tempData.length;i++){
+                                            tempData[i].key=i;
+                                        }
+                                        this.setState({
+                                            associatedData:tempData,
                                             })
                                         }
                                     }).catch(err => {
                                     console.log(err);
                                 })
-
                             })
                         }
-
                     }).catch(err=>{
                         console.log(err);
                 })
-            }
-            else{
-                this.setState({
-                    associatedModifyVisible:false,
-                    associtedSelectedRowKeys:[],
-                    associtedSelectedRows:[],
-                })
-            }
         }
         else{
             alert("不可修改");
@@ -789,6 +906,7 @@ export default class TestType extends Component {
                 associatedModifyVisible:false,
                 associtedSelectedRowKeys:[],
                 associtedSelectedRows:[],
+                reagentCurrentPage:1,
             })
         }
 
@@ -848,10 +966,79 @@ export default class TestType extends Component {
 
     onChangeAssociated=page=>{
         console.log(page);
-    }
+        this.setState({
+            associatedcurrentPage:page,
+        },()=>{
+            let params={
+                page:this.state.associatedcurrentPage,
+                pageSize:this.state.pageSize,
+                testTypeId:this.state.currentId,
+            }
+            httpRequest('post','/test/type/paper/list',params)
+                .then(response=>{
+                    if(response.data!==[]) {
+                        this.setState({
+                            associatedData: response.data.data.info,
+                            associatedTotal: response.data.data.total,
+                        })
+                        const tempData=[...this.state.associatedData];
+                        for(let i=0;i<tempData.length;i++){
+                            tempData[i].key=i;
+                        }
+                        this.setState({
+                            associatedData:tempData,
+                        },()=>{
+                            if(this.state.associatedData!==[]){
+                                this.state.associatedData.forEach(e=>{
+                                    this.selectedStorage.push(e.paperTypeId);
+                                })}
+                        })
+                    }
+                }).catch(err => {
+                console.log(err);
+            })
+        })
 
+    }
+//修改测试类型数据翻页
     onChangeReagent=page=>{
-        console.log(page);
+        this.setState({
+            reagentCurrentPage: page,
+        });
+        let params={
+            page:page,
+            pageSize:this.state.associatedPageSize,
+        }
+        httpRequest('post','/paper/list',params)
+            .then(response=>{
+                if(response.data!==[]) {
+                    this.setState({
+                        reagentData: response.data.data.info,
+                        reagentTotal: response.data.data.total,
+                    })
+                    const tempData=[...this.state.reagentData];
+                    for(let i=0;i<tempData.length;i++){
+                        tempData[i].key=i+(this.state.reagentCurrentPage-1)*this.state.reagentPageSize;
+                    }
+                    let defaultSelected=[];
+                    let defaultRows=[];
+                    this.state.associatedData.forEach((item)=>{
+                        tempData.forEach((it,index)=>{
+                            if(it.paperTypeId===item.paperTypeId){
+                                defaultSelected.push(index+(this.state.reagentCurrentPage-1)*this.state.reagentPageSize);
+                                defaultRows.push(it);
+                            }
+                        })
+                    })
+                    this.setState({
+                        associtedSelectedRowKeys:defaultSelected,
+                        reagentData:tempData,
+                        associtedSelectedRows:defaultRows,
+                    })
+                }
+            }).catch(err => {
+            console.log(err);
+        })
     }
 
     //测试集选择框内容
@@ -871,7 +1058,7 @@ export default class TestType extends Component {
             onChange: this.onSelectChange,
         };
         const associatedRowSelection = {
-            associtedSelectedRowKeys: associtedSelectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
+            selectedRowKeys: associtedSelectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
             onChange: this.associatedOnSelectChange,
         };
         const hasSelected = selectedRowKeys.length > 0;
@@ -1097,6 +1284,153 @@ export default class TestType extends Component {
 
                     </Modal>
                 </Modal>
+
+                <Modal
+                    title="当前生产判读逻辑"
+                    visible={this.state.logicVisible}
+                    onCancel={this.handleCancel}
+                    footer={[
+                        <div style={{textAlign:"center"}}>
+                            <Button key="back" onClick={this.handleCancel}>
+                                取消
+                            </Button>,
+                        </div>
+                    ]}>
+                    <div>
+                        <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                                onClick={this.Modify}>修改</Button>
+                        <Table
+                            columns={this.associatedcolumns}
+                            dataSource={this.state.associatedData}
+                            rowKey={record => record.key}
+                            bordered={true}
+                            style={{margin:'20px 0'}}
+                            pagination={{
+                                position: ['bottomLeft'] ,
+                                total:this.state.associatedTotal,
+                                showTotal:total => `共 ${total} 条`,
+                                showQuickJumper:true,
+                                showSizeChanger:true,
+                                current:this.state.associatedcurrentPage,
+                                onChange:this.onChangeAssociated,
+                            }}
+                        />
+                    </div>
+                    <Modal
+                        title="修改测试类型数据"
+                        visible={this.state.associatedModifyVisible}
+                        onOk={this.handleSubmit}
+                        width={1400}
+                        onCancel={this.handleReturn}
+                        footer={[
+                            <div style={{textAlign:"center"}}>
+                                <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmit}>
+                                    提交
+                                </Button>,
+                                <Button key="back" onClick={this.handleReturn}>
+                                    返回
+                                </Button>,
+                            </div>
+                        ]}>
+                        <div>
+                            <Table
+                                rowSelection={associatedRowSelection}
+                                columns={this.reagentcolumns}
+                                dataSource={this.state.reagentData}
+                                rowKey={record => record.key}
+                                bordered={true}
+                                style={{margin:'20px 0'}}
+                                pagination={{
+                                    position: ['bottomLeft'] ,
+                                    total:this.state.reagentTotal,
+                                    showTotal:total => `共 ${total} 条`,
+                                    showQuickJumper:true,
+                                    showSizeChanger:true,
+                                    current:this.state.reagentCurrentPage,
+                                    onChange:this.onChangeReagent,
+                                }}
+                            />
+                        </div>
+
+                    </Modal>
+                </Modal>
+
+                <Modal
+                    title="判读逻辑历史"
+                    visible={this.state.historyVisible}
+                    onCancel={this.handleCancel}
+                    width={1400}
+                    footer={[
+                        <div style={{textAlign:"center"}}>
+                            <Button key="back" onClick={this.handleCancel}>
+                                取消
+                            </Button>,
+                        </div>
+                    ]}>
+                    <div>
+                        <Table
+                            columns={this.historycolumns}
+                            dataSource={this.state.historyData}
+                            rowKey={record => record.key}
+                            bordered={true}
+                            style={{margin:'20px 0'}}
+                            pagination={{
+                                position: ['bottomLeft'] ,
+                                total:this.state.historyTotal,
+                                showTotal:total => `共 ${total} 条`,
+                                showQuickJumper:true,
+                                showSizeChanger:true,
+                                current:this.state.historycurrentPage,
+                                onChange:this.onChangeHistory,
+                            }}
+                        />
+                    </div>
+                    <Modal
+                        title="修改测试类型数据"
+                        visible={this.state.associatedModifyVisible}
+                        onOk={this.handleSubmit}
+                        width={1400}
+                        onCancel={this.handleReturn}
+                        footer={[
+                            <div style={{textAlign:"center"}}>
+                                <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmit}>
+                                    提交
+                                </Button>,
+                                <Button key="back" onClick={this.handleReturn}>
+                                    返回
+                                </Button>,
+                            </div>
+                        ]}>
+                        <div>
+                            <Table
+                                rowSelection={associatedRowSelection}
+                                columns={this.reagentcolumns}
+                                dataSource={this.state.reagentData}
+                                rowKey={record => record.key}
+                                bordered={true}
+                                style={{margin:'20px 0'}}
+                                pagination={{
+                                    position: ['bottomLeft'] ,
+                                    total:this.state.reagentTotal,
+                                    showTotal:total => `共 ${total} 条`,
+                                    showQuickJumper:true,
+                                    showSizeChanger:true,
+                                    current:this.state.reagentCurrentPage,
+                                    onChange:this.onChangeReagent,
+                                }}
+                            />
+                        </div>
+
+                    </Modal>
+                </Modal>
+
+                {/*导入弹窗*/}
+                <ImportFile
+                    url="http://123.57.33.240:8080/paper/param/pro/import"
+                    visible={this.state.visible_import}
+                    upTitle="判读逻辑"
+                    onCancel={this.handleCancel_import}
+                />
             </div>
         )
     }

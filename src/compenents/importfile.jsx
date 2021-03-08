@@ -34,7 +34,7 @@ export default class ImportFile extends Component {
     };
 
     return (
-          <Modal title="上传"
+          <Modal title={this.props.upTitle}
                  centered
                  visible={this.props.visible}
                  onCancel={this.props.onCancel}

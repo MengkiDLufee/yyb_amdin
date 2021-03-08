@@ -2565,6 +2565,7 @@ export default class ReagentJudgeParams extends Component {
                 <ImportFile
                     url="http://123.57.33.240:8080/paper/param/pro/import"
                     visible={this.state.visible_import}
+                    upTitle="上传"
                     onCancel={this.handleCancel_import}
                 />
             </div>

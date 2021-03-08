@@ -2,22 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/yyb_amdin.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/yyb_amdin.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/compenents/importfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/compenents/importfile.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exportFile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/exportFile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/http.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/http.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -145,6 +133,9 @@
       <workItem from="1614596598649" duration="353000" />
       <workItem from="1614652912717" duration="6276000" />
       <workItem from="1614760999631" duration="8388000" />
+      <workItem from="1614824152929" duration="13829000" />
+      <workItem from="1615106842333" duration="632000" />
+      <workItem from="1615201504380" duration="6900000" />
     </task>
     <servers />
   </component>
