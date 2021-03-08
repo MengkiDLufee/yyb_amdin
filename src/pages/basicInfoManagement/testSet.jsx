@@ -373,7 +373,6 @@ export default class TestSet extends Component {
                                         }).catch(err => {
                                         console.log(err);
                                     })
-                                    {
                                         setTimeout(() => {
                                             form.resetFields();
                                             this.setState({
@@ -389,8 +388,6 @@ export default class TestSet extends Component {
                                                 },
                                             });
                                         }, 1000);
-                                    }
-
                                 }
                             }).catch(err => {
                             console.log(err);
