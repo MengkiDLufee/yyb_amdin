@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Select, Space, Modal, Form, Checkbox} from 'antd';
+import {Table, Button, Input, Select, Space, Modal, Form, Checkbox, message} from 'antd';
 import { DatePicker} from 'antd';
 
 import {ReloadOutlined,
@@ -15,6 +15,7 @@ import './index.less'
 import ajax from "../../api/ajax";
 import addKey from "../../api/addKey";
 import {exportFile} from "../../api";
+import changeData from "../../api/changeData";
 import moment from "moment";
 
 const { TextArea } = Input;
@@ -50,7 +51,7 @@ class Modal3 extends Component{
             },
             render:(text,record)=>(
                 <>
-                    {this.changedata(text,["1","0"],["使用中",""])}
+                    {changeData(text,["1","0"],["使用中",""])}
                 </>
             ),
         },
@@ -190,19 +191,6 @@ class Modal3 extends Component{
         //     }).catch(e=>{
         //     console.log("search error!",e);
         // });
-    }
-    //根据表格内容进行内容替换
-    changedata=(data,origin,final)=>{
-        let text='1';
-        for(let i=0;i<origin.length;i++){
-            //console.log(origin[i],data);
-            if(data==origin[i])text=final[i];
-        }
-        return(
-            <p>
-                {text}
-            </p>
-        );
     }
 
     //表格2数据以及函数
@@ -604,6 +592,12 @@ export default class AccountInfo extends Component {
             align:'center',
         },
         {
+            title:'医生ID',
+            dataIndex:'loginId',
+            width:150,
+            align:'center',
+        },
+        {
             title:'医生姓名',
             dataIndex:'loginName',
             width:150,
@@ -728,16 +722,20 @@ export default class AccountInfo extends Component {
         ajax("/exam/login/list",data,'POST')
             .then((response)=>{
                 console.log("data:",response);
-                let data=response.data.data.info;
-                let paginationProps={...this.state.paginationProps};
-                addKey(data);
-                paginationProps.total=response.data.data.total;
-                paginationProps.current=page.page;
-                paginationProps.pageSize=page.pageSize;
-                this.setState({
-                    data:data,
-                    paginationProps:paginationProps,
-                });
+                if(response.data.data==null){
+                    message.error("请求出错！code:"+response.data.code);
+                }else{
+                    let data=response.data.data.data;
+                    let paginationProps={...this.state.paginationProps};
+                    addKey(data);
+                    paginationProps.total=response.data.data.total;
+                    paginationProps.current=page.page;
+                    paginationProps.pageSize=page.pageSize;
+                    this.setState({
+                        data:data,
+                        paginationProps:paginationProps,
+                    });
+                }
             });
     }
     //按照搜索情况导出excel
@@ -754,7 +752,7 @@ export default class AccountInfo extends Component {
         }
         console.log("exportFile input:",data);
         //exportFile("/exam/data/export/login/condition",data);
-        exportFile('/user/base/info/export/condition',{});
+        exportFile('/exam/login/export/condition',data);
         //console.log("request:",data);
         // ajax("/exam/data/export/login/condition",data,'POST')
         //     .then((response)=>{

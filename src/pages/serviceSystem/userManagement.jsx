@@ -3,6 +3,7 @@ import {Table, Button, Input, Select, Space, Modal, Form,Checkbox } from 'antd';
 import { DatePicker} from 'antd';
 import { Radio } from 'antd';
 import { Switch } from 'antd';
+import {message} from 'antd'
 import {ReloadOutlined,
     SearchOutlined ,
     PlusOutlined,
@@ -2084,7 +2085,7 @@ class PatientTable extends Component{
         );
     }
 }
-export default class UserManagement extends Component {
+class UserManagement2 extends Component {
     //参数设置
     state={
         doctorsData:[{
@@ -2205,7 +2206,792 @@ export default class UserManagement extends Component {
     }
 }
 
+//测试数据
+class Modal3 extends Component{
+    //初始化
+    constructor(props) {
+        super(props);
+        this.search();
+    }
 
+    //表格1数据以及函数
+    //常量数据部分
+    columns = [
+        {
+            title: '用户ID',
+            dataIndex: 'clientId',
+            width:150,
+        },
+        {
+            title: '测试数据',
+            dataIndex: 'testPaperDataId',
+            width:150,
+        },
+        {
+            title: '日志内容',
+            dataIndex: 'content',
+            width: 150,
+        },
+        {
+            title:'问题数据',
+            dataIndex:'errorDataFlag',
+            width:150,
+            align:'center',
+        },
+    ];
+    //函数部分
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+
+    //得到输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        })
+    }
+    //表格行选择
+    onSelectChange = row => {
+        console.log('所选择行',row)
+        //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        this.setState(
+          {selectedRowKeys:row}
+        )
+    };
+    //翻页
+    handleTableChange = (pagination) =>{
+        //console.log(this.props.data.total);
+        let page={
+            page:pagination.current,
+            pageSize: pagination.pageSize,
+        };
+        this.requestData(page);
+        //this.setState({paginationProps:pagination});
+        //console.log(pagination)
+    };
+    //搜索
+    search= ()=> {
+        let page={
+            page:1,
+            pageSize:10,
+        }
+        this.requestData(page);
+    }
+    //重置
+    reset = () => {
+        console.log('重置',this.state.input);
+        let myInput=Object.keys(this.state.input);
+        let data = {};
+        for(let ii=0;ii<myInput.length;ii++){
+            data[myInput[ii]]='';
+        }
+        this.state.input=data;
+        this.setState(
+          {
+              selectedRowKeys:[],
+              input:data,
+          },
+        )
+        this.search();
+    };
+    //请求表格数据
+    requestData=(page)=>{
+        let data={};
+        data.clientId=this.props.record.clientId;
+        let url="/user/managment/test/data";
+        //console.log("request:",data);
+        ajax(url,data,'POST')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null)
+                  console.log("查询失败");
+              else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+          });
+    }
+    //按照搜索情况导出excel
+    exportSearch= ()=>{
+        let data={
+            page:1,
+            pageSize:10,
+        }
+        let myInput=Object.keys(this.state.input);
+        for(let ii=0;ii<myInput.length;ii++){
+            if(this.state.input[myInput[ii]]!=""){
+                data[myInput[ii]]=this.state.input[myInput[ii]];
+            }
+        }
+        console.log("exportFile input:",data);
+        //exportFile("/exam/data/export/login/condition",data);
+        exportFile('/user/base/info/export/condition',{});
+        //console.log("request:",data);
+        // ajax("/exam/data/export/login/condition",data,'POST')
+        //     .then((response)=>{
+        //         console.log(response);
+        //     }).catch(e=>{
+        //     console.log("search error!",e);
+        // });
+    }
+    //添加弹窗
+    add=(record)=>{
+        this.lookModal(record);
+    }
+
+    //表格2数据以及函数
+
+    //参数设置
+    state={
+        //弹窗
+        modalVisible:false,
+        //表格1数据
+        input:{
+        },
+        paginationProps:{
+            position:['bottomLeft'],
+            total:0,
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true,
+        },
+        selectedRowKeys:[],
+        data:[
+            {
+                key:1,
+                patientName:"test",
+                testNumber: "test",
+            }
+        ],
+        record:{
+            loginName:"",
+        },
+
+        //表格2数据
+
+
+    };
+
+    //弹窗函数
+    //弹窗1
+    // //添加
+    // Modal = ()=>{
+    //     if(this.state.modalVisible)
+    //         return(
+    //           <Modal1
+    //             record={this.state.record}
+    //             visible={this.state.modalVisible}
+    //             setVisible={this.setModalvisible}
+    //           />
+    //         );
+    // }
+    // setModalvisible=(flag)=>{
+    //     this.setState({
+    //         modalVisible:flag,
+    //     });
+    // }
+    // lookModal=record=>{
+    //     this.setState({
+    //         modalVisible:true,
+    //         record:record,
+    //     });
+    // }
+    //弹窗2
+
+
+    render(){
+        return(
+          <div>
+              <Modal
+                title={"测试数据"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                footer={null}
+                width={1000}
+              >
+                  <div style={{height:'100%',margin:'3px'}}>
+                      {/*<Button*/}
+                      {/*    type="primary"*/}
+                      {/*    icon={<PlusOutlined  className="icon1" />}*/}
+                      {/*    onClick={this.add}*/}
+                      {/*    className="button1"*/}
+                      {/*>*/}
+                      {/*    添加*/}
+                      {/*</Button>*/}
+                      <div style={{heigh:"100%"}}>
+                          <Table
+                            columns={this.columns}
+                            dataSource={this.state.data}
+                            bordered={true}
+                            rowSelection={false}
+                            style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                            pagination={this.state.paginationProps}
+                            onChange={this.handleTableChange}
+                          />
+                      </div>
+                  </div>
+              </Modal>
+              {/*{this.Modal()}*/}
+          </div>
+        )
+    }
+}
+//发送事件
+class Modal2 extends Component{
+    //初始化
+    constructor(props) {
+        super(props);
+        //参数设置
+        let input={};
+        Object.assign(input,this.props.record);
+        console.log("init record:",input);
+        this.state= {
+            //testTime: '',
+            input: input,
+        }
+        //时间格式转换
+        // let testTime=this.props.record.testTime;
+        // let mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
+        // this.state.testTime=mymoment;
+    }
+    //函数部分
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+    //点击完成
+    handleOk = () => {
+        console.log('修改')
+        console.log(this.form)
+        let form = this.form.current;
+        form.validateFields()//表单输入校验
+          .then((values) => {
+              let data={};
+              let myInput=Object.keys(this.state.input);
+              for(let ii=0;ii<myInput.length;ii++){
+                  if(this.state.input[myInput[ii]]!==""){
+                      data[myInput[ii]]=this.state.input[myInput[ii]];
+                  }
+              }
+              //data.patientId=this.props.record.patientId;
+              //data.loginId=this.props.record.loginId;
+              let url="/user/managment";
+              //console.log("request:",data);
+              ajax(url,data,'GET')
+                .then((response)=>{
+                    if(response.data.code!==1000){
+                        console.log("请求错误！",response);
+                    }else{
+                        form.resetFields();
+                        console.log("修改成功：",response);
+                        //Object.assign(this.props.record,this.state.input);
+                        this.props.setVisible(false);
+                    }
+                });
+          })
+          .catch((info) => {
+              console.log('Validate Failed:', info);
+          });
+
+
+    };
+
+    //时间选择函数
+    rangePickerOnChange=(value, dateString)=>{
+        console.log('Selected Time: ', value);
+        console.log('Formatted Selected Time: ', dateString);
+        this.state.input.testTime=dateString;
+        this.setState({
+            testTime:value,
+        })
+    }
+    rangePickerOnOk=(value)=> {
+        console.log('onOk: ', value);
+    }
+    //得到文本框输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        let themename = e.target.name;
+        console.log(themename)
+        //console.log(e.target.name);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        });
+        console.log(this.state);
+    }
+    //参数设置
+    // state={
+    //     //表格1数据
+    //     testTime:'',
+    //     input:{}
+    // };
+
+    /*表单验证
+      Form.useForm是是 React Hooks 的实现，只能用于函数组件
+      class组件中通过 React.createRef()来获取数据域*/
+    form = React.createRef();
+    render(){
+        return(
+          <div>
+              {/* 弹窗 */}
+              <Modal
+                title="修改"
+                centered
+                visible={this.props.visible}
+                onOk={this.handleOk}
+                okText="确定"
+                onCancel={this.handleCancel}
+                cancelText="关闭"
+                className="modal1"
+                width="700"
+              >
+                  <div className="modal-body" style={{height:"550px"}}>
+                      <Form
+                        labelCol={{ span: 5 }}
+                        wrapperCol={{ span: 16 }}
+                        layout="horizontal"
+                        ref={this.form}//表单验证，通过ref获取
+                        initialValues={this.state.input}
+                      >
+                          <Form.Item
+                            label="客户ID"
+                            name="clientId"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: '请输入手机号!',
+                                },
+                            ]}
+                          >
+                              <Input onChange={(e)=>{this.inputChange(e,"clientId")}}
+                                     value={this.state.input.clientId}
+                              />
+                          </Form.Item>
+                          <Form.Item
+                            label="事件"
+                            name="eventId"
+                            rules={[{ required: true ,message:"请输入病人姓名"}]}//设置验证规则
+                          >
+                              <Input    onChange={(e)=>{this.inputChange(e,"eventId")}} value={this.state.input.eventId}/>
+                          </Form.Item>
+                      </Form>
+                  </div>
+              </Modal>
+          </div>
+        )
+    }
+}
+
+export default class UserManagement extends Component {
+    //初始化
+    constructor(props) {
+        super(props);
+        this.search();
+    }
+
+    //表格1数据以及函数
+    //常量数据部分
+    columns = [
+        {
+            title:'姓名',
+            dataIndex:'userName',
+            width:150,
+            align:'center',
+
+        },
+        {
+            title:'客户ID',
+            dataIndex:'clientId',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'设备号',
+            dataIndex:'deviceNo',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'月经周期',
+            dataIndex:'cycle',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'末次月经周期天数',
+            dataIndex:'lastCycleNumber',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'末次月经时间',
+            dataIndex:'lastBleeding',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'注册时间',
+            dataIndex:'regTime',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'终止测试',
+            dataIndex:'eupregnaEnded',
+            width:150,
+            align:'center',
+            render:(text,record)=>(
+              <Switch checkedChildren="是" unCheckedChildren="否" checked={record.eupregnaEnded} onChange={()=>{this.eupregnaEndedChange(record)}}/>
+            )
+        },
+        {
+            title:'上传日志',
+            dataIndex:'uploadLogFlag',
+            width:150,
+            align:'center',
+            render:(text,record)=>(
+              <Switch checkedChildren="是" unCheckedChildren="否" checked={record.uploadLogFlag} onChange={()=>{this.updateLog(record)}}/>
+            )
+        },
+        {
+            title:'操作',
+            dataIndex:'operation',
+            width:300,
+            align:'center',
+            render:(text,record)=>(
+              <Space>
+                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.testData(record)}}>测试数据</Button>
+                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.sendEvent(record)}}>发送事件</Button>
+              </Space>
+            ),
+        },
+    ];
+    //函数部分
+    //得到输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        })
+    }
+    //表格行选择
+    onSelectChange = row => {
+        console.log('所选择行',row)
+        //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        this.setState(
+          {selectedRowKeys:row}
+        )
+    };
+    //翻页
+    handleTableChange = (pagination) =>{
+        //console.log(this.props.data.total);
+        let page={
+            page:pagination.current,
+            pageSize: pagination.pageSize,
+        };
+        this.requestData(page);
+        //this.setState({paginationProps:pagination});
+        //console.log(pagination)
+    };
+    //搜索
+    search= ()=> {
+        let page={
+            page:1,
+            pageSize:10,
+        }
+        this.requestData(page);
+    }
+    //重置
+    reset = () => {
+        console.log('重置',this.state.input);
+        let myInput=Object.keys(this.state.input);
+        let data = {};
+        for(let ii=0;ii<myInput.length;ii++){
+            data[myInput[ii]]='';
+        }
+        this.state.input=data;
+        this.setState(
+          {
+              selectedRowKeys:[],
+              input:data,
+          },
+        )
+        this.search();
+    };
+    //请求表格数据
+    requestData=(page)=>{
+        let data={
+            ...page,
+        }
+        let myInput=Object.keys(this.state.input);
+        for(let ii=0;ii<myInput.length;ii++){
+            if(this.state.input[myInput[ii]]!=""){
+                data[myInput[ii]]=this.state.input[myInput[ii]];
+            }
+        }
+        console.log("request:",data);
+        ajax("/user/managment/test/list",data,'POST')
+          .then((response)=>{
+              let data=response.data.data.info;
+              let paginationProps={...this.state.paginationProps};
+              addKey(data);
+              paginationProps.total=response.data.data.total;
+              paginationProps.current=page.page;
+              paginationProps.pageSize=page.pageSize;
+              console.log("data:",response);
+              this.setState({
+                  data:data,
+                  paginationProps:paginationProps,
+              });
+          });
+        // ajax("/user/base/info/list",data,'POST')
+        //   .then((response)=>{
+        //       if(response.data.data==null){
+        //           console.log(response);
+        //           message.error("request error! code:"+response.data.code);
+        //       }else{
+        //           let data=response.data.data.info;
+        //           let paginationProps={...this.state.paginationProps};
+        //           addKey(data);
+        //           paginationProps.total=response.data.data.total;
+        //           paginationProps.current=page.page;
+        //           paginationProps.pageSize=page.pageSize;
+        //           console.log("data:",response);
+        //           this.setState({
+        //               data:data,
+        //               paginationProps:paginationProps,
+        //           });
+        //       }
+        //   });
+    }
+    //按照搜索情况导出excel
+    exportSearch= ()=>{
+        let data={
+            page:1,
+            pageSize:10,
+        }
+        let myInput=Object.keys(this.state.input);
+        for(let ii=0;ii<myInput.length;ii++){
+            if(this.state.input[myInput[ii]]!=""){
+                data[myInput[ii]]=this.state.input[myInput[ii]];
+            }
+        }
+        console.log("exportFile input:",data);
+        //exportFile("/exam/data/export/login/condition",data);
+        exportFile('/user/base/info/export/condition',{});
+        //console.log("request:",data);
+        // ajax("/exam/data/export/login/condition",data,'POST')
+        //     .then((response)=>{
+        //         console.log(response);
+        //     }).catch(e=>{
+        //     console.log("search error!",e);
+        // });
+    }
+    //终止测试
+    eupregnaEndedChange=(record)=>{
+        console.log("eupregnaEndedChange!");
+        let data={};
+        data.eupregnaEnded=record.eupregnaEnded;
+        data.clientId=record.clientId;
+        //console.log("request:",data);
+        ajax("/user/managment",data,'GET')
+          .then((response)=>{
+              if(response.data.code!==1000){
+                  console.log("请求错误！",response);
+              }else{
+                  console.log("修改成功：",response);
+              }
+          });
+    }
+    //上传日志
+    updateLog=(record)=>{
+        console.log("updateLog!");
+        let data={};
+        data.uploadLogFlag=record.uploadLogFlag;
+        data.clientId=record.clientId;
+        //console.log("request:",data);
+        ajax("/user/managment",data,'GET')
+          .then((response)=>{
+              if(response.data.code!==1000){
+                  console.log("请求错误！",response);
+              }else{
+                  console.log("修改成功：",response);
+              }
+          });
+    }
+    //测试数据
+    testData=(record)=>{
+        this.lookModal3(record);
+    }
+    sendEvent=(record)=>{
+        this.lookModal2(record);
+    }
+    //表格2数据以及函数
+
+
+
+    //参数设置
+    state={
+        //弹窗
+        modalVisible:false,
+        modalVisible2:false,
+        modalVisible3:false,
+        record:{
+            loginName:"",
+        },
+        record2:{
+            loginName:"",
+        },
+        record3:{
+            loginName:"",
+        },
+        //表格1数据
+        input:{
+            userName:"",
+            phone:"",
+        },
+        paginationProps:{
+            position:['bottomLeft'],
+            total:0,
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true,
+        },
+        selectedRowKeys:[],
+        data:[
+            {
+                key:1,
+                loginAccount:"test",
+                loginNmae:"test",
+            }
+        ],
+
+        //表格2数据
+
+
+    };
+
+    //弹窗函数
+
+    //弹窗1
+
+    // //弹窗2
+    //发送事件
+    Modal2 = ()=>{
+        if(this.state.modalVisible2)
+            return(
+              <Modal2
+                record={this.state.record2}
+                visible={this.state.modalVisible2}
+                setVisible={this.setModalvisible2}
+              />
+            );
+    }
+    setModalvisible2=(flag)=>{
+        this.setState({
+            modalVisible2:flag,
+        });
+    }
+    lookModal2=record=>{
+        this.setState({
+            modalVisible2:true,
+            record2:record,
+        });
+    }
+    // //弹窗3
+    //测试数据
+    Modal3 = ()=>{
+        if(this.state.modalVisible3)
+            return(
+              <Modal3
+                record={this.state.record3}
+                visible={this.state.modalVisible3}
+                setVisible={this.setModalvisible3}
+              />
+            );
+    }
+    setModalvisible3=(flag)=>{
+        this.setState({
+            modalVisible3:flag,
+        });
+    }
+    lookModal3=record=>{
+        this.setState({
+            modalVisible3:true,
+            record3:record,
+        });
+    }
+
+
+    render() {
+        const { selectedRowKeys } = this.state;
+        const rowSelection = {
+            selectedRowKeys:selectedRowKeys,
+            onChange: this.onSelectChange,
+        };
+        return (
+          <div style={{height:"100%"}}>
+              <div style={{'margin':'0 0 15px 0'}}>
+                  <div justify="space-between" gutter="15" style={{display:"flex"}}>
+                      <Input placeholder={'客户'} className={'input1'} onChange={(e)=>{this.inputChange(e,"clientId")}} value={this.state.input.clientId}/>
+                      <Input placeholder={'手机号'} className={'input1'} onChange={(e)=>{this.inputChange(e,"phone")}} value={this.state.input.phone}/>
+                      <Input placeholder={'设备号'} className={'input1'} onChange={(e)=>{this.inputChange(e,"deviceNo")}} value={this.state.input.deviceNo}/>
+                      <Button
+                        type={"primary"}
+                        icon={<SearchOutlined className={"icon1"}/> }
+                        onClick={this.search}
+                        className={"button1"}
+                      >
+                          搜索
+                      </Button>
+                      <Button
+                        type={"primary"}
+                        icon={<ReloadOutlined className={"icon1"}/> }
+                        onClick={this.reset}
+                        className={"button1"}
+                      >
+                          重置
+                      </Button>
+                  </div>
+              </div>
+              {/*表格*/}
+              <div style={{heigh:"100%"}}>
+                  <Table
+                    columns={this.columns}
+                    dataSource={this.state.data}
+                    bordered={true}
+                    rowSelection={rowSelection}
+                    style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                    pagination={this.state.paginationProps}
+                    onChange={this.handleTableChange}
+                  />
+              </div>
+              {this.Modal3()}
+              {this.Modal2()}
+          </div>
+        )
+    }
+}
 
 
 

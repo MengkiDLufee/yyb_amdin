@@ -81,7 +81,6 @@ class Avatar extends React.Component {
     }
 }
 
-
 class ChatRecordingTable extends Component{
     columns = [
         {
@@ -354,6 +353,7 @@ class DoctorTable extends Component{
         );
     }
 }
+
 class ServiceManagement1 extends Component {
     //参数设置
     state={
@@ -504,10 +504,7 @@ class ServiceManagement1 extends Component {
 
 
 
-
-
-
-//添加
+//添加 废弃
 class Modal1 extends Component{
     //初始化
     constructor(props) {
@@ -762,23 +759,28 @@ class Modal3 extends Component{
     columns = [
         {
             title: '用户名',
-            dataIndex: 'patient_accountNumber',
+            dataIndex: 'userName',
+            width:150,
+        },
+        {
+            title: '手机号',
+            dataIndex: 'phone',
             width:150,
         },
         {
             title: '服务时间',
-            dataIndex: 'patient_age',
+            dataIndex: 'serviceTime',
             width: 150,
         },
         {
             title:'服务人员',
-            dataIndex:'patient_address',
+            dataIndex:'serviceStaff',
             width:150,
             align:'center',
         },
         {
-            title:'截图',
-            dataIndex:'patient_testState',
+            title:'服务内容',
+            dataIndex:'serviceRecord',
             width:150,
             align:'center',
         },
@@ -846,7 +848,8 @@ class Modal3 extends Component{
     //请求表格数据
     requestData=(page)=>{
         let data={};
-        data.patientId=this.props.record.patientId;
+        data.userName=this.props.record.userName;
+        data.phone=this.props.record.phone;
         let url="/customer/managment/chat";
         //console.log("request:",data);
         ajax(url,data,'POST')
@@ -969,14 +972,14 @@ class Modal3 extends Component{
                     width={1000}
                 >
                     <div style={{height:'100%',margin:'3px'}}>
-                        <Button
-                            type="primary"
-                            icon={<PlusOutlined  className="icon1" />}
-                            onClick={this.add}
-                            className="button1"
-                        >
-                            添加
-                        </Button>
+                        {/*<Button*/}
+                        {/*    type="primary"*/}
+                        {/*    icon={<PlusOutlined  className="icon1" />}*/}
+                        {/*    onClick={this.add}*/}
+                        {/*    className="button1"*/}
+                        {/*>*/}
+                        {/*    添加*/}
+                        {/*</Button>*/}
                         <div style={{heigh:"100%"}}>
                             <Table
                                 columns={this.columns}
@@ -1095,7 +1098,7 @@ export default class ServiceManagement extends Component {
     //请求表格数据
     requestData=(page)=>{
         let data={
-            ...page,
+            //...page,
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
@@ -1106,17 +1109,23 @@ export default class ServiceManagement extends Component {
         //console.log("request:",data);
         ajax("/customer/managment/list",data,'POST')
             .then((response)=>{
-                let data=response.data.data.info;
-                let paginationProps={...this.state.paginationProps};
-                addKey(data);
-                paginationProps.total=response.data.data.total;
-                paginationProps.current=page.page;
-                paginationProps.pageSize=page.pageSize;
-                console.log("data:",response);
-                this.setState({
-                    data:data,
-                    paginationProps:paginationProps,
-                });
+                if(response.data.data!=null){
+                    let data=response.data.data.info;
+                    let paginationProps={...this.state.paginationProps};
+                    addKey(data);
+                    paginationProps.total=response.data.data.total;
+                    paginationProps.current=page.page;
+                    paginationProps.pageSize=page.pageSize;
+                    console.log("data:",response);
+                    this.setState({
+                        data:data,
+                        paginationProps:paginationProps,
+                    });
+                }else{
+                    console.log("/customer/managment/list error！")
+                    console.log(response);
+                }
+
             });
     }
     //按照搜索情况导出excel
@@ -1168,8 +1177,8 @@ export default class ServiceManagement extends Component {
         },
         //表格1数据
         input:{
-            loginAccount:"",
-            loginName:"",
+            userName:"",
+            phone:"",
         },
         paginationProps:{
             position:['bottomLeft'],
@@ -1231,8 +1240,8 @@ export default class ServiceManagement extends Component {
             <div style={{height:"100%"}}>
                 <div style={{'margin':'0 0 15px 0'}}>
                     <div justify="space-between" gutter="15" style={{display:"flex"}}>
-                        <Input placeholder={'医生电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
-                        <Input placeholder={'医生姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"loginName")}} value={this.state.input.loginName}/>
+                        <Input placeholder={'用户名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"userName")}} value={this.state.input.userName}/>
+                        <Input placeholder={'手机号'} className={'input1'} onChange={(e)=>{this.inputChange(e,"phone")}} value={this.state.input.phone}/>
                         <Button
                             type={"primary"}
                             icon={<SearchOutlined className={"icon1"}/> }

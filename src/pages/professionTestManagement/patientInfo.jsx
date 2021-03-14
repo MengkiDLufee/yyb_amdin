@@ -625,38 +625,58 @@ class Modal3 extends Component{
     //常量数据部分
     columns = [
         {
-            title: '用户账号',
-            dataIndex: 'patient_accountNumber',
+            title: '病人id',
+            dataIndex: 'patientId',
+            width:150,
+        },
+        {
+            title: '医生id',
+            dataIndex: 'loginId',
+            width:150,
+        },
+        {
+            title: '病人姓名',
+            dataIndex: 'patientName',
+            width:150,
+        },
+        {
+            title: '测试次数',
+            dataIndex: 'testNumber',
+            width:150,
+        },
+        {
+            title: '病人账号',
+            dataIndex: 'patientNumber',
             width:150,
         },
         {
             title: '病人年龄',
-            dataIndex: 'patient_age',
+            dataIndex: 'patientAge',
             width: 150,
         },
         {
             title:'病人地址',
-            dataIndex:'patient_address',
+            dataIndex:'patientAddress',
             width:150,
             align:'center',
         },
         {
             title:'病人测试状况',
-            dataIndex:'patient_testState',
+            dataIndex:'patientTestStatus',
             width:150,
             align:'center',
         },
         {
             title:'创建时间',
-            dataIndex:'patient_createTime',
+            dataIndex:'insertDate',
             width:150,
             align:'center',
         },
         {
             title:'备注',
-            dataIndex:'patient_createTime',
+            dataIndex:'insertDate',
             width:150,
-            align:'center',
+            align:'remarks',
         },
     ];
     //函数部分
@@ -723,7 +743,7 @@ class Modal3 extends Component{
     requestData=(page)=>{
         let data={};
         data.patientId=this.props.record.patientId;
-        let url="/exam/patienti/detail";
+        let url="/exam/patient/detail";
         //console.log("request:",data);
         ajax(url,data,'POST')
             .then((response)=>{
@@ -731,7 +751,7 @@ class Modal3 extends Component{
                 if(response.data.data==null)
                     console.log("查询失败");
                 else{
-                    let data=response.data.data.info;
+                    let data=[response.data.data.info];
                     let paginationProps={...this.state.paginationProps};
                     addKey(data);
                     paginationProps.total=response.data.data.total;
@@ -883,7 +903,7 @@ class Modal2 extends Component{
                 //console.log("request:",data);
                 ajax(url,data,'POST')
                     .then((response)=>{
-                        if(response.data.code!==1000){
+                        if(response.data.code!==1004){
                             console.log("请求错误！",response);
                         }else{
                             form.resetFields();
@@ -974,11 +994,18 @@ class Modal2 extends Component{
                                 />
                             </Form.Item>
                             <Form.Item
-                                label="医生"
-                                name="loginAccount"
-                                rules={[{ required: true ,message:"请输入医生用户"}]}//设置验证规则
+                                label="病人姓名"
+                                name="patientName"
+                                rules={[{ required: true ,message:"请输入病人姓名"}]}//设置验证规则
                             >
-                                <Input    onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
+                                <Input    onChange={(e)=>{this.inputChange(e,"patientName")}} value={this.state.input.patientName}/>
+                            </Form.Item>
+                            <Form.Item
+                                label="医生ID"
+                                name="loginId"
+                                rules={[{ required: true ,message:"请输入医生ID"}]}//设置验证规则
+                            >
+                                <Input    onChange={(e)=>{this.inputChange(e,"loginId")}} value={this.state.input.loginId}/>
                             </Form.Item>
                             <Form.Item label="性别"
                                        name="patientSex"
@@ -1062,12 +1089,12 @@ class Modal1 extends Component{
                 //console.log("request:",data);
                 ajax(url,data,'POST')
                     .then((response)=>{
-                        if(response.data.code!==1000){
+                        if(response.data.code!==1002){
                             console.log("请求错误！",response);
                         }else{
                             form.resetFields();
                             console.log("修改成功：",response);
-                            Object.assign(this.props.record,this.state.input);
+                            //Object.assign(this.props.record,this.state.input);
                             this.props.setVisible(false);
                         }
                     });
@@ -1153,11 +1180,18 @@ class Modal1 extends Component{
                                 />
                             </Form.Item>
                             <Form.Item
-                                label="医生"
-                                name="loginAccount"
-                                rules={[{ required: true ,message:"请输入医生用户"}]}//设置验证规则
+                                label="医生ID"
+                                name="loginId"
+                                rules={[{ required: true ,message:"请输入医生ID"}]}//设置验证规则
                             >
-                                <Input    onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
+                                <Input    onChange={(e)=>{this.inputChange(e,"loginId")}} value={this.state.input.loginId}/>
+                            </Form.Item>
+                            <Form.Item
+                                label="病人姓名"
+                                name="patientName"
+                                rules={[{ required: true ,message:"请输入病人姓名"}]}//设置验证规则
+                            >
+                                <Input    onChange={(e)=>{this.inputChange(e,"patientName")}} value={this.state.input.patientName}/>
                             </Form.Item>
                             <Form.Item label="性别"
                                        name="patientSex"
@@ -1174,17 +1208,11 @@ class Modal1 extends Component{
                                 <Input onChange={(e)=>{this.inputChange(e,"patientAge")}} value={this.state.input.patientAge}/>
                             </Form.Item>
                             <Form.Item label="地址"
-                                       name="patientAddress"
-                                       rules={[
-                                           {required:true,message:'请输入地址！',},
-                                       ]}>
+                                       name="patientAddress">
                                 <Input onChange={(e)=>{this.inputChange(e,"patientAddress")}} value={this.state.input.patientAddress}/>
                             </Form.Item>
                             <Form.Item label="测试状态"
-                                       name="patientTestStatus"
-                                       rules={[
-                                           {required:true,message:'测试状态！',},
-                                       ]}>
+                                       name="patientTestStatus">
                                 <Input onChange={(e)=>{this.inputChange(e,"patientTestStatus")}} value={this.state.input.patientTestStatus}/>
                             </Form.Item>
                             <Form.Item label="备注"
@@ -1228,7 +1256,7 @@ export default class PatientInfo extends Component {
         },
         {
             title:'医生',
-            dataIndex:'doctor_name',
+            dataIndex:'loginName',
             width:150,
             align:'center',
         },
@@ -1319,17 +1347,22 @@ export default class PatientInfo extends Component {
         //console.log("request:",data);
         ajax("/exam/patient/list",data,'POST')
             .then((response)=>{
-                let data=response.data.data.info;
-                let paginationProps={...this.state.paginationProps};
-                addKey(data);
-                paginationProps.total=response.data.data.total;
-                paginationProps.current=page.page;
-                paginationProps.pageSize=page.pageSize;
-                console.log("data:",response);
-                this.setState({
-                    data:data,
-                    paginationProps:paginationProps,
-                });
+                if(response.data.data!=null){
+                    let data=response.data.data.info;
+                    let paginationProps={...this.state.paginationProps};
+                    addKey(data);
+                    paginationProps.total=response.data.data.total;
+                    paginationProps.current=page.page;
+                    paginationProps.pageSize=page.pageSize;
+                    console.log("data:",response);
+                    this.setState({
+                        data:data,
+                        paginationProps:paginationProps,
+                    });
+                }else{
+                    console.log("/exam/patient/list error!");
+                    console.log(response)
+                }
             });
     }
     //按照搜索情况导出excel
@@ -1382,14 +1415,11 @@ export default class PatientInfo extends Component {
         let url="/exam/patient/remove";
         ajax(url,data,'POST')
             .then((response)=>{
-                if(response.data.code!==1000){
+                if(response.data.code!==1006){
                     console.log("请求错误！",response);
                 }else{
                     console.log("请求成功：",response);
-                    this.requestData({
-                        page:this.state.paginationProps.page,
-                        pageSize:this.state.paginationProps.pageSize,
-                    });
+                    this.handleTableChange(this.state.paginationProps);
                 }
             });
     }
@@ -1398,6 +1428,9 @@ export default class PatientInfo extends Component {
         this.lookModal3(record);
     }
     //表格2数据以及函数
+
+
+
 
     //参数设置
     state={
@@ -1416,8 +1449,8 @@ export default class PatientInfo extends Component {
         },
         //表格1数据
         input:{
-            loginAccount:"",
-            loginName:"",
+            patientName:"",
+            patientNumber:"",
         },
         paginationProps:{
             position:['bottomLeft'],
@@ -1455,6 +1488,9 @@ export default class PatientInfo extends Component {
             );
     }
     setModalvisible=(flag)=>{
+        if(flag==false){
+            this.handleTableChange(this.state.paginationProps)
+        }
         this.setState({
             modalVisible:flag,
         });
@@ -1524,8 +1560,8 @@ export default class PatientInfo extends Component {
             <div style={{height:"100%"}}>
                 <div style={{'margin':'0 0 15px 0'}}>
                     <div justify="space-between" gutter="15" style={{display:"flex"}}>
-                        <Input placeholder={'医生电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
-                        <Input placeholder={'医生姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"loginName")}} value={this.state.input.loginName}/>
+                        <Input placeholder={'医生电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"patientNumber")}} value={this.state.input.patientNumber}/>
+                        <Input placeholder={'医生姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"patientName")}} value={this.state.input.patientName}/>
                         <Button
                             type={"primary"}
                             icon={<SearchOutlined className={"icon1"}/> }

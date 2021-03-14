@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Select, Space, Modal, Form} from 'antd';
+import {Table, Button, Input, Select, Space, Modal, Form, Checkbox} from 'antd';
 import { DatePicker} from 'antd';
 import { Radio } from 'antd';
 import { Switch } from 'antd';
@@ -275,7 +275,7 @@ class DeviceManagement_Serve2 extends Component {
     }
 }
 
-//查看详情
+//使用人员
 class Modal3 extends Component{
     //初始化
     constructor(props) {
@@ -287,38 +287,14 @@ class Modal3 extends Component{
     //常量数据部分
     columns = [
         {
-            title: '用户账号',
-            dataIndex: 'patient_accountNumber',
+            title: '设备码',
+            dataIndex: 'deviceCode',
             width:150,
         },
         {
-            title: '病人年龄',
-            dataIndex: 'patient_age',
-            width: 150,
-        },
-        {
-            title:'病人地址',
-            dataIndex:'patient_address',
+            title: '客户ID',
+            dataIndex: 'clientId',
             width:150,
-            align:'center',
-        },
-        {
-            title:'病人测试状况',
-            dataIndex:'patient_testState',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'创建时间',
-            dataIndex:'patient_createTime',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'备注',
-            dataIndex:'patient_createTime',
-            width:150,
-            align:'center',
         },
     ];
     //函数部分
@@ -342,7 +318,7 @@ class Modal3 extends Component{
         console.log('所选择行',row)
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
         this.setState(
-            {selectedRowKeys:row}
+          {selectedRowKeys:row}
         )
     };
     //翻页
@@ -374,38 +350,38 @@ class Modal3 extends Component{
         }
         this.state.input=data;
         this.setState(
-            {
-                selectedRowKeys:[],
-                input:data,
-            },
+          {
+              selectedRowKeys:[],
+              input:data,
+          },
         )
         this.search();
     };
     //请求表格数据
     requestData=(page)=>{
         let data={};
-        data.patientId=this.props.record.patientId;
-        let url="/exam/patienti/detail";
+        data.deviceCode=this.props.record.deviceCode;
+        let url="/device/managment/user";
         //console.log("request:",data);
         ajax(url,data,'POST')
-            .then((response)=>{
-                console.log("response:",response);
-                if(response.data.data==null)
-                    console.log("查询失败");
-                else{
-                    let data=response.data.data.info;
-                    let paginationProps={...this.state.paginationProps};
-                    addKey(data);
-                    paginationProps.total=response.data.data.total;
-                    paginationProps.current=page.page;
-                    paginationProps.pageSize=page.pageSize;
-                    console.log("data:",response);
-                    this.setState({
-                        data:data,
-                        paginationProps:paginationProps,
-                    });
-                }
-            });
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null)
+                  console.log("查询失败");
+              else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+          });
     }
     //按照搜索情况导出excel
     exportSearch= ()=>{
@@ -430,6 +406,10 @@ class Modal3 extends Component{
         //     console.log("search error!",e);
         // });
     }
+    //添加弹窗
+    add=(record)=>{
+        this.lookModal(record);
+    }
 
     //表格2数据以及函数
 
@@ -449,11 +429,11 @@ class Modal3 extends Component{
         },
         selectedRowKeys:[],
         data:[
-            //     {
-            //     key:1,
-            //     patientName:"test",
-            //     testNumber: "test",
-            // }
+            {
+                key:1,
+                patientName:"test",
+                testNumber: "test",
+            }
         ],
         record:{
             loginName:"",
@@ -466,39 +446,66 @@ class Modal3 extends Component{
 
     //弹窗函数
     //弹窗1
-
+    //添加
+    Modal = ()=>{
+        if(this.state.modalVisible)
+            return(
+              <Modal1
+                record={this.state.record}
+                visible={this.state.modalVisible}
+                setVisible={this.setModalvisible}
+              />
+            );
+    }
+    setModalvisible=(flag)=>{
+        this.setState({
+            modalVisible:flag,
+        });
+    }
+    lookModal=record=>{
+        this.setState({
+            modalVisible:true,
+            record:record,
+        });
+    }
     //弹窗2
 
 
     render(){
         return(
-            <div>
-                <Modal
-                    title={"病人详情"}
-                    centered
-                    visible={this.props.visible}
-                    onCancel={this.handleCancel}
-                    footer={null}
-                    width={1000}
-                >
-                    <div style={{height:'100%',margin:'3px'}}>
-                        <p>病人：{this.props.record.patientName}</p>
-                        <p style={{whiteSpace:"nowrap"}}></p>
-                        <p ><span >病人详情</span></p>
-                        <div style={{heigh:"100%"}}>
-                            <Table
-                                columns={this.columns}
-                                dataSource={this.state.data}
-                                bordered={true}
-                                rowSelection={false}
-                                style={{margin:"20px 0",borderBottom:'1px,soild'}}
-                                pagination={false}
-
-                            />
-                        </div>
-                    </div>
-                </Modal>
-            </div>
+          <div>
+              <Modal
+                title={"聊天记录"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                footer={null}
+                width={1000}
+              >
+                  <div style={{height:'100%',margin:'3px'}}>
+                      {/*<Button*/}
+                      {/*    type="primary"*/}
+                      {/*    icon={<PlusOutlined  className="icon1" />}*/}
+                      {/*    onClick={this.add}*/}
+                      {/*    className="button1"*/}
+                      {/*>*/}
+                      {/*    添加*/}
+                      {/*</Button>*/}
+                      <div style={{heigh:"100%"}}>
+                          <Table
+                            columns={this.columns}
+                            dataSource={this.state.data}
+                            bordered={true}
+                            rowSelection={false}
+                            style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                            pagination={this.state.paginationProps}
+                            onChange={this.handleTableChange}
+                          />
+                      </div>
+                  </div>
+              </Modal>
+              {this.Modal()}
+          </div>
         )
     }
 }
@@ -541,7 +548,7 @@ class Modal2 extends Component{
                 }
                 //data.patientId=this.props.record.patientId;
                 //data.loginId=this.props.record.loginId;
-                let url="/exam/patient/modify";
+                let url="/device/managment/modify";
                 //console.log("request:",data);
                 ajax(url,data,'POST')
                     .then((response)=>{
@@ -576,6 +583,27 @@ class Modal2 extends Component{
     }
     //得到文本框输入
     inputChange = (e,name) => {
+        //console.log(name);
+        let themename = e.target.name;
+        console.log(themename)
+        //console.log(e.target.name);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        });
+        console.log(this.state);
+    }
+    //选择框
+    selectChange =(e,Option) => {
+        console.log(e)
+        console.log(Option)
+        this.setState({
+            input:Object.assign(this.state.input,{[Option.title]:e})
+        })
+    }
+    //单选框
+    radioChange= (e,name) => {
         //console.log(name);
         let themename = e.target.name;
         console.log(themename)
@@ -622,57 +650,48 @@ class Modal2 extends Component{
                             initialValues={this.state.input}
                         >
                             <Form.Item
-                                label="手机号"
-                                name="patientNumber"
+                                label="设备码"
+                                name="deviceCode"
                                 rules={[
                                     {
                                         required: true,
-                                        message: '请输入手机号!',
+                                        message: '请输入设备码!',
                                     },
                                 ]}
                             >
-                                <Input onChange={(e)=>{this.inputChange(e,"patientNumber")}}
-                                       value={this.state.input.patientNumber}
+                                <Input onChange={(e)=>{this.inputChange(e,"deviceCode")}}
+                                       value={this.state.input.deviceCode}
                                 />
                             </Form.Item>
                             <Form.Item
-                                label="医生"
-                                name="loginAccount"
-                                rules={[{ required: true ,message:"请输入医生用户"}]}//设置验证规则
+                                label="是否激活"
+                                name="available"
+                                rules={[{ required: true ,message:"请选择是否激活"}]}//设置验证规则
                             >
-                                <Input    onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
+                                <Radio.Group onChange={(e)=>{this.radioChange(e,"available")}} value={this.state.input.available}>
+                                    <Radio value={1}>是</Radio>
+                                    <Radio value={0}>否</Radio>
+                                </Radio.Group>
                             </Form.Item>
-                            <Form.Item label="性别"
-                                       name="patientSex"
-                                       rules={[
-                                           {required:true,message:'请输入性别！',},
-                                       ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientSex")}} value={this.state.input.patientSex}/>
+                            <Form.Item
+                              label="是否已用"
+                              name="active"
+                              rules={[{ required: true ,message:"请选择是否已用"}]}//设置验证规则
+                            >
+                                <Radio.Group onChange={(e)=>{this.radioChange(e,"active")}} value={this.state.input.active}>
+                                    <Radio value={1}>是</Radio>
+                                    <Radio value={0}>否</Radio>
+                                </Radio.Group>
                             </Form.Item>
-                            <Form.Item label="年龄"
-                                       name="patientAge"
-                                       rules={[
-                                           {required:true,message:'请输入年龄！',},
-                                       ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientAge")}} value={this.state.input.patientAge}/>
-                            </Form.Item>
-                            <Form.Item label="地址"
-                                       name="patientAddress"
-                                       rules={[
-                                           {required:true,message:'请输入地址！',},
-                                       ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientAddress")}} value={this.state.input.patientAddress}/>
-                            </Form.Item>
-                            <Form.Item label="测试状态"
-                                       name="patientTestStatus"
-                                       rules={[
-                                           {required:true,message:'测试状态！',},
-                                       ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientTestStatus")}} value={this.state.input.patientTestStatus}/>
-                            </Form.Item>
-                            <Form.Item label="备注"
-                                       name="remarks">
-                                <TextArea rows={4} onChange={(e)=>{this.inputChange(e,"remarks")}} value={this.state.input.remarks}/>
+                            <Form.Item
+                              label="是否共享"
+                              name="shared"
+                              rules={[{ required: true ,message:"请选择是否共享"}]}//设置验证规则
+                            >
+                                <Radio.Group onChange={(e)=>{this.radioChange(e,"shared")}} value={this.state.input.shared}>
+                                    <Radio value={1}>是</Radio>
+                                    <Radio value={0}>否</Radio>
+                                </Radio.Group>
                             </Form.Item>
                         </Form>
                     </div>
@@ -908,8 +927,8 @@ export default class DeviceManagement_Serve extends Component {
             align:'center',
             render:(text,record)=>(
                 <Space>
-                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}}>修改</Button>
-                    <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{}}>使用人员</Button>
+                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.modify(record)}}>修改</Button>
+                    <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{this.user(record)}}>使用人员</Button>
                 </Space>
             ),
         },
@@ -940,17 +959,17 @@ export default class DeviceManagement_Serve extends Component {
             page:pagination.current,
             pageSize: pagination.pageSize,
         };
-        this.requestData(page);
+        this.requestData();
         //this.setState({paginationProps:pagination});
         //console.log(pagination)
     };
     //搜索
     search= ()=> {
-        let page={
-            page:1,
-            pageSize:10,
-        }
-        this.requestData(page);
+        // let page={
+        //     page:1,
+        //     pageSize:10,
+        // }
+        this.requestData();
     }
     //重置
     reset = () => {
@@ -970,9 +989,9 @@ export default class DeviceManagement_Serve extends Component {
         this.search();
     };
     //请求表格数据
-    requestData=(page)=>{
+    requestData=()=>{
         let data={
-            ...page,
+            //...page,
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
@@ -983,17 +1002,23 @@ export default class DeviceManagement_Serve extends Component {
         //console.log("request:",data);
         ajax("/customer/managment/list",data,'POST')
             .then((response)=>{
-                let data=response.data.data.info;
-                let paginationProps={...this.state.paginationProps};
-                addKey(data);
-                paginationProps.total=response.data.data.total;
-                paginationProps.current=page.page;
-                paginationProps.pageSize=page.pageSize;
-                console.log("data:",response);
-                this.setState({
-                    data:data,
-                    paginationProps:paginationProps,
-                });
+                //console.log(response);
+                if(response.code=="1000"){
+                    let data=response.data.data.info;
+                    let paginationProps={...this.state.paginationProps};
+                    addKey(data);
+                    paginationProps.total=response.data.data.total;
+                    paginationProps.current=1;
+                    paginationProps.pageSize=10;
+                    console.log("data:",response);
+                    this.setState({
+                        data:data,
+                        paginationProps:paginationProps,
+                    });
+                }else{
+                    console.log("/customer/managment/list error!")
+                    console.log(response);
+                }
             });
     }
     //按照搜索情况导出excel
@@ -1020,8 +1045,13 @@ export default class DeviceManagement_Serve extends Component {
         // });
     }
 
-    //聊天记录
-    lookChatRecording=(record)=>{
+    //修改
+    modify=(record)=>{
+        this.lookModal2(record);
+    }
+
+    //使用人员
+    user=(record)=>{
         this.lookModal3(record);
     }
     //表格2数据以及函数
@@ -1045,8 +1075,7 @@ export default class DeviceManagement_Serve extends Component {
         },
         //表格1数据
         input:{
-            loginAccount:"",
-            loginName:"",
+            deviceCode:"",
         },
         paginationProps:{
             position:['bottomLeft'],
@@ -1098,6 +1127,33 @@ export default class DeviceManagement_Serve extends Component {
     }
 
 
+    // //弹窗2
+    //修改一项
+    Modal2 = ()=>{
+        if(this.state.modalVisible2)
+            return(
+                <Modal2
+                    record={this.state.record2}
+                    visible={this.state.modalVisible2}
+                    setVisible={this.setModalvisible2}
+                />
+            );
+    }
+    setModalvisible2=(flag)=>{
+        if(flag==false){
+            this.handleTableChange(this.state.paginationProps);
+        }
+        this.setState({
+            modalVisible2:flag,
+        });
+    }
+    lookModal2=record=>{
+        this.setState({
+            modalVisible2:true,
+            record2:record,
+        });
+    }
+
     render() {
         const { selectedRowKeys } = this.state;
         const rowSelection = {
@@ -1108,8 +1164,7 @@ export default class DeviceManagement_Serve extends Component {
             <div style={{height:"100%"}}>
                 <div style={{'margin':'0 0 15px 0'}}>
                     <div justify="space-between" gutter="15" style={{display:"flex"}}>
-                        <Input placeholder={'医生电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
-                        <Input placeholder={'医生姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"loginName")}} value={this.state.input.loginName}/>
+                        <Input placeholder={'设备码'} className={'input1'} onChange={(e)=>{this.inputChange(e,"deviceCode")}} value={this.state.input.deviceCode}/>
                         <Button
                             type={"primary"}
                             icon={<SearchOutlined className={"icon1"}/> }
@@ -1141,6 +1196,7 @@ export default class DeviceManagement_Serve extends Component {
                     />
                 </div>
                 {this.Modal3()}
+                {this.Modal2()}
             </div>
         )
     }

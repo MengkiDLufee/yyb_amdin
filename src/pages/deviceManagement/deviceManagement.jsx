@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import { Table ,Button , Input , Select, Space ,Modal,Form,Checkbox} from 'antd';
 import {ReloadOutlined,
         SearchOutlined ,
-        PlusOutlined, 
-        CloudUploadOutlined, 
+        PlusOutlined,
+        CloudUploadOutlined,
         CloudDownloadOutlined,
         CheckCircleOutlined,
-        CloseCircleTwoTone 
+        CloseCircleTwoTone
         } from '@ant-design/icons'
 import './index.less' //引入样式
 
@@ -65,7 +65,7 @@ for (let i = 0; i < 33; i++) {
   }
 }
 
-  
+
   // function handleChange(value) {
   //   console.log(`selected ${value}`);
   // }
@@ -73,8 +73,8 @@ for (let i = 0; i < 33; i++) {
 //   render(){
 //     return(
 //       <Input  placeholder={this.props.placeholder} className={this,props.className} onChange={this.props.onChange} value={this.props.value} />
-      
-//     ) 
+
+//     )
 //   }
 // }
 
@@ -85,7 +85,7 @@ export default class DeviceManagement extends Component {
       //参数设置
   this.onSelectChange = this.onSelectChange.bind(this);
   }
-  state = { 
+  state = {
     data:data,
     data_user:data_user,
     visible:false,
@@ -134,7 +134,7 @@ export default class DeviceManagement extends Component {
   },
   justify_modal:null,
 }
-  
+
 
 //表格栏
  columns = [
@@ -344,7 +344,7 @@ columns_user = [
   //修改
   modify = (record)=> {
     console.log('修改',record)
-    let data = Object.assign({}, this.state.modal, { 
+    let data = Object.assign({}, this.state.modal, {
           dev_code: record.dev_code,
           dev_num:record.dev_num ,
           is_on:record.on,
@@ -418,7 +418,7 @@ columns_user = [
           deleteData.splice(index,1)
       }
   })
-  
+
   this.setState({
       data:deleteData,
   },()=> console.log(this.state.data))
@@ -479,13 +479,11 @@ columns_user = [
       justify_modal:1,
     })
   };
-
-
 /*表单验证
   Form.useForm是是 React Hooks 的实现，只能用于函数组件
   class组件中通过 React.createRef()来获取数据域*/
   form = React.createRef();
-  
+
 
     render() {
       const { selectedRowKeys } = this.state;
@@ -500,85 +498,85 @@ columns_user = [
               {/* 输入框等 */}
               <div style={{'margin':'0 0 15px  0'}} >
                 <div justify="space-between" gutter="15" style={{display:"flex" }}  >
-                    
+
                         <Input  placeholder="客户" className="input1" onChange={this.clientChange} value={this.state.input.client} />
                     {/* {this.selection(this.activeChange,this.state.active_in)} */}
-                        <Select placeholder="请选择激活状态 "  
-                                onChange={this.selectChange} 
-                                className="input1" 
+                        <Select placeholder="请选择激活状态 "
+                                onChange={this.selectChange}
+                                className="input1"
                                 value={this.state.input.active}
                                 >
                             <Option title="active" value="on">已激活</Option>
                             <Option title="active" value="close">未激活</Option>
                         </Select>
 
-                        <Select placeholder="请选择类型 "  
-                                onChange={this.selectChange} 
-                                className="input1" 
+                        <Select placeholder="请选择类型 "
+                                onChange={this.selectChange}
+                                className="input1"
                                 value={this.state.input.type}
                                 >
                             <Option title="type" value="type1">类型1</Option>
                             <Option title="type" value="type2">类型2</Option>
                             <Option title="type" value="type3">类型3</Option>
                         </Select>
-                  
-                        <Select placeholder="请选择状态 " 
-                                onChange={this.selectChange} 
-                                className="input1" 
+
+                        <Select placeholder="请选择状态 "
+                                onChange={this.selectChange}
+                                className="input1"
                                 value={this.state.input.state}
-                                
+
                                 >
                             <Option title="state" value="status1">测试通过</Option>
                             <Option title="state" value="status2">测试未通过</Option>
                         </Select>
 
-                        <Button 
-                          type="primary" 
+                        <Button
+                          type="primary"
                           icon={<SearchOutlined className="icon1" />}
-                          onClick={this.search} 
+                          onClick={this.search}
                           className="button1"
                           >
                           搜索
                         </Button>
 
-                        <Button type="primary" 
+                        <Button type="primary"
                           icon={<ReloadOutlined className="icon1" /> }
-                          onClick={this.reset} 
+                          onClick={this.reset}
                           className="button1"
                          >
                            重置
                         </Button>
 
-                        <Button 
-                          type="primary" 
-                          icon={<PlusOutlined  className="icon1" />} 
+                        <Button
+                          type="primary"
+                          icon={<PlusOutlined  className="icon1" />}
                           onClick={this.add}
                           className="button1"
                         >
                           添加
                         </Button>
-   
-                        <Button 
-                          type="primary" 
-                          icon={<CloudUploadOutlined className="icon1" />} 
+
+                        <Button
+                          type="primary"
+                          icon={<CloudUploadOutlined className="icon1" />}
                           onClick={this.importStatic}
                           className="button1"
                         >
                           导入
                         </Button>
 
-                        <Button 
-                          type="primary" 
-                          icon={<CloudDownloadOutlined className="icon1" />} 
+                        <Button
+                          type="primary"
+                          icon={<CloudDownloadOutlined className="icon1" />}
                           onClick={this.exportChoose}
                           className="button2"
                         >
                           导出已选择数据
                         </Button>
-   
-                        <Button 
-                        type="primary" 
-                        icon={<CloudDownloadOutlined className="icon1" />}    
+
+                        <Button
+                        type="primary"
+                        icon={<CloudDownloadOutlined className="icon1" />}
                         onClick={this.exportSearch}
                         className="button2"
                         >
@@ -592,15 +590,15 @@ columns_user = [
 
                 {/* 表格 */}
                 <div style={{height:"100%"}}>
-                  <Table 
-                   columns={this.columns} 
-                  dataSource={this.state.data} 
-                  bordered={true} 
+                  <Table
+                   columns={this.columns}
+                  dataSource={this.state.data}
+                  bordered={true}
                   rowSelection={rowSelection}
                   style={{margin:'20px 0',borderBottom:'1px,soild'}}
                   pagination={ this.state.paginationProps}
                   onChange={this.handTablechange}
-                  
+
                   />
                 </div>
                 {/* 添加弹窗 */}
@@ -622,7 +620,7 @@ columns_user = [
                         layout="horizontal"
                         ref={this.form}//表单验证，通过ref获取
                       >
-                        <Form.Item 
+                        <Form.Item
                           label="检测机构"
                         >
                           <Select defaultValue="henan">
@@ -636,7 +634,7 @@ columns_user = [
                             <Option value="jxs2">经销商2</Option>
                           </Select>
                         </Form.Item>
-                        <Form.Item 
+                        <Form.Item
                           label="设备名"
                           name="dev_name"
                           rules={[
@@ -648,7 +646,7 @@ columns_user = [
                         >
                           <Input />
                         </Form.Item>
-                        <Form.Item 
+                        <Form.Item
                           label="设备码"
                           name="dev_code"
                           rules={[
@@ -668,7 +666,7 @@ columns_user = [
                           <Input  defaultValue="1234" />
                         </Form.Item>
                         <Form.Item  label="" style={{marginLeft:'150px'}}>
-                          <Checkbox.Group 
+                          <Checkbox.Group
                             options={['已用','激活']}
                             defaultValue={['已用','激活']}
                           />
@@ -680,7 +678,7 @@ columns_user = [
                           <Input />
                         </Form.Item>
                         <Form.Item  label="" style={{marginLeft:'150px'}}>
-                          <Checkbox.Group 
+                          <Checkbox.Group
                             options={['共享']}
                             defaultValue={['共享']}
                           />
@@ -736,7 +734,7 @@ columns_user = [
                           <Input />
                         </Form.Item>
                         <Form.Item  label="" style={{marginLeft:'150px'}}>
-                          <Checkbox.Group 
+                          <Checkbox.Group
                             options={['只安卓']}
                             defaultValue={['只安卓']}
                           />
@@ -774,70 +772,70 @@ columns_user = [
                         layout="horizontal"
                       >
                         <Form.Item label="设备码">
-                          <Input 
-                          value={this.state.modal.dev_code} 
-                          onChange={this.modify_inputChange} 
+                          <Input
+                          value={this.state.modal.dev_code}
+                          onChange={this.modify_inputChange}
                           name="dev_code"
                           />
                         </Form.Item>
                         <Form.Item label="设备号">
-                          <Input 
-                            value={this.state.modal.dev_num} 
-                            onChange={this.modify_inputChange} 
+                          <Input
+                            value={this.state.modal.dev_num}
+                            onChange={this.modify_inputChange}
                             name="dev_num"
                           />
                         </Form.Item>
                         <Form.Item label="硬件版本">
-                          <Input  
-                            value={this.state.modal.hard_ed} 
+                          <Input
+                            value={this.state.modal.hard_ed}
                             onChange={this.modify_inputChange}
                             name="hard_ed"
                           />
                         </Form.Item>
                         <Form.Item label="软件版本">
-                          <Input  
-                            value={this.state.modal.soft_ed} 
+                          <Input
+                            value={this.state.modal.soft_ed}
                             onChange={this.modify_inputChange}
                             name="soft_ed"
                           />
                         </Form.Item>
                         <Form.Item label="软件更新时间">
-                          <Input  
-                            value={this.state.modal.refresh_time} 
-                            onChange={this.modify_inputChange} 
+                          <Input
+                            value={this.state.modal.refresh_time}
+                            onChange={this.modify_inputChange}
                             name="refresh_time"
                           />
                         </Form.Item>
                         <Form.Item label="蓝牙密码">
-                          <Input   
-                            value={this.state.modal.bluetooth} 
+                          <Input
+                            value={this.state.modal.bluetooth}
                             onChange={this.modify_inputChange}
                             name="bluetooth"
                            />
                         </Form.Item>
                         <Form.Item  label="是否可用" >
-                          <Checkbox.Group 
+                          <Checkbox.Group
                             options={[
                               {label:'是',value:0},
                               {label:'否',value:1}
-                            ]}  
+                            ]}
                             value={[this.state.modal.is_valid]}
                             onChange={this.isvalidChange}
                           />
                         </Form.Item>
                         <Form.Item  label="是否激活" >
-                          <Checkbox.Group 
+                          <Checkbox.Group
                             options={[
                               {label:'是',value:0},
                               {label:'否',value:1}
-                            ]}  
+                            ]}
                             value={[this.state.modal.is_on]}
                             onChange={this.isonChange}
                           />
                         </Form.Item>
                         <Form.Item label="激活时间">
-                          <Input 
-                          value={this.state.modal.time}  
+                          <Input
+                          value={this.state.modal.time}
                           onChange={this.modify_inputChange}
                           name="time"
                            />
@@ -861,10 +859,10 @@ columns_user = [
                             <div>历史连接人数：{data_user.length}</div>
                           </div>
                         <div style={{height:"100%",width:"100%"}}>
-                          <Table 
-                          columns={this.columns_user} 
-                          dataSource={data_user} 
-                          bordered={true}      
+                          <Table
+                          columns={this.columns_user}
+                          dataSource={data_user}
+                          bordered={true}
                           style={{margin:'20px 0',borderBottom:'1px,soild'}}
                           pagination={ this.state.paginationProps_user}
                           onChange={this.handTablechange_user}

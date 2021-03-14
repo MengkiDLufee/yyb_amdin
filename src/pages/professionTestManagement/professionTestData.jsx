@@ -15,6 +15,7 @@ import {ReloadOutlined,
 } from '@ant-design/icons'
 import './index.less'
 import moment from 'moment';
+import changeData from "../../api/changeData";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
@@ -476,8 +477,8 @@ class LatestTestDataModal extends Component {
         console.log("timeTest!");
         console.log(datas);
         console.log(dateStrings);
-        this.state.input.startTime=dateStrings[0]+" 00:00:00";
-        this.state.input.endTime=dateStrings[1]+" 00:00:00";
+        this.state.input.startDate=dateStrings[0]+" 00:00:00";
+        this.state.input.endDate=dateStrings[1]+" 24:00:00";
         this.setState({
             rangePickerData:datas,
         })
@@ -493,8 +494,8 @@ class LatestTestDataModal extends Component {
         //表格1数据
         input:{
             patientName:'',
-            startTime:'',
-            endTime:'',
+            startDate:'',
+            endDate:'',
         },
         rangePickerData:[],
         paginationProps:{
@@ -665,6 +666,13 @@ class DetailPatientInfoModal extends Component{
             dataIndex:'patientTestStatus',
             width:150,
             align:'center',
+            render:(text)=>(
+                <p>
+                    {changeData(text,
+                        ["patient_finish","patient_no_test","patient_testing"],
+                        ["结束","没有测试","正在测试"])}
+                </p>
+            ),
         },
         {
             title:'测试次数',
@@ -674,7 +682,7 @@ class DetailPatientInfoModal extends Component{
         },
         {
             title:'创建时间',
-            dataIndex:'insertTime',
+            dataIndex:'insertDate',
             width:150,
             align:'center',
         },
@@ -697,7 +705,7 @@ class DetailPatientInfoModal extends Component{
                 if(response.data.data==null){
                     console.log("查询失败");
                 }else{
-                    let mydata=response.data.data;
+                    let mydata=response.data.data.info;
                     mydata.key=1;
                     //addKey(data);
                     console.log("data:",mydata);
@@ -863,7 +871,7 @@ class PatientInfoModal extends Component{
                 if(response.data.data==null)
                     console.log("查询失败");
                 else{
-                    let data=response.data.data.records;
+                    let data=response.data.data.info.records;
                     let paginationProps={...this.state.paginationProps};
                     addKey(data);
                     paginationProps.total=response.data.data.total;
@@ -1159,7 +1167,7 @@ export default class ProfessionTestData extends Component {
         }
         console.log("exportFile input:",data);
         //exportFile("/exam/data/export/login/condition",data);
-        exportFile('/user/base/info/export/condition',{});
+        exportFile('/exam/data/export/login/condition',data);
         //console.log("request:",data);
         // ajax("/exam/data/export/login/condition",data,'POST')
         //     .then((response)=>{
