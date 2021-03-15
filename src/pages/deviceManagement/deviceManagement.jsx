@@ -367,8 +367,10 @@ columns_user = [
   //按搜索条件导出
   exportSearch = () =>{
     console.log('按搜索条件导出',this.state.input)
-    // Export1('/user/base/info/export/condition',{})
-    exportFile('/user/base/info/export/condition',{})
+    // exportFile('http://java.xixibackup.me:8080/device/manage/info/export/condition',{})
+    // exportFile('/device/manage/info/export/condition',{})
+    exportFile('/device/manage/info/export/choose',[2048])
+
     
   };
   //修改
