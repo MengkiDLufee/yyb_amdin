@@ -25,9 +25,9 @@ export default function ajax(url, data={},type='GET') {//默认空对象，get�
         promise.then(res => {
             resolve(res)
         })//3.请求错误时不用reject，使用message进行提示，若使用reject相当于未进行操作，在具体请求中话仍需要处理
-            .catch(err => {
-                // reject(message.error('请求出错：' + err))
-                message.error('请求出错：' + err)
-            })
+        .catch(err => {
+            // reject(message.error('请求出错：' + err))
+            message.error('请求出错：' + err)
+        })
     })
 }

@@ -91,21 +91,27 @@ const columns = [
       align:'center'
     },
     {
-      title: '排卵峰起始时间',
+      title: '排卵峰起时间',
       width:150,
       dataIndex: 'time',
       align:'center'
     },
     {
-      title: '排卵峰降',
+      title: '排卵峰降时间',
       width:150,
       dataIndex: 'time',
       align:'center'
     },
     {
-      title: '后面表格无参考',
+      title: '怀孕时间',
       width:150,
-      dataIndex: 'wait',
+      dataIndex: 'time',
+      align:'center'
+    },
+    {
+      title: '同房时间',
+      width:150,
+      dataIndex: 'time',
       align:'center'
     },
   ];
@@ -118,11 +124,10 @@ const columns = [
       name: `客户 ${i}`,
       period: `${i}`,
       time : `2020-07-14`,
-      tset_stage:`阶段${i}`,
+      test_stage:`阶段${i}`,
       test_num:`${i}${i}`,
       semen:`测试进行中`,
       preg :`---`,
-      wait :`待定`,
     });
   }
 
