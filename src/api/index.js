@@ -7,7 +7,6 @@ import ajax from './ajax'
 // import axios from 'axios'
 
 
-
  //登陆接口
 export function  reqLogin(username,password) {
   return ajax('/login',{username,password},'POST')
@@ -23,7 +22,7 @@ export function exportFile (url,data) {
     .then( res => {
       console.log(res)
       // 创建下载的链接
-      const url = window.URL.createObjectURL(new Blobgit ([res.data],{
+      const url = window.URL.createObjectURL(new Blob ([res.data],{
         type: 'application/vnd.ms-excel;charset=utf-8'// 设置该文件的mime类型，这里对应的mime类型对应为.xlsx格式
       }));
           const link = document.createElement('a');
