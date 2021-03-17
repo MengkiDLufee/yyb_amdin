@@ -8,7 +8,7 @@ export default class ImportFile extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      url:props.url
+      url:props.url,
     }
   }
 
@@ -17,9 +17,11 @@ export default class ImportFile extends Component {
       name: 'file',
       multiple: true,
       action: this.state.url,//上传地址
+      data:{testTypeId:this.props.testTypeId},
       headers: {
         ContentType:'application/json',
       },
+
       onChange(info) {
         const { status } = info.file;
         if (status !== 'uploading') {

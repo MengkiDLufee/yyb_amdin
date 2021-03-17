@@ -24,6 +24,9 @@ export default class TestType extends Component {
         this.uploadTemplete=this.uploadTemplete.bind(this);
         this.handleCancel_import=this.handleCancel_import.bind(this);
         this.viewHistory=this.viewHistory.bind(this);
+        this.handleProduct=this.handleProduct.bind(this);
+        this.handleDeleteHistory=this.handleDeleteHistory.bind(this);
+        this.handleModifyHistory=this.handleModifyHistory.bind(this);
     }
 
     state = {
@@ -42,9 +45,14 @@ export default class TestType extends Component {
         total:null,
         associatedTotal:null,
         reagentTotal:null,
+        parametersTotal:null,
+        promptTotal:null,
         associatedData:[],
         reagentData:[],
         historyData:[],
+        logicData:[],
+        parametersData:[],
+        promptData:[],
         //搜索框
         testTypeName:'',
         testSetId:null,
@@ -58,6 +66,10 @@ export default class TestType extends Component {
         reagentPageSize:10,
         historycurrentPage:1,
         historyPageSize:10,
+        parameterscurrentPage:1,
+        parameterPageSize:10,
+        promptcurrentPage:1,
+        promptPageSize:10,
 
         //选择框
         testSetGroup:[],
@@ -65,6 +77,8 @@ export default class TestType extends Component {
         //标记数据
         testTypeId:null,
         currentId:null,
+
+        judgeMethodId:'',
     };
 
     //表格列名
@@ -110,7 +124,7 @@ export default class TestType extends Component {
                     <Button style={{color:'black',background:'white'}}
                             onClick={()=>{this.handleLogic(record)}}>当前生产判读逻辑</Button>
                     <Button style={{color:'black',background:'white'}}
-                            onClick={()=>{this.uploadTemplete()}}>上传模板</Button>
+                            onClick={()=>{this.uploadTemplete(record)}}>上传模板</Button>
                     <Button style={{color:'black',background:'white'}}
                             onClick={()=>{this.viewHistory(record)}}>查看历史</Button>
                     <Button style={{color:'black',background:'white'}}
@@ -242,17 +256,107 @@ export default class TestType extends Component {
             align:'center',
             render: (text, record) => (
                 <Space size="middle">
-                    <Button style={{color:'black',background:'white',}}
-                            onClick={()=>{this.viewDetail(record)}}>查看详细信息</Button>
-                    <Button style={{color:'black',background:'white'}}
-                            onClick={()=>{this.handleModifyHistory(record)}}>修改</Button>
-                    <Button style={{color:'black',background:'white'}}
-                            onClick={()=>{this.handleProduct()}}>设置为生产</Button>
-                    <Button style={{color:'black',background:'white'}}
-                            onClick={()=>{this.handleDeleteHistory(record)}}>删除</Button>
+
+                    <Button style={record.production==="历史"?{color:'black',background:'white'}:{background: 'rgb(190, 200, 200)'}}
+                            onClick={()=>{this.handleModifyHistory(record)}}
+                            disabled={record.production==="历史"?false:true}
+                    >修改</Button>
+                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                            onClick={()=>{this.handleProduct(record)}}>设置为生产</Button>
+                    <Button style={record.production==="历史"?{color:'black',background:'white'}:{background: 'rgb(190, 200, 200)'}}
+                            onClick={()=>{this.handleDeleteHistory(record)}}
+                            disabled={record.production==="历史"?false:true}
+                    >删除</Button>
                 </Space>
             ),
         },
+    ]
+    //判读逻辑
+    logicColumns=[
+        {
+            title: '当前函数值',
+            dataIndex: 'functionMethod',
+            ellipsis:true,
+
+        },
+    ]
+    //判读参数
+    parametersColumns=[
+        {
+            title: '编码',
+            dataIndex: 'judgeParamCode',
+            ellipsis:true,
+
+        },
+        {
+            title: '值',
+            dataIndex: 'judgeParamValue',
+            ellipsis:true,
+
+        },
+    ]
+    //判读提示语
+    promptColumns=[
+        {
+            title: '编码',
+            dataIndex: 'judgeTipsCode',
+            ellipsis:true,
+
+        },
+        {
+            title: '提示语类型',
+            dataIndex: 'judgeTipsType',
+            ellipsis:true,
+
+        },
+        {
+            title: '结论类型',
+            dataIndex: 'resultType',
+            ellipsis:true,
+
+        },
+        {
+            title: '提示语',
+            dataIndex: 'judgeTipsValue',
+            ellipsis:true,
+
+        },
+        {
+            title: '结果数据',
+            dataIndex: 'resultDataTips',
+            ellipsis:true,
+
+        },
+        {
+            title: '短提示语',
+            dataIndex: 'shortTips',
+            ellipsis:true,
+
+        },
+        {
+            title: '长提示语',
+            dataIndex: 'longTips',
+            ellipsis:true,
+
+        },
+        {
+            title: '图片提示语',
+            dataIndex: 'pictureTips',
+            ellipsis:true,
+
+        },
+        // {
+        //     title: '提示语图片',
+        //     dataIndex: `${judgeParamValue.judgeParamValue}`,
+        //     ellipsis:true,
+        //
+        // },
+        // {
+        //     title: '选择提示语图片',
+        //     dataIndex: `${judgeParamValue.judgeParamValue}`,
+        //     ellipsis:true,
+        //
+        // },
     ]
 //在翻页时存储已选中的表格项
     selectedStorage=[];
@@ -274,6 +378,9 @@ export default class TestType extends Component {
                 data:[],
                 associatedData:[],
                 historyData:[],
+                logicData:[],
+                parametersData:[],
+                promptData:[],
                 //搜索框
                 testTypeName:'',
                 testSetId:null,
@@ -289,6 +396,8 @@ export default class TestType extends Component {
                 //选择框
                 testSetGroup:[],
                 currentId:null,
+
+                judgeMethodId:'',
             });
         }, 1000);
     };
@@ -563,15 +672,43 @@ export default class TestType extends Component {
     }
 
     //查看当前生产判读逻辑
+
     handleLogic=(record)=>{
         console.log('当前生产判读逻辑',record)
+        this.setState({
+            logicVisible:true,
+            testTypeId:record.testTypeId,
+            judgeMethodId:record.judgeMethodId,
+        },()=>{
+            let params={
+                testTypeId:this.state.testTypeId
+            }
+            httpRequest('post','/test/type/judge/list',params)
+                .then(response=>{
+                    console.log("发送的参数",params)
+                    let res=response.data;
+                    if(res.code===1000){
+                        console.log(res.data)
+                        this.setState({
+                            logicData:[{functionMethod:res.data.functionMethod}],
+                            parametersData:res.data.judgeParam,
+                            promptData:res.data.judgeTips,
+                        },()=>{
+                            console.log(this.state.logicData)
+                        })
+                    }
+                }).catch(err => {
+                console.log(err);
+            })
+        })
 
     }
 
     //上传模板
-    uploadTemplete(){
+    uploadTemplete(record){
         this.setState({
             visible_import:true,
+            testTypeId:record.testTypeId,
         })
     }
 
@@ -579,6 +716,7 @@ export default class TestType extends Component {
     handleCancel_import = () => {
         this.setState({
             visible_import:false,
+            testTypeId:null,
         })
     }
 
@@ -624,6 +762,73 @@ export default class TestType extends Component {
             }
         );
     }
+
+
+
+    //修改判读历史数据
+    handleModifyHistory=(record)=>{
+        console.log("修改判读历史数据")
+        console.log(record)
+    }
+    //设置为生产
+    handleProduct=(record)=>{
+        console.log("设置为生产")
+        let params={
+            judgeMethodHisId:record.judgeMethodHisId,
+        }
+        httpRequest('post','/test/type/judge/history/production',params)
+            .then(response=>{
+                if(response.data.code===1004){
+                    //重新请求当前生产判读逻辑
+                }
+            })
+        console.log(params)
+    }
+
+    //删除判读逻辑历史
+    handleDeleteHistory=(record)=>{
+        console.log("删除判读逻辑历史")
+        let params={
+            judgeMethodHisId:record.judgeMethodHisId,
+        }
+        httpRequest('post','/test/type/judge/history/delete',params)
+            .then(response=>{
+                console.log(response.data.code)
+                if(response.data.code===1006){
+                    let params={
+                        page:1,
+                        pageSize:10,
+                        testTypeId:this.state.testTypeId
+                    };
+                    httpRequest('post','/test/type/judge/history/list',params)
+                        .then(response=>{
+                            console.log("发送的参数",params)
+                            let res=response.data;
+                            console.log("回应",res);
+                            if(res.code===1000){
+                                let tempData=[...res.data.info];
+                                for(let i=0;i<tempData.length;i++){
+                                    tempData[i].key=i;
+                                    if(tempData[i].production===true){
+                                        tempData[i].production="生产";
+                                    }
+                                    else {
+                                        tempData[i].production="历史";
+                                    }
+                                }
+                                this.setState({
+                                    historyData:tempData
+                                })
+                            }
+                        }).catch(err => {
+                        console.log(err);
+                    })
+
+                }
+            })
+
+    }
+
     //删除某一行
     handleDelete=(record)=>{
         console.log('删除',record)
@@ -1041,6 +1246,15 @@ export default class TestType extends Component {
         })
     }
 
+//判读参数翻页
+    onChangeParameters=page=>{
+        console.log("判读参数翻页");
+    }
+
+    //判读提示语翻页
+    onChangePrompt=page=>{
+        console.log("判读提示语翻页");
+    }
     //测试集选择框内容
     teoption(){
         return(
@@ -1289,32 +1503,78 @@ export default class TestType extends Component {
                     title="当前生产判读逻辑"
                     visible={this.state.logicVisible}
                     onCancel={this.handleCancel}
+                    width={1400}
                     footer={[
                         <div style={{textAlign:"center"}}>
+                            <Button type="primary" key="generate" onClick={this.handleCancel}>
+                                生成预览
+                            </Button>,
+                            <Button type="primary" key="confirm" onClick={this.handleCancel}>
+                                确定修改
+                            </Button>,
                             <Button key="back" onClick={this.handleCancel}>
                                 取消
                             </Button>,
                         </div>
                     ]}>
                     <div>
-                        <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
-                                onClick={this.Modify}>修改</Button>
-                        <Table
-                            columns={this.associatedcolumns}
-                            dataSource={this.state.associatedData}
-                            rowKey={record => record.key}
-                            bordered={true}
-                            style={{margin:'20px 0'}}
-                            pagination={{
-                                position: ['bottomLeft'] ,
-                                total:this.state.associatedTotal,
-                                showTotal:total => `共 ${total} 条`,
-                                showQuickJumper:true,
-                                showSizeChanger:true,
-                                current:this.state.associatedcurrentPage,
-                                onChange:this.onChangeAssociated,
-                            }}
-                        />
+                        <Form>
+                            <Form.Item>
+                                <label>判读逻辑</label>
+                                <Table
+                                    columns={this.logicColumns}
+                                    //rowSelection={logicRowSelection}
+                                    dataSource={this.state.logicData}
+                                    rowKey={record => record.key}
+                                    bordered={true}
+                                    style={{margin:'20px 0'}}
+                                    pagination={false}
+                                />
+                            </Form.Item>
+                            <Form.Item>
+                                <label>判读参数</label>
+                                <Table
+                                    columns={this.parametersColumns}
+                                    //rowSelection={parametersSelection}
+                                    dataSource={this.state.parametersData}
+                                    rowKey={record => record.key}
+                                    bordered={true}
+                                    style={{margin:'20px 0'}}
+                                    pagination={false}
+                                    // pagination={{
+                                    //     position: ['bottomRight'] ,
+                                    //     total:this.state.parametersTotal,
+                                    //     showTotal:total => `共 ${total} 条`,
+                                    //     showQuickJumper:true,
+                                    //     showSizeChanger:true,
+                                    //     current:this.state.parameterscurrentPage,
+                                    //     onChange:this.onChangeParameters,
+                                    // }}
+                                />
+                            </Form.Item>
+                            <Form.Item>
+                                <label>判读提示语</label>
+                                <Table
+                                    columns={this.promptColumns}
+                                    dataSource={this.state.promptData}
+                                    rowKey={record => record.key}
+                                    bordered={true}
+                                    style={{margin:'20px 0'}}
+                                    pagination={false}
+                                    // pagination={{
+                                    //     position: ['bottomLeft'] ,
+                                    //     total:this.state.promptTotal,
+                                    //     showTotal:total => `共 ${total} 条`,
+                                    //     showQuickJumper:true,
+                                    //     showSizeChanger:true,
+                                    //     current:this.state.promptcurrentPage,
+                                    //     onChange:this.onChangePrompt,
+                                    // }}
+                                />
+                            </Form.Item>
+
+                        </Form>
+
                     </div>
                     <Modal
                         title="修改测试类型数据"
@@ -1424,13 +1684,17 @@ export default class TestType extends Component {
                     </Modal>
                 </Modal>
 
-                {/*导入弹窗*/}
-                <ImportFile
-                    url="http://123.57.33.240:8080/paper/param/pro/import"
-                    visible={this.state.visible_import}
-                    upTitle="判读逻辑"
-                    onCancel={this.handleCancel_import}
-                />
+                <div key={Math.random()}>
+                    {/*导入弹窗*/}
+                    <ImportFile
+                        url="http://123.57.33.240:8080/test/type/judge/model"
+                        visible={this.state.visible_import}
+                        upTitle="判读逻辑"
+                        testTypeId={this.state.testTypeId}
+                        onCancel={this.handleCancel_import}
+                    />
+                </div>
+
             </div>
         )
     }

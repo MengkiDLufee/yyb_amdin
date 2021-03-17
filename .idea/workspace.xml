@@ -4,7 +4,6 @@
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/compenents/importfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/compenents/importfile.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -136,6 +135,12 @@
       <workItem from="1614824152929" duration="13829000" />
       <workItem from="1615106842333" duration="632000" />
       <workItem from="1615201504380" duration="6900000" />
+      <workItem from="1615255756204" duration="2974000" />
+      <workItem from="1615461496765" duration="4424000" />
+      <workItem from="1615514411657" duration="5606000" />
+      <workItem from="1615868819331" duration="4876000" />
+      <workItem from="1615955620172" duration="1874000" />
+      <workItem from="1615993868892" duration="4202000" />
     </task>
     <servers />
   </component>
