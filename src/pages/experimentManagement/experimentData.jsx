@@ -53,7 +53,7 @@ const { Option } = Select;
   const data_modify = [];
   for (let i = 0; i < 77 ; i++) {
     data_modify.push({
-      key:i,
+      key:`${i}${i}`,
       concentration:`${i+10}`,
       exp_num:`${i+7}`,
     })
@@ -63,8 +63,8 @@ const { Option } = Select;
     let newData=[];
     for(let i = 0;i<data.length;i++){
       let newItem = {};
-      newItem.key = data[i].bathNumber;
-      newItem.batch_num = data[i].bathNumber;
+      newItem.key = i;
+      newItem.batch_num = data[i].batchNumber;
       newItem.type = data[i].paperTypeId;
       newItem.r_time = data[i].reactiveTime;
       newItem.made_time = (data[i].madeTime ||"").split('T')[0];
@@ -76,6 +76,7 @@ const { Option } = Select;
       newItem.result = "缺少相应数据";
       newData.push(newItem);
     }
+    console.log(newData)
     return newData;
   }
 
