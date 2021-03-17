@@ -496,26 +496,23 @@ export default class ProjectType extends Component {
                                         }).catch(err => {
                                         console.log(err);
                                     })
-                                    {
-                                        setTimeout(() => {
-                                            form.resetFields();
-                                            this.setState({
-                                                loading: false,
-                                                addVisible: false,
-                                                testTypeId:null,
-                                                currentItem:{
-                                                    key: null,
-                                                    planTypeId:null,//计划类型Id
-                                                    planTypeCode:'',//计划类型code"normal"普通  "prelayegg" 起峰前
-                                                    testTypeName:'',//测试类型名称
-                                                    planTypeName:'',//计划类型名称
-                                                    planTypeValue:null,//计划类型实际值
-                                                    timeout:null,//超时时间
-                                                },
-                                            });
-                                        }, 1000);
-                                    }
-
+                                    setTimeout(() => {
+                                        form.resetFields();
+                                        this.setState({
+                                            loading: false,
+                                            addVisible: false,
+                                            testTypeId:null,
+                                            currentItem:{
+                                                key: null,
+                                                planTypeId:null,//计划类型Id
+                                                planTypeCode:'',//计划类型code"normal"普通  "prelayegg" 起峰前
+                                                testTypeName:'',//测试类型名称
+                                                planTypeName:'',//计划类型名称
+                                                planTypeValue:null,//计划类型实际值
+                                                timeout:null,//超时时间
+                                            },
+                                        });
+                                    }, 1000);
                                 }
                             }).catch(err => {
                             console.log(err);
@@ -616,7 +613,7 @@ export default class ProjectType extends Component {
     form = React.createRef();
 
     render() {
-        const { loading, selectedRowKeys } = this.state;
+        const { loading } = this.state;
 
         const formItemLayout = {
             labelCol: {

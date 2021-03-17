@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Row, Col, Select, Space, Modal, Form,} from 'antd';
+import {Table, Button, Input, Row, Col , Space, Modal, Form,} from 'antd';
 import {SearchOutlined,PlusSquareOutlined,ReloadOutlined} from '@ant-design/icons';
 import httpRequest from "../../http";
 
@@ -373,7 +373,6 @@ export default class TestSet extends Component {
                                         }).catch(err => {
                                         console.log(err);
                                     })
-                                    {
                                         setTimeout(() => {
                                             form.resetFields();
                                             this.setState({
@@ -389,8 +388,6 @@ export default class TestSet extends Component {
                                                 },
                                             });
                                         }, 1000);
-                                    }
-
                                 }
                             }).catch(err => {
                             console.log(err);
@@ -460,7 +457,7 @@ export default class TestSet extends Component {
 
 
     render() {
-        const { loading, selectedRowKeys } = this.state;
+        const { loading } = this.state;
         const formItemLayout = {
             labelCol: {
                 xs: {

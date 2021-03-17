@@ -1,53 +1,16 @@
 .layout {
   height: 100%;
 }
-
-.trigger {
-  font-size: 18px;
-  line-height: 64px;
-  padding: 2px 24px;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.trigger:hover {
-  color: #ffffff;
-  margin-top: 0;
-}
-.header-top {
-  background:#f05d73;
-  height:60px;
-  line-height: 60px;
-  // border-bottom: 1px solid white;
-}
-.header-bottom {
-  width: 100%;
-  line-height: 60px;
-}
-
-.logo {
-  height: 6.5%;
-  width: 100%;
-  background: rgba(255, 255, 255, 0.2);
-  font-size: 30px;
-  text-align: center;
-  
-
-}
-
-.site-layout .site-layout-background {
-  background: #fff;
+.layout-all{
+  height: 100%;
+  overflow-y: hidden;
+  min-height: 1030px;
 }
 
 
-.left-nav {
-    background-color:#f05d73 ;
-    padding-bottom: 80px;
-}
-
-.ant-layout-content {
-  min-height: auto;
-}
+// .ant-layout-content {
+//   min-height: auto;
+// }
 
 
 .ant-pagination-item-active a {
@@ -91,22 +54,11 @@
   -webkit-transition: color 0.3s;
   transition: color 0.3s;
 }
-//滚动条隐藏
+//滚动条隐藏,滚动条17px
 
-.outer {
-  width: 100%;
-  height: 100%;
-	position: relative;
-  overflow: hidden;
-  padding-bottom: 100px;
-}
-.inner {
-  position: absolute;
-	left: 0;
-	top: 0;
-	right: -17px;
-	bottom: 0;
-	overflow-x: hidden;
-  overflow-y: scroll;
-  padding-bottom: 80px;
+
+
+.ant-menu-item{
+  display: block;
+  padding: 0;
 }

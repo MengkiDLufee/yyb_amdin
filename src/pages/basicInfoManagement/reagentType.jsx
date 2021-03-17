@@ -1178,7 +1178,7 @@ export default class ReagentType extends Component {
             selectedRowKeys: selectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
             onChange: this.onSelectChange,
         };
-        const hasSelected = selectedRowKeys.length > 0;
+        // const hasSelected = selectedRowKeys.length > 0;
 
         const formItemLayout = {
             labelCol: {
@@ -1385,8 +1385,8 @@ export default class ReagentType extends Component {
                                        name="qualitativeOper"
                                        rules={[{required:true,message:"必选项不能为空"}]}>
                                 <Select placeholder="请选择定性阳性比较">
-                                    <Option value=">="> >=</Option>
-                                    <Option value=">"> > </Option>
+                                    <Option value=">="> &gt;=</Option>
+                                    <Option value=">"> &gt; </Option>
                                     <Option value="&#60;=">  &#60;= </Option>
                                     <Option value="&#60;"> &#60; </Option>
                                 </Select>
@@ -1564,8 +1564,8 @@ export default class ReagentType extends Component {
                                        name="qualitativeOper"
                                        rules={[{required:true,message:"必选项不能为空"}]}>
                                 <Select placeholder="请选择定性阳性比较">
-                                    <Option value=">="> >=</Option>
-                                    <Option value=">"> > </Option>
+                                    <Option value=">="> &gt;=</Option>
+                                    <Option value=">"> &gt; </Option>
                                     <Option value="&#60;=">  &#60;= </Option>
                                     <Option value="&#60;"> &#60; </Option>
                                 </Select>

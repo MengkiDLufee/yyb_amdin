@@ -11,7 +11,10 @@ import {
 } from '@ant-design/icons'
 
 import './index.less'
-import {exp_list} from '../../api/index'
+import {
+    expList,
+    getPaper
+  } from '../../api/index'//接口
 
 
 
@@ -21,85 +24,102 @@ const { Option } = Select;
 
 
  //主页面表格数据
-  const data = [];
-  for (let i = 0; i < 46; i++) {
-    if(i%2 !== 0)
-    {data.push({
-      key: i,
-      batch_num: `${i}`,
-      type: `类型 ${i}`,
-      r_time:`33`,
-      time: `2020-00-00 11.11.11`,
-      exper:`test${i}`,
-      state:`正常`,
-      result :`测试通过 `,
-    });} else {
-      data.push({
-        key: i,
-        batch_num: `${i}`,
-        type: `类型 ${i}`,
-        r_time:`66`,
-        time: `2020-00-00 11.11.11`,
-        exper:`test${i}`,
-        state:`异常`,
-        result :`测试不通过 `,
-      });
-    }
-  }
+  // const data = [];
+  // for (let i = 0; i < 46; i++) {
+  //   if(i%2 !== 0)
+  //   {data.push({
+  //     key: i,
+  //     batch_num: `${i}`,
+  //     type: `类型 ${i}`,
+  //     r_time:`33`,
+  //     time: `2020-00-00 11.11.11`,
+  //     exper:`test${i}`,
+  //     state:`正常`,
+  //     result :`测试通过 `,
+  //   });} else {
+  //     data.push({
+  //       key: i,
+  //       batch_num: `${i}`,
+  //       type: `类型 ${i}`,
+  //       r_time:`66`,
+  //       time: `2020-00-00 11.11.11`,
+  //       exper:`test${i}`,
+  //       state:`异常`,
+  //       result :`测试不通过 `,
+  //     });
+  //   }
+  // }
 //使用人员弹窗表格数据
   const data_modify = [];
   for (let i = 0; i < 77 ; i++) {
     data_modify.push({
-      key:i,
+      key:`${i}${i}`,
       concentration:`${i+10}`,
       exp_num:`${i+7}`,
     })
+  }
+  
+  function transformData(data){
+    let newData=[];
+    for(let i = 0;i<data.length;i++){
+      let newItem = {};
+      newItem.key = i;
+      newItem.batch_num = data[i].batchNumber;
+      newItem.type = data[i].paperTypeId;
+      newItem.r_time = data[i].reactiveTime;
+      newItem.made_time = (data[i].madeTime ||"").split('T')[0];
+      newItem.test_time = (data[i].testDate||"").split('T')[0];
+      newItem.start_time = (data[i].startDate||"").split('T')[0];
+      newItem.end_time = (data[i].endDate||"").split('T')[0];
+      newItem.exper = data[i].personId;
+      newItem.state = data[i].testStatus;
+      newItem.result = "缺少相应数据";
+      newData.push(newItem);
+    }
+    console.log(newData)
+    return newData;
   }
 
 
 
 export default class ExperimentData extends Component {
-    state = { 
-        visible_add: false ,//添加弹窗
-        visible_modify :false,//修改弹窗
-        visible_static:false,//修改弹窗中修改数据弹窗
-        selectedRowKeys: [], // Check here to configure the default column
-        paginationProps : {//分页栏参数
-          position: ['bottomLeft'] ,
-          total:'data.length',
-          showTotal:total => `共 ${total} 条`,
-          showQuickJumper:true,
-          showSizeChanger:true,
-        },
-        current:1,//当前页数
-        pageSize:10,//当前页面条数
+  constructor(){
+    super();
+    this.state = { 
+      visible_add: false ,//添加弹窗
+      visible_exp_result: false,//查看实验结果弹窗
+      visible_modify :false,//修改弹窗
+      visible_static:false,//修改弹窗中修改数据弹窗
+      selectedRowKeys: [], // Check here to configure the default column
+      //主页面表格
+      tableData:[],//表格数据
+      total:null,//数据总条数
+      current:1,//当前页数
+      pageSize:10,//当前页面条数
+      //搜索栏输入选择框的值
+     input:{
+      batch:'',//批号
+      type:'',//试剂类型
+      exper:'',//实验人员
+     },
+     paperType:[],//试剂类型数据
+      //修改弹窗
+      modal:{
+        batch:'',
+        type:'',
+        r_time:'',
+        exper:''
+      },
+      //修改实验数据
+      static: {
+        concentration:'',
+        exp_num:'',
+      }
+    };
+    this.reset = this.reset.bind(this)
+    this.handTablechange = this.handTablechange.bind(this)
+  }
   
-        paginationProps_modify : {//修改弹窗分页栏参数
-          position: ['bottomLeft'] ,
-          total:'data.length',
-          showTotal:total => `共 ${total} 条`,
-          showQuickJumper:true,
-          showSizeChanger:true,
-        },
-        //s搜索栏输入选择框的值
-       input:{
-        batch:'',//批号
-        type:'',//试剂类型
-        exper:'',//实验人员
-       },
-        //修改弹窗
-        modal:{
-          batch:'',
-          type:'',
-          r_time:'',
-          exper:''
-        },
-        //修改实验数据
-        static: {
-          concentration:'',
-          exp_num:'',
-        }
-      };
      
       columns = [
         {
@@ -114,6 +134,12 @@ export default class ExperimentData extends Component {
           dataIndex: 'type',
           width: 150,
           align:'center',
+          render: type=>{
+            return this.state.paperType.map(paper=>{
+              if(paper.id===type)return paper.name
+              else return null
+            })
+          }
         },
         {
           title: '反应时间',
@@ -125,25 +151,25 @@ export default class ExperimentData extends Component {
     
         {
           title: '生产时间',
-          dataIndex: 'time',
-          width: 100,
+          dataIndex: 'made_time',
+          width: 150,
           align:'center',
         },
         {
           title: '测试时间',
-          dataIndex: 'time',
+          dataIndex: 'test_time',
           width: 150,
           align:'center',
         },
         {
           title: '开始时间',
-          dataIndex: 'time',
+          dataIndex: 'start_time',
           width: 150,
           align:'center',
         },
         {
           title: '结束时间',
-          dataIndex: 'time',
+          dataIndex: 'end_time',
           width: 100,
           align:'center',
         },
@@ -164,6 +190,11 @@ export default class ExperimentData extends Component {
           dataIndex: 'result',
           width: 100,
           align:'center',
+          render:(record) => (
+            <Space>
+              <p style={{cursor: 'pointer'}} onClick={this.exp_result} >查看实验结果</p>
+            </Space>
+          )
         },
         {
           title: '操作',
@@ -209,6 +240,28 @@ export default class ExperimentData extends Component {
             ),
           }
       ]
+    //组件挂载时请求数据
+    componentDidMount(){
+      //请求表格数据
+      expList({
+        page:1,
+        pageSize:10
+      }).then(res=>{
+        console.log(res)
+        let data = transformData(res.data.data.info)
+        this.setState({
+          tableData:data,
+          total:res.data.data.total,
+        })
+      })
+
+      getPaper().then(res=>{
+        console.log(res)
+        this.setState({
+          paperType:res.data.data.paperType
+        })
+      })
+    }
 
     start = () => {
         // ajax request after empty completing
@@ -227,11 +280,12 @@ export default class ExperimentData extends Component {
         )
       };
     //批号输入框
-    batchChange = (e) => {
-      console.log(e.target.value)
-      this.setState({
-       input:Object.assign(this.state.input,{batch:e.target.value})
-      })
+    batchChange = (value) => {
+      // console.log(e.target.value)
+      // this.setState({
+      //  input:Object.assign(this.state.input,{batch:e.target.value})
+      // })
+      console.log(value)
      }
     //搜索栏实验人员选择框
     experChange = (e) => {
@@ -252,26 +306,31 @@ export default class ExperimentData extends Component {
     };
     //重置
     reset = () => {
-      console.log('重置')
+      console.log('重置',this.state.current,this.state.pageSize)
       let data = Object.assign(this.state.input,{
         batch:'',
         type:'',
         exper:undefined,
       })
-      this.setState(
-        {
+      this.setState({
           selectedRowKeys:[],
           input:data,
-        },
-      )
-      exp_list({
+          current:1,
+          pageSize:10,
+        })
+      expList({
         page:1,
-        pageSize:20
+        pageSize:10
       }).then(res=>{
         console.log(res)
       })
       .catch(err => {
         console.log(err)
+      })
+
+      getPaper()
+      .then(res=>{
+        console.log(res)
       })
     };
     //添加
@@ -317,6 +376,22 @@ export default class ExperimentData extends Component {
       });
       console.log('添加关闭')
     };
+    //查看实验结果
+    exp_result = () => {
+      this.setState({
+        visible_exp_result: true
+      })
+    }
+    handleOk_exp_result= () =>{
+      this.setState({
+        visible_exp_result: false
+      })
+    }
+    handleCancel_exp_result= () =>{
+      this.setState({
+        visible_exp_result: false
+      })
+    }
     //修改
     modify = (record)=> {
       console.log('修改',record)
@@ -370,16 +445,23 @@ export default class ExperimentData extends Component {
         visible_static:false,
       })
     }
-    //表格页数变化
+    //主页面表格页数变化
     handTablechange = (pagination) =>{
-      console.log(pagination)
-      // let C = pagination.current
-      // let P = pagination.pageSize
-      this.setState = ({
-        current:pagination.current,
-        pageSize:pagination.pageSize
+      console.log(pagination,pagination.current,pagination.pageSize);
+      console.log(this.state.current,this.state.pageSize);
+      
+      expList({
+        page:pagination.current,
+        pageSize:pagination.pageSize,
+      }).then(res=>{
+        let data = transformData(res.data.data.info)
+        console.log(data)
+        this.setState({ 
+          current:pagination.current,
+          pageSize:pagination.pageSize,
+          tableData:data,
+        })
       })
-      console.log(this.state.current,this.state.pageSize,this.state)   
     };
 
     //使用人员表格变化
@@ -407,7 +489,12 @@ export default class ExperimentData extends Component {
     form = React.createRef();
 
     render() {
-    const { selectedRowKeys } = this.state;
+    const { 
+      selectedRowKeys,
+      paperType,
+      tableData ,
+      total
+    } = this.state;
     const rowSelection = {
         selectedRowKeys,
         onChange: this.onSelectChange,
@@ -419,13 +506,27 @@ export default class ExperimentData extends Component {
               <div style={{'margin':'0 0 15px  0'}} >
                 <div justify="space-between" gutter="15" style={{display:"flex" }}  >
                         <Input  placeholder="批号" className="input1" onChange={this.batchChange.bind(this)} value={this.state.input.batch} />
-                        <Input  placeholder="试剂类型" className="input1" onChange={this.typeChange.bind(this)} value={this.state.input.type} />
-                        <Select placeholder="实验人员"   
-                                onChange={this.experChange} 
-                                className="input1" 
-                                vulue={this.state.input.exper}
-                                allowClear 
-                                >
+                        {/* <Input  placeholder="试剂类型" className="input1" onChange={this.typeChange.bind(this)} value={this.state.input.type} /> */}
+                        <Select 
+                          placeholder="试剂类型"   
+                          onChange={this.batchChange}
+                          className="input1"
+                          dropdownStyle={{width:'300px'}}
+                          allowClear 
+                        >
+                            {
+                              paperType.map(paper=>{
+                                return <Option key={paper.id} value={paper.id} >{paper.name}</Option>
+                              })
+                            }
+                        </Select>
+                        <Select
+                          placeholder="实验人员"   
+                          onChange={this.experChange} 
+                          className="input1" 
+                          vulue={this.state.input.exper}
+                          allowClear 
+                        >
                             <Option value="on">已激活</Option>
                             <Option value="close">未激活</Option>
                         </Select>
@@ -489,11 +590,19 @@ export default class ExperimentData extends Component {
                 <div style={{height:"100%"}}>
                   <Table 
                    columns={this.columns} 
-                  dataSource={data} 
+                  dataSource={tableData} 
                   bordered={true} 
                   rowSelection={rowSelection}
                   style={{margin:'20px 0',borderBottom:'1px,soild'}}
-                  pagination={ this.state.paginationProps}
+                  pagination={{
+                    position: ['bottomLeft'] ,
+                    total:total,
+                    showTotal:total => `共 ${total} 条`,
+                    showQuickJumper:true,
+                    showSizeChanger:true,
+                    current:this.state.current,
+                    pageSize:this.state.pageSize,
+                  }}
                   onChange={this.handTablechange}
                   
                   />
@@ -609,6 +718,21 @@ export default class ExperimentData extends Component {
                       </Form>
                     </div>
                 </Modal>
+               {/* 查看实验结果弹窗 */}
+                <Modal
+                  title="修改"
+                  centered
+                  visible={this.state.visible_exp_result}
+                  onOk={this.handleOk_exp_result}
+                  okText="确定"
+                  onCancel={this.handleCancel_exp_result}
+                  cancelText="关闭"
+                  width="700px"
+                >
+                  <div className="ant-modal-body">
+                        查看实验结果
+                  </div>
+                </Modal>
                 {/* 修改弹窗 */}i
                 <Modal
                   title="修改"
@@ -618,7 +742,7 @@ export default class ExperimentData extends Component {
                   okText="确定"
                   onCancel={this.handleCancel_modify}
                   cancelText="关闭"
-                  width="600px"
+                  width="700px"
                 >
                   <div className="ant-modal-body">
                         <div style={{fontWeight:'bold',marginTop:"-20px"}}>
@@ -645,7 +769,13 @@ export default class ExperimentData extends Component {
                                 dataSource={data_modify} 
                                 bordered={true}      
                                 style={{margin:'20px 0',borderBottom:'1px,soild'}}
-                                pagination={ this.state.paginationProps_modify}
+                                pagination={{
+                                  position: ['bottomLeft'] ,
+                                  total:'data.length',
+                                  showTotal:total => `共 ${total} 条`,
+                                  showQuickJumper:true,
+                                  showSizeChanger:true,
+                                }}
                                 onChange={this.handTablechange_modify}
                                 size="small"
                             />

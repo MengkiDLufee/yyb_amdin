@@ -10,7 +10,7 @@ import {message} from 'antd'
 
 const baseUrl = 'http://java.xixibackup.me:8080'
 
-export default function ajax(url, data={},type='GET') {//默认空对象，get请求方式
+export default function ajax(url, data={},type='GET',config) {//默认空对象，get请求方式
     return new Promise((resolve , reject) => {
         let promise
         //1.执行ajax请求
@@ -19,7 +19,7 @@ export default function ajax(url, data={},type='GET') {//默认空对象，get�
                 params: data  //指定请求参数
             })
         } else {//post请求
-            promise = axios.post (baseUrl + url, data)
+            promise = axios.post (baseUrl + url, data,config)
         }
         //2.请求成功，调用resoleve
         promise.then(res => {

@@ -84,8 +84,48 @@ export default class DeviceManagement extends Component {
 
   constructor(props){
     super(props);
-      //参数设置
-  this.onSelectChange = this.onSelectChange.bind(this);
+    this.state = { 
+      data:data,
+      data_user:data_user,
+      visible:false,
+      visible_add: false ,
+      visible_modify :false,
+      visible_user :false,
+      visible_import:false,
+      selectedRowKeys: [], // Check here to configure the default column
+      //主页面表格页数和数据条数
+      current:1,
+      pageSize:10,
+      paginationProps_user : {//使用人员分页栏参数
+
+      },
+      devCode:undefined,//历史人员弹窗中的设备码
+      //输入选择框的值
+      input:{
+        client:'',
+        active:undefined,
+        type:undefined,
+        state:undefined,
+      },
+  
+      //修改弹窗
+      modal:{
+        dev_code:'',//设备码
+        dev_num:'',//设备号
+        hard_ed:'1.0',//硬件版本
+        soft_ed:'1.0',//软件版本
+        refresh_time:'2020-11-11',//软件更新时间
+        bluetooth:'1234',//蓝牙密码
+        is_valid:null,//是否可用
+        is_on:null,//是否激活
+        is_share:null,//是否共享
+        correct:1,//矫正倍数
+        time:'2020/11/11',//激活时间
+      },
+      justify_modal:null,
+    }
+    //参数设置
+    this.onSelectChange = this.onSelectChange.bind(this);
     
   /*表单验证
     Form.useForm是是 React Hooks 的实现，只能用于函数组件
@@ -94,58 +134,7 @@ export default class DeviceManagement extends Component {
   this.form = React.createRef();
   this.form_modify = React.createRef();
   }
-  state = { 
-    data:data,
-    data_user:data_user,
-    visible:false,
-    visible_add: false ,
-    visible_modify :false,
-    visible_user :false,
-    visible_import:false,
-    selectedRowKeys: [], // Check here to configure the default column
-    paginationProps : {//分页栏参数
-      position: ['bottomLeft'] ,
-      total:'data.length',
-      showTotal:total => `共 ${total} 条`,
-      showQuickJumper:true,
-      showSizeChanger:true,
-      current:1,//当前页数
-      pageSize:10,//当前页面条数
-    },
-    paginationProps_user : {//使用人员分页栏参数
-      position: ['bottomLeft'] ,
-      total:'data.length',
-      showTotal:total => `共 ${total} 条`,
-      showQuickJumper:true,
-      showSizeChanger:true,
-      current:1,
-      pageSize:10,
-    },
-    devCode:undefined,//历史人员弹窗中的设备码
-    //输入选择框的值
-    input:{
-      client:'',
-      active:undefined,
-      type:undefined,
-      state:undefined,
-    },
 
-  //修改弹窗
-  modal:{
-    dev_code:'',//设备码
-    dev_num:'',//设备号
-    hard_ed:'1.0',//硬件版本
-    soft_ed:'1.0',//软件版本
-    refresh_time:'2020-11-11',//软件更新时间
-    bluetooth:'1234',//蓝牙密码
-    is_valid:null,//是否可用
-    is_on:null,//是否激活
-    is_share:null,//是否共享
-    correct:1,//矫正倍数
-    time:'2020/11/11',//激活时间
-  },
-  justify_modal:null,
-}
   
 
 //表格栏
@@ -318,6 +307,8 @@ columns_user = [
       {
         selectedRowKeys:[],
         input:data,
+        current:1,
+        pageSize:10,
       },
     )
   };
@@ -376,8 +367,10 @@ columns_user = [
   //按搜索条件导出
   exportSearch = () =>{
     console.log('按搜索条件导出',this.state.input)
-    // Export1('/user/base/info/export/condition',{})
-    exportFile('/user/base/info/export/condition',{})
+    // exportFile('http://java.xixibackup.me:8080/device/manage/info/export/condition',{})
+    // exportFile('/device/manage/info/export/condition',{})
+    exportFile('/device/manage/info/export/choose',[2048])
+
     
   };
   //修改
@@ -477,13 +470,12 @@ columns_user = [
     })
   }
 
-//表格翻页
+//主页面表格翻页
   handTablechange = (pagination) =>{
-     Object.assign(this.state.paginationProps,{
+     this.setState({
       pageSize:pagination.pageSize,
       current:pagination.current
     })
-    console.log(this.state.paginationProps);
     let params = {};
     params.current = pagination.current;
     params.pageSize = pagination.pageSize;
@@ -492,10 +484,6 @@ columns_user = [
   //使用人员表格变化
   handTablechange_user = (pagination) =>{
     console.log(pagination)
-    Object.assign(this.state.paginationProps_user,{
-      current:pagination.current,
-      pageSize:pagination.pageSize,
-    })
     let params = {};
     params.pageSize = pagination.pageSize;
     params.current = pagination.current;
@@ -631,7 +619,15 @@ columns_user = [
                     bordered={true} 
                     rowSelection={rowSelection}
                     style={{margin:'20px 0',borderBottom:'1px,soild'}}
-                    pagination={ this.state.paginationProps}
+                    pagination={{
+                      position: ['bottomLeft'] ,
+                      total:'data.length',
+                      showTotal:total => `共 ${total} 条`,
+                      showQuickJumper:true,
+                      showSizeChanger:true,
+                      current:this.state.current,//当前页数
+                      pageSize:this.state.pageSize,//当前页面条数
+                    }}
                     onChange={this.handTablechange}
                     // size="middle"
                   />
@@ -966,7 +962,13 @@ columns_user = [
                       dataSource={data_user} 
                       bordered={true}      
                       style={{margin:'20px 0',borderBottom:'1px,soild'}}
-                      pagination={ this.state.paginationProps_user}
+                      pagination={{
+                        position: ['bottomLeft'] ,
+                        total:'data.length',
+                        showTotal:total => `共 ${total} 条`,
+                        showQuickJumper:true,
+                        showSizeChanger:true,
+                      }}
                       onChange={this.handTablechange_user}
                       size="small"
                       />

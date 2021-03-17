@@ -10,7 +10,7 @@ function exportFile(url,data,filename) {
                 let blob = new Blob([response.data],{type: 'application/vnd.ms-excel;charset=utf-8'});
                 link.style.display = 'none';
                 link.href = URL.createObjectURL(blob);//下载链接
-                link.setAttribute('download', `${filename}`+ '.xlsx');
+                link.setAttribute('download', `${filename}.xlsx`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
