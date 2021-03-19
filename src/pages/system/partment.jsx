@@ -1,25 +1,24 @@
 import React, { Component } from 'react'
 import {
   Table,
-  DatePicker,
   Button,
   Input,
   Row,
   Col,
+  Space,
+  Tree,
 } from 'antd'
 import {
-  SearchOutlined,
-  ReloadOutlined,
+  SearchOutlined,  
+  ExportOutlined,
+  PlusOutlined,
+  DownOutlined,
 } from '@ant-design/icons'
-import locale from 'antd/lib/date-picker/locale/zh_CN';
-const { RangePicker } = DatePicker;
 
- //主页面表格数据
- const data = [];
- 
 export default class Partment extends Component {
 
   state = {
+    selectedRowKeys: [],
     card_type:undefined,
     test_time:undefined,
     paginationProps : {//分页栏参数    
@@ -27,68 +26,165 @@ export default class Partment extends Component {
       showSizeChanger:true,
     },
   }
+  onSelectChange = selectedRowKeys => {    
+    this.setState({ selectedRowKeys });
+  };
 //列表名称
   columns =[
     {
-      title:'账号',
+      title:'部门名称',
       dataIndex:'account',
       width:200,
       align:'center'
     },   
     {
-      title:'姓名',
+      title:'部门全称',
       dataIndex:'name',
       width:200,
       align:'center'
     },    
     {
-      title:'部门',
+      title:'排序',
       dataIndex:'department',
       width:200,
       align:'center',
     },
     {
-      title:'职位',
+      title:'备注',
       dataIndex:'position',
       width:200,
       align:'center',
+    },    
+    {
+      title:'操作',
+      dataIndex:'name',
+      width:200,
+      align:'center',
+      render:(text,record) => (
+        <Space >
+            <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.modify(record)}}>修改</Button>
+            <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{this.delete(record)}}>删除</Button>            
+        </Space>
+      ),
     },
-    {
-      title:'电话',
-      dataIndex:'name',
-      width:200,
-      align:'center'
-    },  
-    {
-      title:'创建时间',
-      dataIndex:'name',
-      width:200,
-      align:'center'
-    },  
   ];
 
-  render() {
+  render() {    
+    const { selectedRowKeys } = this.state;
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: this.onSelectChange,
+    };  
+//主页面表格数据
+    const data = [
+      {        
+        name: '胡彦斌',
+        account: 32,
+        department: '西湖区湖底',
+      },
+      {
+        key: '2',
+        name: '胡彦祖',
+        age: 42,
+        address: '西湖区湖底',
+      },
+      {        
+        name: '胡彦斌',
+        account: 32,
+        department: '西湖区湖底',
+      },
+      {
+        key: '2',
+        name: '胡彦祖',
+        age: 42,
+        address: '西湖区湖底',
+      },
+      {        
+        name: '胡彦斌',
+        account: 32,
+        department: '西湖区湖底',
+      },
+      {
+        key: '2',
+        name: '胡彦祖',
+        age: 42,
+        address: '西湖区湖底',
+      },
+      {        
+        name: '胡彦斌',
+        account: 32,
+        department: '西湖区湖底',
+      },
+      {
+        key: '2',
+        name: '胡彦祖',
+        age: 42,
+        address: '西湖区湖底',
+      },
+    ];
+    //树形控件列表
+    const treeData = [
+      {
+        title: '顶级',
+        key: '0-0',      
+        children: [
+          {
+            title: '总公司',
+            key: '0-0-0', 
+            children:[
+              {
+                title: '开发部',
+                key: '0-0-1',         
+              },
+              {
+                title: '客服部',
+                key: '0-0-2',         
+              },
+              {
+                title: '销售部',
+                key: '0-0-3',         
+              },
+              {
+                title: '生产部',
+                key: '0-0-4',         
+              },
+              {
+                title: '质检',
+                key: '0-0-5',         
+              },
+            ]        
+          },      
+        ],
+      },
+      ];
     return (
       <div style={{height:'100%'}}>
+        <Row>
+            {/* 树形控件 */}
+          <Col span={4}>           
+          <Tree
+            showIcon
+            defaultExpandAll
+            defaultSelectedKeys={['0-0-0']}
+            switcherIcon={<DownOutlined />}
+            treeData={treeData}
+          />
+          </Col>
+        {/* 右边表格主体 */}
+        <Col span={20}>
         {/* 搜索栏 */}
         <div style={{'margin':'0 0 15px  0'}}>
-            <Row gutter={{xs:8,sm:16,md:24,lg:32}}>
-            <Col span={4}>
+          <Row gutter={{xs:8,sm:16,md:24,lg:32}}>
+            <Col span={3}>
                 <Input 
-                  placeholder="账号/姓名/电话"
+                  placeholder="部门名称"
                   onChange={this.typeChange}
                   value={this.state.card_type}
                   className="input2"
                 >              
                 </Input>
-            </Col>
-            <Col span={6}>
-                <RangePicker 
-                  locale={locale}
-                  showTime                        
-                />
-            </Col>
-            <Col span={3}>
+            </Col>           
+            <Col>
                 <Button
                   type="primary"
                   icon={<SearchOutlined />}
@@ -98,28 +194,40 @@ export default class Partment extends Component {
                   搜索
                 </Button>
             </Col>
-            <Col span={3}>
+            <Col>
                 <Button 
                   type="primary"
-                  icon={<ReloadOutlined/> }
+                  icon={<PlusOutlined/> }
                   className="button3"
                   onClick={this.reset}
                 >
-                  重置
+                  添加
                 </Button>
             </Col>
-            </Row>         
+            <Col>
+                <Button 
+                  type="primary"                                
+                  onClick={this.reset}
+                  icon={<ExportOutlined/>}    
+                >
+                  导出
+                </Button>
+            </Col>
+          </Row>         
         </div>
         {/* 表格 */}
         <Table 
           columns={this.columns}
           dataSource={data}
           bordered={true}
-          style={{margin:'20px 0',borderBottom:'1px,soild'}}
-          pagination={ this.state.paginationProps}
-          onChange={this.handTablechange}
+          style={{margin:'20px 0'}}
+          pagination={ this.state.paginationProps}  
+          rowSelection={rowSelection}        
         />
-      </div>
+        </Col>     
+        </Row>
+      </div> 
+       
     )
   }
 }
