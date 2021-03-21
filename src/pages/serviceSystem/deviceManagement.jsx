@@ -1000,7 +1000,7 @@ export default class DeviceManagement_Serve extends Component {
             }
         }
         //console.log("request:",data);
-        ajax("/customer/managment/list",data,'POST')
+        ajax("/device/managment/list",data,'POST')
             .then((response)=>{
                 //console.log(response);
                 if(response.code=="1000"){
@@ -1016,7 +1016,7 @@ export default class DeviceManagement_Serve extends Component {
                         paginationProps:paginationProps,
                     });
                 }else{
-                    console.log("/customer/managment/list error!")
+                    console.log("/device/managment/list error!")
                     console.log(response);
                 }
             });

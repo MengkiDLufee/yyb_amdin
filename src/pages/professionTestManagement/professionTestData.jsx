@@ -1043,13 +1043,13 @@ export default class ProfessionTestData extends Component {
     columns = [
         {
             title:'医生电话',
-            dataIndex:'loginAccount',
+            dataIndex:'uloginAccount',
             width:150,
             align:'center',
         },
         {
             title:'医生姓名',
-            dataIndex:'loginName',
+            dataIndex:'uloginName',
             width:150,
             align:'center',
         },

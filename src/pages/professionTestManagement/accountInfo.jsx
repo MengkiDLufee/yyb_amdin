@@ -42,6 +42,15 @@ class Modal3 extends Component{
             },
         },
         {
+            title: '设备码',
+            dataIndex: 'deviceCode',
+            width:150,
+            sorter: {
+                compare: (a, b) => a.deviceCode - b.deviceCode,
+                multiple: 3,
+            },
+        },
+        {
             title: '正在使用',
             dataIndex: 'userFlag',
             width: 150,
@@ -49,11 +58,11 @@ class Modal3 extends Component{
                 compare: (a, b) => a.userFlag - b.userFlag,
                 multiple: 2,
             },
-            render:(text,record)=>(
-                <>
-                    {changeData(text,["1","0"],["使用中",""])}
-                </>
-            ),
+            // render:(text,record)=>(
+            //     <>
+            //         {changeData(text,["1","0"],["使用中",""])}
+            //     </>
+            // ),
         },
         {
             title: '绑定时间',
@@ -66,10 +75,10 @@ class Modal3 extends Component{
         },
         {
             title: '终止时间',
-            dataIndex: 'unBindTime',
+            dataIndex: 'unbindTime',
             width: 150,
             sorter: {
-                compare: (a, b) => a.unBindTime - b.unBindTime,
+                compare: (a, b) => a.unbindTime - b.unbindTime,
                 multiple: 2,
             },
         },
@@ -94,6 +103,7 @@ class Modal3 extends Component{
     onSelectChange = row => {
         console.log('所选择行',row)
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+
         this.setState(
             {selectedRowKeys:row}
         )
@@ -129,6 +139,7 @@ class Modal3 extends Component{
         this.setState(
             {
                 selectedRowKeys:[],
+                selectedIDs:[],
                 input:data,
             },
         )
@@ -146,10 +157,11 @@ class Modal3 extends Component{
             }
         }
         console.log("record",this.props.record);
-        data.loginId=this.props.record.loginId;
-        let url="/exam/login/hisdevice";
+        data.uloginId=this.props.record.uloginId;
+        let url="/exam/login/history/device";
         //console.log("request:",data);
-        ajax(url,data,'POST')
+        url = url+"/"+data.uloginId+"/"+data.page+"/"+data.pageSize;
+        ajax(url,{},'get')
             .then((response)=>{
                 console.log("response:",response);
                 if(response.data.data==null)
@@ -210,6 +222,7 @@ class Modal3 extends Component{
             showSizeChanger:true,
         },
         selectedRowKeys:[],
+        selectedIDs:[],
         data:[
             //     {
             //     key:1,
@@ -385,7 +398,7 @@ class Modal2 extends Component{
                         >
                             <Form.Item
                                 label="医生姓名"
-                                name="loginName"
+                                name="uloginName"
                                 rules={[
                                     {
                                         required: true,
@@ -393,16 +406,16 @@ class Modal2 extends Component{
                                     },
                                 ]}
                             >
-                                <Input onChange={(e)=>{this.inputChange(e,"loginName")}}
-                                       value={this.state.input.loginName}
+                                <Input onChange={(e)=>{this.inputChange(e,"uloginName")}}
+                                       value={this.state.input.uloginName}
                                 />
                             </Form.Item>
                             <Form.Item
                                 label="医生用户"
-                                name="loginAccount"
+                                name="uloginAccount"
                                 rules={[{ required: true ,message:"请输入医生用户"}]}//设置验证规则
                             >
-                                <Input    onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
+                                <Input    onChange={(e)=>{this.inputChange(e,"uloginAccount")}} value={this.state.input.uloginAccount}/>
                             </Form.Item>
                             <Form.Item label="备注"
                                        name="remark"
@@ -537,7 +550,7 @@ class Modal1 extends Component{
                         >
                             <Form.Item
                                 label="医生姓名"
-                                name="loginName"
+                                name="uloginName"
                                 rules={[
                                     {
                                         required: true,
@@ -545,23 +558,23 @@ class Modal1 extends Component{
                                     },
                                 ]}
                             >
-                                <Input onChange={(e)=>{this.inputChange(e,"loginName")}}
-                                       value={this.state.input.loginName}
+                                <Input onChange={(e)=>{this.inputChange(e,"uloginName")}}
+                                       value={this.state.input.uloginName}
                                 />
                             </Form.Item>
                             <Form.Item
                                 label="医生用户"
-                                name="loginAccount"
+                                name="uloginAccount"
                                 rules={[{ required: true ,message:"请输入医生用户"}]}//设置验证规则
                             >
-                                <Input    onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
+                                <Input    onChange={(e)=>{this.inputChange(e,"uloginAccount")}} value={this.state.input.uloginAccount}/>
                             </Form.Item>
                             <Form.Item label="密码"
-                                       name="loginPwd"
+                                       name="ulonginPwd"
                                        rules={[
                                            {required:true,message:'请输入密码！',},
                                        ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"loginPwd")}} value={this.state.input.loginPwd}/>
+                                <Input onChange={(e)=>{this.inputChange(e,"uloginPwd")}} value={this.state.input.uloginPwd}/>
                             </Form.Item>
                             <Form.Item label="备注"
                                        name="remark"
@@ -587,50 +600,50 @@ export default class AccountInfo extends Component {
     columns = [
         {
             title:'医生用户',
-            dataIndex:'loginAccount',
-            width:150,
+            dataIndex:'uloginAccount',
+            width:80,
             align:'center',
         },
         {
             title:'医生ID',
-            dataIndex:'loginId',
-            width:150,
+            dataIndex:'uloginId',
+            width:100,
             align:'center',
         },
         {
             title:'医生姓名',
-            dataIndex:'loginName',
-            width:150,
+            dataIndex:'uloginName',
+            width:60,
             align:'center',
         },
         {
             title:'备注',
             dataIndex:'remark',
-            width:150,
+            width:80,
             align:'center',
         },
         {
             title:'创建时间',
             dataIndex:'insertDate',
-            width:150,
+            width:100,
             align:'center',
         },
         {
             title:'修改时间',
             dataIndex:'updateDate',
-            width:150,
+            width:100,
             align:'center',
         },
         {
             title:'当前使用设备',
-            dataIndex:'doctor_phone',
-            width:150,
+            dataIndex:'deviceCode',
+            width:80,
             align:'center',
         },
         {
-            title:'历史使用设备',
-            dataIndex:'doctor_name',
-            width:150,
+            title:'历史使用设备数',
+            dataIndex:'hisCount',
+            width:80,
             align:'center',
         },
         {
@@ -661,11 +674,18 @@ export default class AccountInfo extends Component {
     }
     //表格行选择
     onSelectChange = row => {
-        console.log('所选择行',row)
+
+        let IDs = [];
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        for( let ii =0; ii<row.length;ii++){
+            IDs.push(this.state.data[row[ii]]["uloginId"])
+        }
         this.setState(
-            {selectedRowKeys:row}
-        )
+          {selectedRowKeys:row,
+              selectedIDs:IDs,
+          }
+        ) ;
+        //console.log('所选择行',this.state)
     };
     //翻页
     handleTableChange = (pagination) =>{
@@ -698,6 +718,7 @@ export default class AccountInfo extends Component {
         this.setState(
             {
                 selectedRowKeys:[],
+                selectedIDs:[],
                 input:data,
             },
         )
@@ -725,15 +746,19 @@ export default class AccountInfo extends Component {
                 if(response.data.data==null){
                     message.error("请求出错！code:"+response.data.code);
                 }else{
-                    let data=response.data.data.data;
+                    let data=response.data.data.info;
                     let paginationProps={...this.state.paginationProps};
                     addKey(data);
                     paginationProps.total=response.data.data.total;
                     paginationProps.current=page.page;
                     paginationProps.pageSize=page.pageSize;
+                    //console.log("!");
+                    //console.log(data);
+                    //console.log(paginationProps);
                     this.setState({
                         data:data,
                         paginationProps:paginationProps,
+                        selectedRowKeys:[],
                     });
                 }
             });
@@ -761,16 +786,17 @@ export default class AccountInfo extends Component {
         //     console.log("search error!",e);
         // });
     }
+    //导出选择数据
+    exportChoose =()=> {
+        exportFile('/exam/login/export/choose',this.state.selectedIDs);
+    }
 
     //重置密码
     resetPassword=(record)=>{
-        let data={};
         console.log("record:",record);
-        data.loginId=record.loginId;
-        console.log("request:",data);
-        ajax("/exam/login/resetpwd",data,'POST')
+        ajax("/exam/login/resetpwd/"+record.uloginId,{},'GET')
             .then((response)=>{
-                if(response.data.code!==1004){
+                if(response.data.code!==3002){
                     console.log("请求错误！",response);
                 }else{
                     console.log("重置成功：",response);
@@ -784,9 +810,9 @@ export default class AccountInfo extends Component {
     //删除一项\
     delete=(record)=>{
         let data={};
-        data.loginId=record.loginId;
-        let url="/exam/login/remove";
-        ajax(url,data,'POST')
+        //data.loginId=record.loginId;
+        let url="/exam/login/remove/"+record.loginId;
+        ajax(url,data,'GET')
             .then((response)=>{
                 if(response.data.code!==1006){
                     console.log("请求错误！",response);
@@ -822,8 +848,8 @@ export default class AccountInfo extends Component {
         },
         //表格1数据
         input:{
-            loginAccount:"",
-            loginName:"",
+            uloginAccount:"",
+            uloginName:"",
         },
         paginationProps:{
             position:['bottomLeft'],
@@ -833,6 +859,7 @@ export default class AccountInfo extends Component {
             showSizeChanger:true,
         },
         selectedRowKeys:[],
+        selectedIDs: [],
         data:[
             // {
             //     key:1,
@@ -933,8 +960,8 @@ export default class AccountInfo extends Component {
             <div style={{height:"100%"}}>
                 <div style={{'margin':'0 0 15px 0'}}>
                     <div justify="space-between" gutter="15" style={{display:"flex"}}>
-                        <Input placeholder={'医生电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
-                        <Input placeholder={'医生姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"loginName")}} value={this.state.input.loginName}/>
+                        <Input placeholder={'医生电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"uloginAccount")}} value={this.state.input.uloginAccount}/>
+                        <Input placeholder={'医生姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"uloginName")}} value={this.state.input.uloginName}/>
                         <Button
                             type={"primary"}
                             icon={<SearchOutlined className={"icon1"}/> }
@@ -978,7 +1005,7 @@ export default class AccountInfo extends Component {
                     </div>
                 </div>
                 {/*表格*/}
-                <div style={{heigh:"100%"}}>
+                <div >
                     <Table
                         columns={this.columns}
                         dataSource={this.state.data}
@@ -987,6 +1014,7 @@ export default class AccountInfo extends Component {
                         style={{margin:"20px 0",borderBottom:'1px,soild'}}
                         pagination={this.state.paginationProps}
                         onChange={this.handleTableChange}
+                        scroll={{ y: '500px',x:'max-content' }}
                     />
                 </div>
                 {this.Modal()}
