@@ -28,6 +28,7 @@ export default function ajax(url, data={},type='GET',config) {//默认空对象�
         .catch(err => {
             // reject(message.error('请求出错：' + err))
             message.error('请求出错：' + err)
+            console.log(err)
         })
     })
 }
