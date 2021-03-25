@@ -208,10 +208,10 @@ search=()=>{
   //冻结用户
   freeze=(checked,dataIndex)=>{    
     if(checked){
-      message.info('解除冻结用户成功！')
+      message.info('解除冻结用户成功！',[0.5])
       checked=true
     }else{
-      message.info('冻结用户成功！')
+      message.info('冻结用户成功！',[0.5])
       checked=false      
     }
   }
@@ -238,7 +238,7 @@ search=()=>{
         department: '西湖区湖底公园1号',
       },
       {
-        key: '2',
+        key: '1',
         name: '胡彦祖',
         age: 42,
         address: '西湖区湖底公园1号',
@@ -260,7 +260,7 @@ search=()=>{
         department: '西湖区湖底公园1号',
       },
       {
-        key: '2',
+        key: '3',
         name: '胡彦祖',
         age: 42,
         address: '西湖区湖底公园1号',
@@ -271,7 +271,7 @@ search=()=>{
         department: '西湖区湖底公园1号',
       },
       {
-        key: '2',
+        key: '4',
         name: '胡彦祖',
         age: 42,
         address: '西湖区湖底公园1号',
@@ -340,10 +340,9 @@ search=()=>{
                 >              
                 </Input>
             </Col>
-            <Col span={5}>
+            <Col>
                 <RangePicker 
-                  locale={locale}
-                  showTime                        
+                  locale={locale}                                       
                 />
             </Col>
             <Col>

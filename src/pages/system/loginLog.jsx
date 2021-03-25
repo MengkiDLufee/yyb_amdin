@@ -6,6 +6,8 @@ import {
   Input,
   Row,
   Col,
+  message,
+  Modal,
 } from 'antd'
 import {
   SearchOutlined,  
@@ -13,103 +15,164 @@ import {
 } from '@ant-design/icons'
 import locale from 'antd/lib/date-picker/locale/zh_CN';
 const { RangePicker } = DatePicker;
+
+//主页面表格数据
+const data = [
+  {        
+    logName: '登录日志',
+    userNmae:'admin',
+    date: '2020-03-05 15:38:44',
+    msg:"",
+    ip:'0:0:0:0:0:0:0:1'
+  },
+  {
+    logName: '登录日志',
+    userNmae:'admin',
+    date: '2020-03-05 15:38:44',
+    msg:"",
+    ip:'0:0:0:0:0:0:0:1'
+  },
+  {        
+    logName: '登录日志',
+    userNmae:'admin',
+    date: '2020-03-05 15:38:44',
+    msg:"",
+    ip:'0:0:0:0:0:0:0:1'
+  },
+  {
+    logName: '登录日志',
+    userNmae:'admin',
+    date: '2020-03-05 15:38:44',
+    msg:"",
+    ip:'0:0:0:0:0:0:0:1'
+  },
+  {        
+    logName: '登录日志',
+    userNmae:'admin',
+    date: '2020-03-05 15:38:44',
+    msg:"",
+    ip:'0:0:0:0:0:0:0:1'
+  },
+  {
+    logName: '登录日志',
+    userNmae:'admin',
+    date: '2020-03-05 15:38:44',
+    msg:"",
+    ip:'0:0:0:0:0:0:0:1'
+  },
+  {        
+    logName: '登录日志',
+    userNmae:'admin',
+    date: '2020-03-05 15:38:44',
+    msg:"",
+    ip:'0:0:0:0:0:0:0:1'
+  },
+  {
+    logName: '登录日志',
+    userNmae:'admin',
+    date: '2020-03-05 15:38:44',
+    msg:"",
+    ip:'0:0:0:0:0:0:0:1'
+  },
+];
  
 export default class LoginLog extends Component {
-
-  state = {
-    selectedRowKeys: [],
-    card_type:undefined,
-    test_time:undefined,
-    paginationProps : {//分页栏参数    
-      showQuickJumper:true,
-      showSizeChanger:true,
-    },
+  constructor(props){
+    super(props)
+    this.state={
+      loading:false,
+      visible:0,
+    }
   }
-  onSelectChange = selectedRowKeys => {    
-    this.setState({ selectedRowKeys });
-  };
-//列表名称
-  columns =[
+ //初始化列表
+initColumns=()=>{
+  this.columns =[
     {
       title:'日志名称',
-      dataIndex:'account',      
+      dataIndex:'logName',      
       align:'center'
     },   
     {
       title:'用户名称',
-      dataIndex:'name',      
+      dataIndex:'userName',      
       align:'center'
     },    
     {
       title:'时间',
-      dataIndex:'department',      
+      dataIndex:'date',      
       align:'center',
     },
     {
       title:'具体消息',
-      dataIndex:'position',      
+      dataIndex:'msg',      
       align:'center',
     },
     {
       title:'ip',
-      dataIndex:'name',      
+      dataIndex:'ip',      
       align:'center'
     }, 
   ];
+  }
+ //选择框
+ selectChange =(e,Option) => {
+  console.log(e)
+  console.log(Option)
+  this.setState({
+    input:Object.assign(this.state.input,{[Option.title]:e})
+  })
+}
+//表格行选择
+onSelectChange = row => {
+  console.log('所选择行',row)
+  //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+  this.setState(
+    {selectedRowKeys:row}
+  )
+};
+
+//获取日志数据
+getLoginLogs=(logName,logType)=>{
+  this.setState({loading:true})
+  logName=logName||this.state.logName
+  //const result = await reqlogs(logName)
+  const result = setTimeout(()=>data,1000)
+  this.setState({loading:false})    
+  console.log("获取列表数据");  
+  const worklogs = result         
+  this.setState({worklogs})
+}
+
+  //搜索
+search=()=>{
+  message.info('搜索中')
+}
+
+//清空日志
+empty=()=>{
+  this.setState({visible:1})
+}
+
+//关闭弹窗
+handleCancel=()=>{
+  this.setState({visible:0})
+}
+
+componentWillMount(){
+  this.initColumns()
+}
+
+componentDidMount(){
+  this.getLoginLogs()
+} 
 
   render() {
-    const { selectedRowKeys } = this.state;
+    const { selectedRowKeys,loading,visible } = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
     };   
-    //主页面表格数据
-    const data = [
-      {        
-        name: '胡彦斌',
-        account: 32,
-        department: '西湖区湖底公园1号',
-      },
-      {
-        key: '2',
-        name: '胡彦祖',
-        age: 42,
-        address: '西湖区湖底公园1号',
-      },
-      {        
-        name: '胡彦斌',
-        account: 32,
-        department: '西湖区湖底公园1号',
-      },
-      {
-        key: '2',
-        name: '胡彦祖',
-        age: 42,
-        address: '西湖区湖底公园1号',
-      },
-      {        
-        name: '胡彦斌',
-        account: 32,
-        department: '西湖区湖底公园1号',
-      },
-      {
-        key: '2',
-        name: '胡彦祖',
-        age: 42,
-        address: '西湖区湖底公园1号',
-      },
-      {        
-        name: '胡彦斌',
-        account: 32,
-        department: '西湖区湖底公园1号',
-      },
-      {
-        key: '2',
-        name: '胡彦祖',
-        age: 42,
-        address: '西湖区湖底公园1号',
-      },
-    ];
+    
     return (
       <div style={{height:'100%'}}>       
         {/* 搜索栏 */}
@@ -142,9 +205,8 @@ export default class LoginLog extends Component {
             <Col>
                 <Button 
                   type="primary"
-                  icon={<DeleteOutlined/> }
-                  className="button3"
-                  onClick={this.reset}
+                  icon={<DeleteOutlined/> }                  
+                  onClick={this.empty}
                 >
                   清空日志
                 </Button>
@@ -161,6 +223,22 @@ export default class LoginLog extends Component {
           onChange={this.handTablechange}
           rowSelection={rowSelection}
         />
+        {/* 清空日志弹窗 */}
+      <Modal 
+          visible={visible}          
+          title="信息"    
+          onCancel={this.handleCancel}          
+          footer={[            
+            <Button key="submit" type="primary" loading={loading} onClick={this.handleShow}>
+              提交
+            </Button>,
+            <Button name="delete" key="back" onClick={this.handleCancel}>
+            取消
+          </Button>,
+          ]}
+        >
+          <p>是否清空所有日志</p>         
+        </Modal>
       </div>
     )
   }
