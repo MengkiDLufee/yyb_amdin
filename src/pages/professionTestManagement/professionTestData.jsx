@@ -26,17 +26,105 @@ class ModifyDetailPatientInfoModal extends Component{
         //参数设置
         let input={};
         Object.assign(input,this.props.record);
-        console.log("init record:",input);
+        //console.log("init record:",input);
         this.state= {
             testTime: '',
-            input: input,
+            input:'',
         }
         //时间格式转换
         let testTime=this.props.record.testTime;
-        let mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
+        let mymoment = '';
+        if(testTime!='')mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
         this.state.testTime=mymoment;
+
+        //获取列表
+        this.dataTable = {};
+        this.dataTable.allPaperType = [];
+        this.dataTable.allPatientName = [];
+        this.dataTable.allDeviceCode=[];
+        this.requestData();
+        // while(this.dataTable.length==0){
+        //     let ii = 1;
+        // }
+        //根据列表对input进行修改
+        //console.log(input);
     }
    //函数部分
+    //请求数据
+    requestData=()=>{
+        let url="/exam/data/query/before/modify/"+this.props.uloginId;
+        //console.log("request:",data);
+        ajax(url, {},'GET')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null){
+                  console.log("请求错误！");
+              }
+              else{
+                  let mydata=response.data.data;
+                  //console.log(response);
+                  this.dataTable = mydata;
+                  let input = {};
+                  Object.assign(input,this.props.record);
+                  input.proDeviceId = input.deviceId;
+                  input.paperTypeName = input.paperTypeId;
+                  console.log("input",input)
+                  this.setState({
+                      input:input,
+                  },()=>{
+                      this.form.current.setFieldsValue(input);
+                  });
+                  //console.log("ccc",input);
+                  // let paperTypeName = input.paperTypeName;
+                  // console.log(paperTypeName);
+                  // console.log(this.dataTable);
+                  // let that = this;
+                  // let flag1 = false;
+                  // for(let ii = 0;ii<this.dataTable.allPaperType.length;ii++){
+                  //     let tmp = this.dataTable.allPaperType[ii];
+                  //     console.log(tmp);
+                  //     if(tmp.paperTypeName==paperTypeName){
+                  //         console.log("find it!",tmp);
+                  //         input.paperTypeName = tmp.paperTypeId;
+                  //         this.setState({
+                  //             input:input,
+                  //         },()=>{
+                  //             this.form.current.setFieldsValue(input);
+                  //         });
+                  //
+                  //         //console.log("find it!",this.state);
+                  //         //this.state.input.paperTypeName =  tmp.paperTypeId;
+                  //         flag1 = true;
+                  //         break;
+                  //     }
+                  // }
+                  // for(let ii = 0;ii<this.dataTable.allPaperType.length;ii++){
+                  //     let tmp = this.dataTable.allPaperType[ii];
+                  //     console.log(tmp);
+                  //     if(tmp.paperTypeName==paperTypeName){
+                  //         console.log("find it!",tmp);
+                  //         input.paperTypeName = tmp.paperTypeId;
+                  //         this.setState({
+                  //             input:input,
+                  //         },()=>{
+                  //             this.form.current.setFieldsValue(input);
+                  //         });
+                  //
+                  //         //console.log("find it!",this.state);
+                  //         //this.state.input.paperTypeName =  tmp.paperTypeId;
+                  //         flag1 = true;
+                  //         break;
+                  //     }
+                  // }
+                  // console.log("paperTypeName error!");
+                  // input.paperTypeName = '';
+                  // this.setState({
+                  //     input:input,
+                  // });
+              }
+          });
+    }
+
     //弹窗关闭函数
     handleCancel= ()=>{
         this.props.setVisible(false);
@@ -55,7 +143,9 @@ class ModifyDetailPatientInfoModal extends Component{
                         data[myInput[ii]]=this.state.input[myInput[ii]];
                     }
                 }
-                data.patientId=this.props.record.patientId;
+                //data.patientId=this.props.record.patientId;
+                //console.log(data);
+                //console.log(this.props.record);
                 //data.loginId=this.props.record.loginId;
                 let url="/exam/data/newdata/modify";
                 //console.log("request:",data);
@@ -103,6 +193,48 @@ class ModifyDetailPatientInfoModal extends Component{
         });
         console.log(this.state);
     }
+
+    //得到selet项目
+    optPaperType(){
+        let ii = 1;
+        return(
+          this.dataTable.allPaperType.map((item)=>{
+              ii = ii+1;
+              return(<Option key = {ii} title="paperTypeName" value={item.paperTypeId}>{item.paperTypeName}</Option>)
+          })
+        )
+    }
+    optPatientID(){
+        let ii = 1;
+        return(
+          this.dataTable.allPatientName.map((item)=>{
+              ii = ii+1;
+              return(<Option key = {ii} title="patientId" value={item.patientId}>{item.patientName+"  Id: " + item.patientId}</Option>)
+          })
+        )
+    }
+    optDeviceCode(){
+        let ii = 1;
+        return(
+          this.dataTable.allDeviceCode.map((item)=>{
+              ii = ii+1;
+              return(<Option key = {ii} title="proDeviceId" value={item.deviceId}>{item.deviceCode}</Option>)
+          })
+        )
+    }
+
+    //选择框变化（完成）
+    handleChange=(e,Option) =>{
+        console.log(e)
+        console.log(Option)
+        let source = {};
+        source[Option.title] = Option.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+
+        })
+    }
+
     //参数设置
     // state={
     //     //表格1数据
@@ -145,21 +277,45 @@ class ModifyDetailPatientInfoModal extends Component{
                             >
                                 <DatePicker showTime onChange={this.rangePickerOnChange} onOk={this.rangePickerOnOk} value={this.state.testTime}/>
                             </Form.Item>
-                            <Form.Item label="病人"
-                                       name="patientName"
-                                       rules={[{ required: true ,message:"请输入病人"}]}
+                            {/*<Form.Item label="病人"*/}
+                            {/*           name="patientName"*/}
+                            {/*           rules={[{ required: true ,message:"请输入病人姓名"}]}*/}
+                            {/*>*/}
+                            {/*    <Input placeholder={"病人姓名"}*/}
+                            {/*           onChange={(e)=>{this.inputChange(e,"patientName")}}*/}
+                            {/*           value={this.state.input.patientName}*/}
+                            {/*           />*/}
+                            {/*</Form.Item>*/}
+                            <Form.Item label="病人Id"
+                                       name="patientId"
+                                       rules={[{ required: true ,message:"请输入病人Id"}]}
                             >
-                                <Input placeholder={"病人姓名"}
-                                       onChange={(e)=>{this.inputChange(e,"patientName")}}
-                                       value={this.state.input.patientName}
-                                       />
+                                {/*<Input placeholder={"病人Id"}*/}
+                                {/*       onChange={(e)=>{this.inputChange(e,"patientId")}}*/}
+                                {/*       value={this.state.input.patientId}*/}
+                                {/*/>*/}
+                                <Select
+                                  placeholder="请选择病人Id "
+                                  style={{width:'100%'}}
+                                  value={this.state.input.patientId}
+                                  onChange={this.handleChange}>
+                                    {this.optPatientID()}
+                                </Select>
                             </Form.Item>
                             <Form.Item
-                                label="试剂"
-                                name="paperTypeId"
-                                rules={[{ required: true ,message:"请输入试剂"}]}//设置验证规则
+                              label="试剂Id"
+                              name="paperTypeId"
+                              rules={[{ required: true ,message:"请输入试剂ID"}]}//设置验证规则
                             >
-                                <Input    onChange={(e)=>{this.inputChange(e,"paperTypeId")}} value={this.state.input.paperTypeId}/>
+                                {/*<Input    onChange={(e)=>{this.inputChange(e,"paperTypeName")}} value={this.state.input.paperTypeName}/>*/}
+                                <Select
+                                  placeholder="请选择试剂Id "
+                                  style={{width:'100%'}}
+                                  value={this.state.input.paperTypeId}
+                                  onChange={this.handleChange}>
+                                    {this.optPaperType()}
+                                </Select>
+
                             </Form.Item>
                             <Form.Item
                                 label="数值"
@@ -202,9 +358,16 @@ class ModifyDetailPatientInfoModal extends Component{
                             <Form.Item label="设备码"
                                        name="proDeviceId"
                                        rules={[
-                                           {required:true,message:'请输入设备码！',},
+                                           {required:true,message:'请选择设备码！',},
                                        ]}>
-                                <Input      onChange={(e)=>{this.inputChange(e,"proDeviceId")}} value={this.state.input.proDeviceId}/>
+                                {/*<Input      onChange={(e)=>{this.inputChange(e,"proDeviceId")}} value={this.state.input.proDeviceId}/>*/}
+                                <Select
+                                  placeholder="请选择设备码 "
+                                  style={{width:'100%'}}
+                                  value={this.state.input.proDeviceId}
+                                  onChange={this.handleChange}>
+                                    {this.optDeviceCode()}
+                                </Select>
                             </Form.Item>
                             <Form.Item label="批号"
                                        name="bathNumber"
@@ -213,13 +376,13 @@ class ModifyDetailPatientInfoModal extends Component{
                                        ]}>
                                 <Input      onChange={(e)=>{this.inputChange(e,"bathNumber")}} value={this.state.input.bathNumber}/>
                             </Form.Item>
-                            <Form.Item label="测试图片"
-                                       name="testImage"
-                                       rules={[
-                                           {required:true,message:'请输入测试图片！',},
-                                       ]}>
-                                <Input      onChange={(e)=>{this.inputChange(e,"testImage")}} value={this.state.input.testImage}/>
-                            </Form.Item>
+                            {/*<Form.Item label="测试图片"*/}
+                            {/*           name="testImageAli"*/}
+                            {/*           rules={[*/}
+                            {/*               {required:true,message:'请输入测试图片！',},*/}
+                            {/*           ]}>*/}
+                            {/*    <Input      onChange={(e)=>{this.inputChange(e,"testImageAli")}} value={this.state.input.testImageAli}/>*/}
+                            {/*</Form.Item>*/}
                         </Form>
                     </div>
                 </Modal>
@@ -257,10 +420,10 @@ class LatestTestDataModal extends Component {
         },
         {
             title: '试剂',
-            dataIndex: 'paperTypeId',
+            dataIndex: 'paperTypeName',
             width:150,
             sorter: {
-                compare: (a, b) => a.paperTypeId - b.paperTypeId,
+                compare: (a, b) => a.paperTypeName - b.paperTypeName,
                 multiple: 3,
             },
         },
@@ -329,10 +492,10 @@ class LatestTestDataModal extends Component {
         },
         {
             title: '测试图片',
-            dataIndex: 'testImage',
+            dataIndex: 'testImageAli',
             width: 150,
             sorter: {
-                compare: (a, b) => a.test_time - b.test_time,
+                compare: (a, b) => a.testImageAli - b.testImageAli,
                 multiple: 2,
             },
             render: (text) =>
@@ -423,7 +586,7 @@ class LatestTestDataModal extends Component {
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        data.loginId=this.props.record.loginId;
+        data.uloginId=this.props.record.uloginId;
         let url="/exam/data/newdata/list";
         //console.log("request:",data);
         ajax(url,data,'POST')
@@ -478,7 +641,7 @@ class LatestTestDataModal extends Component {
         console.log(datas);
         console.log(dateStrings);
         this.state.input.startDate=dateStrings[0]+" 00:00:00";
-        this.state.input.endDate=dateStrings[1]+" 24:00:00";
+        this.state.input.endDate=dateStrings[1]+" 23:59:59";
         this.setState({
             rangePickerData:datas,
         })
@@ -551,6 +714,7 @@ class LatestTestDataModal extends Component {
             return(
                 <ModifyDetailPatientInfoModal
                     record={this.state.record2}
+                    uloginId = {this.props.record.uloginId}
                     visible={this.state.modalVisible2}
                     setVisible={this.setModalvisible2}
                 />
@@ -558,6 +722,9 @@ class LatestTestDataModal extends Component {
 
     }
     setModalvisible2=(flag)=>{
+        if(flag == false){
+            this.requestData({page:1,pageSize:10});
+        }
         this.setState({
             modalVisible2:flag,
         });
@@ -634,7 +801,6 @@ class DetailPatientInfoModal extends Component{
     //初始化
     constructor(props) {
         super(props);
-        this.requestData();
     }
 
     //表格1数据以及函数
@@ -666,17 +832,17 @@ class DetailPatientInfoModal extends Component{
             dataIndex:'patientTestStatus',
             width:150,
             align:'center',
-            render:(text)=>(
-                <p>
-                    {changeData(text,
-                        ["patient_finish","patient_no_test","patient_testing"],
-                        ["结束","没有测试","正在测试"])}
-                </p>
-            ),
+            // render:(text)=>(
+            //     <p>
+            //         {changeData(text,
+            //             ["patient_finish","patient_no_test","patient_testing"],
+            //             ["结束","没有测试","正在测试"])}
+            //     </p>
+            // ),
         },
         {
             title:'测试次数',
-            dataIndex:'testNumber',
+            dataIndex:'testTimes',
             width:150,
             align:'center',
         },
@@ -694,28 +860,28 @@ class DetailPatientInfoModal extends Component{
     }
 
     //请求表格数据
-    requestData=(page)=>{
-        let data={};
-        data.patientId=this.props.record.patientId;
-        let url="/exam/data/patient/details";
-        //console.log("request:",data);
-        ajax(url,data,'POST')
-            .then((response)=>{
-                console.log("response:",response);
-                if(response.data.data==null){
-                    console.log("查询失败");
-                }else{
-                    let mydata=response.data.data.info;
-                    mydata.key=1;
-                    //addKey(data);
-                    console.log("data:",mydata);
-                    this.setState({
-                        data:[mydata],
-                    });
-                }
-
-            });
-    }
+    // requestData=(page)=>{
+    //     let data={};
+    //     data.patientId=this.props.record.patientId;
+    //     let url="/exam/data/patient/details";
+    //     //console.log("request:",data);
+    //     ajax(url,data,'POST')
+    //         .then((response)=>{
+    //             console.log("response:",response);
+    //             if(response.data.data==null){
+    //                 console.log("查询失败");
+    //             }else{
+    //                 let mydata=response.data.data.info;
+    //                 mydata.key=1;
+    //                 //addKey(data);
+    //                 console.log("data:",mydata);
+    //                 this.setState({
+    //                     data:[mydata],
+    //                 });
+    //             }
+    //
+    //         });
+    // }
 
     //参数设置
     state={
@@ -737,7 +903,7 @@ class DetailPatientInfoModal extends Component{
                         <div style={{heigh:"100%"}}>
                             <Table
                                 columns={this.columns}
-                                dataSource={this.state.data}
+                                dataSource={[this.props.record]}
                                 bordered={true}
                                 rowSelection={false}
                                 style={{margin:"20px 0",borderBottom:'1px,soild'}}
@@ -771,7 +937,7 @@ class PatientInfoModal extends Component{
         },
         {
             title: '测试次数',
-            dataIndex: 'testNumber',
+            dataIndex: 'testTimes',
             width: 150,
             sorter: {
                 compare: (a, b) => a.testNumber - b.testNumber,
@@ -862,7 +1028,7 @@ class PatientInfoModal extends Component{
             }
         }
         console.log("record",this.props.record);
-        data.loginId=this.props.record.loginId;
+        data.uloginId=this.props.record.uloginId;
         let url="/exam/data/patient/login";
         //console.log("request:",data);
         ajax(url,data,'POST')
@@ -871,7 +1037,7 @@ class PatientInfoModal extends Component{
                 if(response.data.data==null)
                     console.log("查询失败");
                 else{
-                    let data=response.data.data.info.records;
+                    let data=response.data.data.info;
                     let paginationProps={...this.state.paginationProps};
                     addKey(data);
                     paginationProps.total=response.data.data.total;
@@ -897,9 +1063,10 @@ class PatientInfoModal extends Component{
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
+        data.uloginId = this.props.record.uloginId;
         console.log("exportFile input:",data);
         //exportFile("/exam/data/export/login/condition",data);
-        exportFile('/user/base/info/export/condition',{});
+        exportFile('/exam/data/patient/export/condition',data);
         //console.log("request:",data);
         // ajax("/exam/data/export/login/condition",data,'POST')
         //     .then((response)=>{
@@ -1080,9 +1247,17 @@ export default class ProfessionTestData extends Component {
     //表格行选择
     onSelectChange = row => {
         console.log('所选择行',row)
+        let IDs = [];
+        //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        for( let ii =0; ii<row.length;ii++){
+            IDs.push(this.state.data[row[ii]]["uloginId"])
+        }
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
         this.setState(
-            {selectedRowKeys:row}
+            {
+                selectedRowKeys:row,
+                selectedIDs:IDs,
+            }
         )
     };
     //翻页
@@ -1116,6 +1291,7 @@ export default class ProfessionTestData extends Component {
         this.setState(
             {
                 selectedRowKeys:[],
+                selectedIDs:[],
                 input:data,
             },
         )
@@ -1153,6 +1329,10 @@ export default class ProfessionTestData extends Component {
                 });
             });
     }
+    //导出选择数据
+    exportChoose =()=> {
+        exportFile('/exam/data/export/login/choose',this.state.selectedIDs);
+    }
     //按照搜索情况导出excel
     exportSearch= ()=>{
         let data={
@@ -1187,8 +1367,8 @@ export default class ProfessionTestData extends Component {
         patientInfoModalvisible:false,
         //表格1数据
         input:{
-            loginAccount:"",
-            loginName:"",
+            uloginAccount:"",
+            uloginName:"",
         },
         paginationProps:{
             position:['bottomLeft'],
@@ -1198,6 +1378,7 @@ export default class ProfessionTestData extends Component {
             showSizeChanger:true,
         },
         selectedRowKeys:[],
+        selectedIDs:[],
         data:[
             // {
             //     key:1,
@@ -1271,8 +1452,8 @@ export default class ProfessionTestData extends Component {
             <div style={{height:"100%"}}>
                 <div style={{'margin':'0 0 15px 0'}}>
                     <div justify="space-between" gutter="15" style={{display:"flex"}}>
-                        <Input placeholder={'医生电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
-                        <Input placeholder={'医生姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"loginName")}} value={this.state.input.loginName}/>
+                        <Input placeholder={'医生电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"uloginAccount")}} value={this.state.input.uloginAccount}/>
+                        <Input placeholder={'医生姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"uloginName")}} value={this.state.input.uloginName}/>
                         <Button
                             type={"primary"}
                             icon={<SearchOutlined className={"icon1"}/> }
