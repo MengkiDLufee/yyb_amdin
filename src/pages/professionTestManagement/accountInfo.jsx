@@ -161,7 +161,7 @@ class Modal3 extends Component{
         let url="/exam/login/history/device";
         //console.log("request:",data);
         url = url+"/"+data.uloginId+"/"+data.page+"/"+data.pageSize;
-        ajax(url,{},'get')
+        ajax(url,{},'GET')
             .then((response)=>{
                 console.log("response:",response);
                 if(response.data.data==null)
@@ -800,6 +800,7 @@ export default class AccountInfo extends Component {
                     console.log("请求错误！",response);
                 }else{
                     console.log("重置成功：",response);
+                    message.info("重置成功！");
                 }
             });
     }
@@ -811,7 +812,7 @@ export default class AccountInfo extends Component {
     delete=(record)=>{
         let data={};
         //data.loginId=record.loginId;
-        let url="/exam/login/remove/"+record.loginId;
+        let url="/exam/login/remove/"+record.uloginId;
         ajax(url,data,'GET')
             .then((response)=>{
                 if(response.data.code!==1006){
@@ -960,7 +961,7 @@ export default class AccountInfo extends Component {
             <div style={{height:"100%"}}>
                 <div style={{'margin':'0 0 15px 0'}}>
                     <div justify="space-between" gutter="15" style={{display:"flex"}}>
-                        <Input placeholder={'医生电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"uloginAccount")}} value={this.state.input.uloginAccount}/>
+                        <Input placeholder={'医生用户'} className={'input1'} onChange={(e)=>{this.inputChange(e,"uloginAccount")}} value={this.state.input.uloginAccount}/>
                         <Input placeholder={'医生姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"uloginName")}} value={this.state.input.uloginName}/>
                         <Button
                             type={"primary"}
