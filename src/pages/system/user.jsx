@@ -9,9 +9,9 @@ import {
   Tree,
   Space,
   Switch,  
+  Form,
   message,
   Modal,
-  Card
 } from 'antd'
 import {
   SearchOutlined,
@@ -20,7 +20,6 @@ import {
   DownOutlined 
 } from '@ant-design/icons'
 import locale from 'antd/lib/date-picker/locale/zh_CN';
-import Form from 'antd/lib/form/Form';
 const { RangePicker } = DatePicker;
  
 export default class User extends Component {
@@ -422,15 +421,89 @@ search=()=>{
           </Button>,
           ]}         
         >
-        <Form>
-        <Card size="small" title="基本信息" bordered={false}>          
-          </Card>
-          <Card size="small" title="职务信息" bordered={false}>
-            <p>Card content</p>
-            <p>Card content</p>
-            <p>Card content</p>
-          </Card>
-        </Form>                     
+          <Form
+          labelCol={{ span: 7}}
+          wrapperCol={{ span: 12 }}
+          layout="horizontal"
+          ref={this.form_modify}
+        >
+          <b>基本信息</b><hr/><br/>         
+              <Form.Item
+               label="账号"
+               id="modify_user"
+               name="modify_user"           
+               rules={[
+                 {required:true,message:'请输入账号！'}
+               ]}
+              >
+                  <Input placeholder="请输入账号"/>
+              </Form.Item>
+              <Form.Item
+               label="姓名"
+               id="modify_user"
+               name="modify_user"           
+               rules={[
+                 {required:true,message:'请输入姓名！'}
+               ]}
+              >
+                  <Input placeholder="请输入姓名"/>
+              </Form.Item>
+              <Form.Item
+               label="出生日期" 
+               id="modify_name"
+               name="modify_name"
+               rules={[
+                 {required:true,message:'请输入出生日期！'}
+               ]}
+              >
+                  <Input placeholder="请输入出生日期"/>
+              </Form.Item>
+              <Form.Item
+               label="密码"
+               id="modify_phone_num"
+               name="modify_phone_num"
+               rules={[
+                 {required:true,message:'请输入密码！'}
+               ]}
+              >
+                  <Input placeholder="请输入密码" />
+              </Form.Item>         
+              <Form.Item
+               label="邮箱"
+               id="modify_user"
+               name="modify_user"           
+              >
+                  <Input placeholder="请输入邮箱"/>
+              </Form.Item>
+              <Form.Item
+               label="电话"
+               id="modify_user"
+               name="modify_user"           
+              >
+                  <Input placeholder="请输入电话"/>
+              </Form.Item>
+          <b>职务信息</b><hr/><br/> 
+              <Form.Item
+               label="部门"
+               id="modify_phone_num"
+               name="modify_phone_num"
+               rules={[
+                 {required:true,message:'请输入部门！'}
+               ]}
+              >
+                  <Input placeholder="请输入部门" />
+              </Form.Item>  
+              <Form.Item
+               label="职位"
+               id="modify_phone_num"
+               name="modify_phone_num"
+               rules={[
+                 {required:true,message:'请输入职位！'}
+               ]}
+              >
+                  <Input placeholder="请输入职位" />
+              </Form.Item>  
+          </Form>         
         </Modal>
          {/* 删除用户弹窗 */}
       <Modal

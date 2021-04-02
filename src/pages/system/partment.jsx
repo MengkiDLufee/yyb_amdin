@@ -10,7 +10,6 @@ import {
   message,
   Modal,
   Form,
-  Card,
 } from 'antd'
 import {
   SearchOutlined,  
@@ -315,11 +314,11 @@ componentDidMount(){
         />
         </Col>     
         </Row>
-          {/* 添加用户弹窗 */}
+          {/* 添加部门弹窗 */}
       <Modal
           width={900}
           visible={visible==="visible_add"}
-          title="添加用户"          
+          title="添加部门"          
           onOk={this.handleOk_add}
           onCancel={this.handleCancel}
           footer={[            
@@ -329,17 +328,60 @@ componentDidMount(){
             <Button key="back" onClick={this.handleCancel}>
             取消
           </Button>,
-          ]}         
+          ]}      
         >
-        <Form>
-        <Card size="small" title="基本信息" bordered={false}>          
-          </Card>
-          <Card size="small" title="职务信息" bordered={false}>
-            <p>Card content</p>
-            <p>Card content</p>
-            <p>Card content</p>
-          </Card>
-        </Form>                     
+          <Form
+          labelCol={{ span: 7}}
+          wrapperCol={{ span: 12 }}
+          layout="horizontal"
+          ref={this.form_modify}
+        >
+          <b>基本信息</b><hr/><br/>         
+          <Form.Item
+           label="部门名称"
+           id="modify_user"
+           name="modify_user"           
+           rules={[
+             {required:true,message:'请输入部门名称！'}
+           ]}
+          >
+              <Input placeholder="请输入部门名称"/>
+          </Form.Item>
+          <Form.Item
+           label="上级名称" 
+           id="modify_name"
+           name="modify_name"
+           rules={[
+             {required:true,message:'请输入上级名称！'}
+           ]}
+          >
+              <Input placeholder="请输入上级名称"/>
+          </Form.Item>
+          <Form.Item
+           label="部门全称"
+           id="modify_phone_num"
+           name="modify_phone_num"
+           rules={[
+             {required:true,message:'请输入部门全称！'}
+           ]}
+          >
+              <Input placeholder="请输入部门全称" />
+          </Form.Item>         
+          <Form.Item
+           label="备注"
+           id="modify_user"
+           name="modify_user"           
+          >
+              <Input placeholder="请输入备注"/>
+          </Form.Item>
+          <Form.Item
+           label="排序"
+           id="modify_user"
+           name="modify_user"           
+          >
+              <Input placeholder="请输入排序"/>
+          </Form.Item>
+          </Form>                         
         </Modal>
        {/* 删除用户弹窗 */}
       <Modal 
@@ -357,10 +399,11 @@ componentDidMount(){
         >
           <p>是否删除角色</p>         
         </Modal>
-        {/* 修改用户弹窗 */}
+        {/* 修改部门窗 */}
       <Modal
+          width={900}
           visible={visible==="visible_modify"}
-          title="修改角色"          
+          title="编辑部门"          
           onOk={this.handleOk_modify}
           onCancel={this.handleCancel}
           footer={[            
@@ -372,7 +415,58 @@ componentDidMount(){
           </Button>,
           ]}
         >
-          <p>用户信息</p>         
+          <Form
+          labelCol={{ span: 7}}
+          wrapperCol={{ span: 12 }}
+          layout="horizontal"
+          ref={this.form_modify}
+        >
+          <b>基本信息</b><hr/><br/>         
+          <Form.Item
+           label="部门名称"
+           id="modify_user"
+           name="modify_user"           
+           rules={[
+             {required:true,message:'请输入部门名称！'}
+           ]}
+          >
+              <Input placeholder="请输入部门名称"/>
+          </Form.Item>
+          <Form.Item
+           label="上级名称" 
+           id="modify_name"
+           name="modify_name"
+           rules={[
+             {required:true,message:'请输入上级名称！'}
+           ]}
+          >
+              <Input placeholder="请输入上级名称"/>
+          </Form.Item>
+          <Form.Item
+           label="部门全称"
+           id="modify_phone_num"
+           name="modify_phone_num"
+           rules={[
+             {required:true,message:'请输入部门全称！'}
+           ]}
+          >
+              <Input placeholder="请输入部门全称" />
+          </Form.Item>         
+          <Form.Item
+           label="备注"
+           id="modify_user"
+           name="modify_user"           
+          >
+              <Input placeholder="请输入备注"/>
+          </Form.Item>
+          <Form.Item
+           label="排序"
+           id="modify_user"
+           name="modify_user"           
+          >
+              <Input placeholder="请输入排序"/>
+          </Form.Item>
+          </Form>               
         </Modal>
       </div> 
        

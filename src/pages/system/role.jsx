@@ -9,7 +9,6 @@ import {
   Modal,
   message,
   Form,
-  Card,
 } from 'antd'
 import {
   SearchOutlined,
@@ -272,11 +271,11 @@ export default class Role extends Component {
           style={{margin:'20px 0'}}
           pagination={ this.state.paginationProps}          
         />
-        {/* 添加用户弹窗 */}
+        {/* 添加角色弹窗 */}
       <Modal
-          width={900}
+          width={550}
           visible={visible==="visible_add"}
-          title="添加用户"          
+          title="添加角色"              
           onOk={this.handleOk_add}
           onCancel={this.handleCancel}
           footer={[            
@@ -286,17 +285,53 @@ export default class Role extends Component {
             <Button key="back" onClick={this.handleCancel}>
             取消
           </Button>,
-          ]}         
+          ]}                   
+        >  
+        <Form
+          labelCol={{ span: 7}}
+          wrapperCol={{ span: 12 }}
+          layout="horizontal"
+          ref={this.form_modify}
         >
-        <Form>
-        <Card size="small" title="基本信息" bordered={false}>          
-          </Card>
-          <Card size="small" title="职务信息" bordered={false}>
-            <p>Card content</p>
-            <p>Card content</p>
-            <p>Card content</p>
-          </Card>
-        </Form>                     
+          <b>基本信息</b><hr/><br/>         
+          <Form.Item
+           label="角色名称"
+           id="modify_user"
+           name="modify_user"           
+           rules={[
+             {required:true,message:'请输入角色名称！'}
+           ]}
+          >
+              <Input placeholder="请输入角色名称"/>
+          </Form.Item>
+          <Form.Item
+           label="上级名称" 
+           id="modify_name"
+           name="modify_name"
+           rules={[
+             {required:true,message:'请输入上级名称！'}
+           ]}
+          >
+              <Input placeholder="请输入上级名称"/>
+          </Form.Item>
+          <Form.Item
+           label="别名"
+           id="modify_phone_num"
+           name="modify_phone_num"
+           rules={[
+             {required:true,message:'请输入别名！'}
+           ]}
+          >
+              <Input placeholder="请输入别名" />
+          </Form.Item>         
+          <Form.Item
+           label="排序"
+           id="modify_user"
+           name="modify_user"           
+          >
+              <Input placeholder="请输入排序"/>
+          </Form.Item>
+          </Form>        
         </Modal>
        {/* 删除用户弹窗 */}
       <Modal 
@@ -328,8 +363,59 @@ export default class Role extends Component {
             取消
           </Button>,
           ]}
+        > 
+          <Form
+          labelCol={{ span: 7}}
+          wrapperCol={{ span: 12 }}
+          layout="horizontal"
+          ref={this.form_modify}
         >
-          <p>用户信息</p>         
+          <b>基本信息</b><hr/><br/>         
+          <Form.Item
+           label="部门名称"
+           id="modify_user"
+           name="modify_user"           
+           rules={[
+             {required:true,message:'请输入部门名称！'}
+           ]}
+          >
+              <Input placeholder="请输入部门名称"/>
+          </Form.Item>
+          <Form.Item
+           label="上级名称" 
+           id="modify_name"
+           name="modify_name"
+           rules={[
+             {required:true,message:'请输入上级名称！'}
+           ]}
+          >
+              <Input placeholder="请输入上级名称"/>
+          </Form.Item>
+          <Form.Item
+           label="部门全称"
+           id="modify_phone_num"
+           name="modify_phone_num"
+           rules={[
+             {required:true,message:'请输入部门全称！'}
+           ]}
+          >
+              <Input placeholder="请输入部门全称" />
+          </Form.Item>         
+          <Form.Item
+           label="备注"
+           id="modify_user"
+           name="modify_user"           
+          >
+              <Input placeholder="请输入备注"/>
+          </Form.Item>
+          <Form.Item
+           label="排序"
+           id="modify_user"
+           name="modify_user"           
+          >
+              <Input placeholder="请输入排序"/>
+          </Form.Item>
+          </Form>                
         </Modal>
          {/* 权限配置弹窗 */}
       <Modal

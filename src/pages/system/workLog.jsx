@@ -15,6 +15,7 @@ import {
   DeleteOutlined,
 } from '@ant-design/icons'
 import locale from 'antd/lib/date-picker/locale/zh_CN';
+import {queryLog,emptyLog} from '../../api/index'
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -178,7 +179,6 @@ initColumns=()=>{
     },  
   ];
 }
-
  //选择框
  selectChange =(e,Option) => {
   console.log(e)
@@ -216,8 +216,9 @@ empty=()=>{
   this.setState({visible:1})
 }
 //搜索
-search=()=>{
+search=()=>{  
   message.info('搜索中')
+  console.log('搜索',this.state.input)
 }
 //查看详情
 showDetail=(worklog)=>{  
@@ -229,7 +230,7 @@ showDetail=(worklog)=>{
 typeChange = (e) => {
   console.log(e.target.value)
   this.setState({
-    input:Object.assign(this.state.input,{type:e.target.value}),
+    input:Object.assign(this.state.input,{Logtype:e.target.value}),
   })
 }
 //关闭弹窗
@@ -242,10 +243,26 @@ componentWillMount(){
 }
 
 componentDidMount(){
-  this.getWorkLogs()
+  // this.getWorkLogs()
+  //请求表格数据
+  queryLog({
+    page:1,
+    pageSize:10
+  }).then(res=>{
+    console.log(res)    
+    this.setState({
+      tableData:data,
+      total:res.data.data.total,
+    })
+  })
+  // getPaper().then(res=>{
+  //   console.log(res)
+  //   this.setState({
+  //     paperType:res.data.data.paperType
+  //   })
+  // })
 }
  
-
   render() {
     const { selectedRowKeys,visible,loading,logType} = this.state;   
     const worklog = this.worklog || {}//如果还没有，指定一个空对象
@@ -266,9 +283,8 @@ componentDidMount(){
             </Col>
             <Col>
                 <Input 
-                  placeholder="日志名称"
-                  onChange={this.typeChange}
-                  value={this.state.card_type}
+                  placeholder="日志名称"                 
+                  value={this.state.logName}
                   className="input2"
                 >              
                 </Input>
@@ -276,7 +292,7 @@ componentDidMount(){
             <Col>
             <Select 
               placeholder="日志类型"   
-              onChange={this.typeChange}              
+              value={this.state.logType}              
               dropdownStyle={{width:'300px'}}
               allowClear 
             >
@@ -340,15 +356,8 @@ componentDidMount(){
       <Modal 
           visible={visible===2}          
           title="日志详情"    
-          onCancel={this.handleCancel}          
-          footer={[            
-            <Button key="submit" type="primary" loading={loading} onClick={this.handleShow}>
-              提交
-            </Button>,
-            <Button name="delete" key="back" onClick={this.handleCancel}>
-            取消
-          </Button>,
-          ]}
+          onCancel={this.handleCancel}  
+          footer={null} 
         >
           <p>{worklog.msg}</p>         
         </Modal>
