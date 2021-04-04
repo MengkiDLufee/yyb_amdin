@@ -205,6 +205,7 @@ export default class DevTest extends Component {
           style={{margin:'20px 0',borderBottom:'1px,soild'}}
           pagination={ this.state.paginationProps}
           onChange={this.handTablechange}
+          scroll={{y:600}}
         />
       </div>
     )
