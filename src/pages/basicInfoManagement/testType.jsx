@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Row, Col, Select, Space, Modal, Form} from 'antd';
-import {SearchOutlined,PlusSquareOutlined,ReloadOutlined} from '@ant-design/icons';
+import {Table, Button, Input, Row, Col, Select, Space, Modal, Form,Image,Upload,} from 'antd';
+import {SearchOutlined,PlusSquareOutlined,ReloadOutlined,UploadOutlined} from '@ant-design/icons';
 import httpRequest from "../../http";
 import ImportFile from "../../compenents/importfile";
 
@@ -27,6 +27,12 @@ export default class TestType extends Component {
         this.handleProduct=this.handleProduct.bind(this);
         this.handleDeleteHistory=this.handleDeleteHistory.bind(this);
         this.handleModifyHistory=this.handleModifyHistory.bind(this);
+        this.onSelectType=this.onSelectType.bind(this);
+        this.onSelectResult=this.onSelectResult.bind(this);
+        this.onViewImage=this.onViewImage.bind(this);
+        this.onSelectImage=this.onSelectImage.bind(this);
+        this.onModifyPrompt=this.onModifyPrompt.bind(this);
+        //this.handleSubmitPrompt=this.handleSubmitPrompt.bind(this);
     }
 
     state = {
@@ -36,6 +42,7 @@ export default class TestType extends Component {
         loading: false,
         addVisible:false,
         modifyVisible: false,
+        modifyPromptVisible: false,
         associatedModifyVisible:false,
         associateVisible:false,
         logicVisible:false,
@@ -79,6 +86,16 @@ export default class TestType extends Component {
         currentId:null,
 
         judgeMethodId:'',
+
+        //判读提示语
+        messageVisible:false,
+        resultVisible:false,
+        viewVisible:false,
+        imageVisible:false,
+
+        //radio
+        valueType:'',
+        valueResult:'',
     };
 
     //表格列名
@@ -307,37 +324,41 @@ export default class TestType extends Component {
             title: '提示语类型',
             dataIndex: 'judgeTipsType',
             ellipsis:true,
-
+            width:100,
         },
         {
             title: '结论类型',
             dataIndex: 'resultType',
             ellipsis:true,
-
+            width:100,
+            // render: (text, record) => (
+            //     <Space size="middle">
+            //         <Button style={{color:'black',background:'white',position:'absolute',width: '80%',left:'10%',top:'20%'}}
+            //                 onClick={()=>{this.onSelectResult(record)}}>
+            //             <p style={{display:'inline-block',whiteSpace:'nowrap'}}>{this.resultDic[record.resultType]}</p>
+            //         </Button>
+            //     </Space>
+            // ),
         },
         {
             title: '提示语',
             dataIndex: 'judgeTipsValue',
             ellipsis:true,
-
         },
         {
             title: '结果数据',
             dataIndex: 'resultDataTips',
             ellipsis:true,
-
         },
         {
             title: '短提示语',
             dataIndex: 'shortTips',
             ellipsis:true,
-
         },
         {
             title: '长提示语',
             dataIndex: 'longTips',
             ellipsis:true,
-
         },
         {
             title: '图片提示语',
@@ -345,21 +366,39 @@ export default class TestType extends Component {
             ellipsis:true,
 
         },
-        // {
-        //     title: '提示语图片',
-        //     dataIndex: `${judgeParamValue.judgeParamValue}`,
-        //     ellipsis:true,
-        //
-        // },
-        // {
-        //     title: '选择提示语图片',
-        //     dataIndex: `${judgeParamValue.judgeParamValue}`,
-        //     ellipsis:true,
-        //
-        // },
+        {
+            title: '提示语图片',
+            dataIndex: 'promptPicture',
+            ellipsis:true,
+            width:100,
+            render: (text, record) => (
+                <Space size="middle">
+                    <Button style={{color:'black',background:'white',position:'absolute',width: '80%',left:'10%',top:'20%'}}
+                            onClick={()=>{this.onViewImage(record)}}><p style={{display:'inline-block',whiteSpace:'nowrap'}}>查看图片</p></Button>
+                </Space>
+            ),
+
+
+        },
+        {
+            title: '操作',
+            dataIndex: 'option',
+            width:100,
+            render: (text, record) => (
+                <Space size="middle">
+                    <Button style={{color:'black',background:'white',position:'absolute',width: '80%',left:'10%',top:'20%'}}
+                            onClick={()=>{this.onModifyPrompt(record)}}><p style={{display:'inline-block',whiteSpace:'nowrap'}}>修改</p></Button>
+                </Space>
+            ),
+
+        },
     ]
 //在翻页时存储已选中的表格项
     selectedStorage=[];
+
+    //提示语字典
+    hintDic=[];
+    resultDic=[]
     start = () => {
         this.setState({ loading: true });
         // ajax request after empty completing
@@ -398,6 +437,7 @@ export default class TestType extends Component {
                 currentId:null,
 
                 judgeMethodId:'',
+                modifyPromptVisible:false,
             });
         }, 1000);
     };
@@ -442,6 +482,31 @@ export default class TestType extends Component {
             console.log(err);
         })
 
+        //请求判读提示语字典
+        httpRequest('post','/paper/dict/list',{"dictType":"判读提示语提示类型"})
+            .then(response=>{
+                console.log("请求判读提示语字典",response)
+                let obj=response.data.data;
+                obj.forEach(item=>{
+                    this.hintDic[item.code]=item.name
+                })
+                console.log("提示语",this.hintDic);
+            }).catch(err => {
+            console.log(err);
+        })
+
+        //请求判读结果字典
+        httpRequest('post','/paper/dict/list',{"dictType":"判读提示语结果类型"})
+            .then(response=>{
+                console.log("请求判读提示语结果类型字典",response)
+                let obj=response.data.data;
+                obj.forEach(item=>{
+                    this.resultDic[item.code]=item.name
+                })
+                console.log("提示语结果",this.resultDic);
+            }).catch(err => {
+            console.log(err);
+        })
     }
 
 
@@ -623,6 +688,29 @@ export default class TestType extends Component {
         );
     }
 
+    //修改提示语表格
+    onModifyPrompt=record=>{
+        console.log(record);
+        this.setState({
+            modifyPromptVisible:true,
+        },()=>{
+            let promptForm=this.promptForm.current;
+            console.log("修改提示语表格",promptForm)
+            if(promptForm){
+                promptForm.setFieldsValue({
+                    judgeTipsCode:record.judgeTipsCode,
+                    judgeTipsType:record.judgeTipsType,
+                    resultType:record.resultType,
+                    judgeTipsValue:record.judgeTipsValue,
+                    resultDataTips:record.resultDataTips,
+                    shortTips:record.shortTips,
+                    longTips:record.longTips,
+                    tipsImage:record.tipsImage
+
+                })
+            }
+        })
+    }
     //查看当前所关联的试剂类型
     handleAssociate=(record)=>{
         console.log('所关联的试剂类型',record)
@@ -1246,15 +1334,6 @@ export default class TestType extends Component {
         })
     }
 
-//判读参数翻页
-    onChangeParameters=page=>{
-        console.log("判读参数翻页");
-    }
-
-    //判读提示语翻页
-    onChangePrompt=page=>{
-        console.log("判读提示语翻页");
-    }
     //测试集选择框内容
     teoption(){
         return(
@@ -1264,7 +1343,64 @@ export default class TestType extends Component {
         )
     }
 
+    //选择提示语类型
+    onSelectType(){
+        this.setState({
+            messageVisible:true,
+        })
+    }
+
+    //选择结论类型
+    onSelectResult(){
+        this.setState({
+            resulteVisible:true,
+        })
+    }
+
+    //查看提示语图片
+    onViewImage(){
+        this.setState({
+            viewVisible:true,
+        })
+
+    }
+    //选择提示语
+    onSelectImage(){
+        this.setState({
+            imageVisible:true,
+        })
+    }
+
+
+    //修改提示语类型
+    onChangeType=e=>{
+        console.log(e)
+        this.setState({
+            valueType:e.target.value,
+        })
+        console.log(this.state.valueType)
+    }
+    //修改提示语类型
+    onChangeResult=e=>{
+        console.log(e)
+        this.setState({
+            valueResult:e.target.value,
+        })
+        console.log(this.state.valueResult)
+    }
+
+    //修改提示语图片
+    //设置如何将 event 的值转换成字段值
+    normFile = (e) => {
+        console.log('Upload event:', e);
+        if (Array.isArray(e)) {//判断e是否是一个array
+            return e;
+        }
+        console.log(e && e.fileList)
+        return e && e.fileList;
+    };
     form = React.createRef();
+    promptForm=React.createRef();
     render() {
         const { loading, selectedRowKeys, associtedSelectedRowKeys} = this.state;
         const rowSelection = {
@@ -1298,7 +1434,7 @@ export default class TestType extends Component {
 
         return (
             <div>
-                <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
+                <Row justify="space-between" gutter="15" style={{display:"flex"}}  >
                     <Col span={3}>
                         <Input  placeholder="测试类型名称"
                                 value={this.state.testTypeName}
@@ -1683,6 +1819,163 @@ export default class TestType extends Component {
 
                     </Modal>
                 </Modal>
+
+                {/*<Modal*/}
+                {/*    title="信息"*/}
+                {/*    visible={this.state.messageVisible}*/}
+                {/*    onOk={this.handleSubmitPrompt}*/}
+                {/*    footer={[*/}
+                {/*        <div style={{textAlign:"center"}}>*/}
+                {/*            <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmitPrompt}>*/}
+                {/*                确定*/}
+                {/*            </Button>*/}
+                {/*        </div>*/}
+                {/*    ]}>*/}
+                {/*    <div style={{position:'relative'}}>*/}
+                {/*        <Radio.Group onChange={this.onChangeType} style={{position:'absolute',left:'20%'}}>*/}
+                {/*            <Radio value={'tips_finish'}>结束</Radio>*/}
+                {/*            <Radio value={'tips_no_finish'}>非结束</Radio>*/}
+                {/*            <Radio value={'key_event'}>关键事件</Radio>*/}
+                {/*        </Radio.Group>*/}
+                {/*    </div>*/}
+
+
+                {/*</Modal>*/}
+
+                <Modal
+                    title="查看图片"
+                    visible={this.state.viewVisible}
+                    onCancel={()=>{this.setState({
+                        viewVisible:false
+                    })}}
+                    footer={[
+                        // <div style={{textAlign:"center"}}>
+                        //     <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmitPrompt}>
+                        //         确定
+                        //     </Button>
+                        // </div>
+                    ]}>
+                    <Image
+                        //width={200}
+                        src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+                        fallback="data:image/png;base64,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"
+                    />
+
+                </Modal>
+
+                {/*<Modal*/}
+                {/*    title="信息"*/}
+                {/*    visible={this.state.resultVisible}*/}
+                {/*    onOk={this.handleSubmitPrompt}*/}
+                {/*    footer={[*/}
+                {/*        <div style={{textAlign:"center"}}>*/}
+                {/*            <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmitPrompt}>*/}
+                {/*                确定*/}
+                {/*            </Button>*/}
+                {/*        </div>*/}
+                {/*    ]}>*/}
+                {/*    <div style={{position:'relative'}}>*/}
+                {/*        <Radio.Group onChange={this.onChangeResult} style={{position:'absolute',left:'20%'}}>*/}
+                {/*            <Radio value={'tips_normal'}>正常</Radio>*/}
+                {/*            <Radio value={'tips_error'}>异常</Radio>*/}
+                {/*            <Radio value={'tips_no_result'}>无结果</Radio>*/}
+                {/*            <Radio value={'tips_no_test'}>未测试</Radio>*/}
+                {/*        </Radio.Group>*/}
+                {/*    </div>*/}
+                {/*</Modal>*/}
+
+                {/*修改判读提示语*/}
+                <Modal
+                    title="修改判读提示语"
+                    visible={this.state.modifyPromptVisible}
+                    onOk={this.handleOk}
+                    onCancel={this.handleCancel}
+                    footer={[
+                        <div style={{textAlign:"center"}}>
+                            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+                                修改
+                            </Button>,
+                            <Button key="back" onClick={this.handleCancel}>
+                                取消
+                            </Button>,
+                        </div>
+                    ]}>
+                    <Form {...formItemLayout}
+                          name="prompt"
+                          ref={this.promptForm}>
+                        <Form.Item label="编码"
+                                   name="judgeTipsCode"
+                                   rules={[{required:true,message:"必填项不能为空"}]}>
+                            <Input allowClear
+                                   placeholder="请输入编码"/>
+                        </Form.Item>
+                        <Form.Item label="提示语类型"
+                                   name="judgeTipsType"
+                                   rules={[{required:true,message:"必选项不能为空"}]}>
+                            <Select placeholder="请选择测试集">
+                               <Option value={'tips_finish'}>结束</Option>
+                               <Option value={'tips_no_finish'}>非结束</Option>
+                               <Option value={'key_event'}>关键事件</Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label="结论类型"
+                                   name="resultType"
+                                   rules={[{required:true,message:"必选项不能为空"}]}>
+                            <Select placeholder="请选择测试集">
+                                <Option value={'tips_normal'}>正常</Option>
+                                <Option value={'tips_error'}>异常</Option>
+                                <Option value={'tips_no_result'}>无结果</Option>
+                                <Option value={'tips_no_test'}>未测试</Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label="提示语"
+                                   name="judgeTipsValue"
+                                   rules={[{required:true,message:"必填项不能为空"}]}>
+                            <Input.TextArea rows={2}
+                                            placeholder="请输入提示语"
+                                            allowClear></Input.TextArea>
+                        </Form.Item>
+                        <Form.Item label="结果数据"
+                                   name="resultDataTips"
+                                   rules={[{required:true,message:"必填项不能为空"}]}>
+                            <Input placeholder="请输入结果数据"
+                                   allowClear/>
+                        </Form.Item>
+                        <Form.Item label="短提示语"
+                                   name="shortTips"
+                                   rules={[{required:true,message:"必填项不能为空"}]}>
+                            <Input placeholder="请输入短提示语"
+                                   allowClear/>
+                        </Form.Item>
+                        <Form.Item label="长提示语"
+                                   name="longTips"
+                                   rules={[{required:true,message:"必填项不能为空"}]}>
+                            <Input.TextArea rows={4}
+                                      placeholder="请输入长提示语"
+                                      allowClear></Input.TextArea>
+                        </Form.Item>
+                        <Form.Item
+                            name="upload"
+                            label="选择提示语图片"
+                            valuePropName="fileList"
+                            getValueFromEvent={this.normFile}
+                        >
+                            <Image
+                                //width={200}
+                                src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+                                //src={tipsImage}
+                                fallback="data:image/png;base64,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"
+                            />
+                            <Upload name="tipsImage"
+                                    action="/upload.do" //上传的地址
+                                    listType="picture">
+                                <Button icon={<UploadOutlined />}>选择提示语图片</Button>
+                            </Upload>
+                        </Form.Item>
+                    </Form>
+                </Modal>
+
+
 
                 <div key={Math.random()}>
                     {/*导入弹窗*/}
