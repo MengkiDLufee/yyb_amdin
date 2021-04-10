@@ -85,13 +85,18 @@ export default class TestType extends Component {
         testTypeId:null,
         currentId:null,
 
-        judgeMethodId:'',
+        //判读逻辑
+        functionMethodVisible:false,
+        //判读参数
+        judgeParamVisible:false,
+        judgeParamId:'',
 
         //判读提示语
         messageVisible:false,
         resultVisible:false,
         viewVisible:false,
         imageVisible:false,
+        judgeMethodId:'',
 
         //radio
         valueType:'',
@@ -273,17 +278,13 @@ export default class TestType extends Component {
             align:'center',
             render: (text, record) => (
                 <Space size="middle">
-
-                    <Button style={record.production==="历史"?{color:'black',background:'white'}:{background: 'rgb(190, 200, 200)'}}
+                    <Button style={record.production==="历史"?{color:'black',background:'white'}:{display:'none'}}
                             onClick={()=>{this.handleModifyHistory(record)}}
-                            disabled={record.production==="历史"?false:true}
-                    >修改</Button>
-                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                            disabled={record.production==="历史"?false:true}>修改</Button>
+                    <Button style={record.production==="历史"?{backgroundColor:'#ec7259', color:'#FFFAFA'}:{display:'none'}}
                             onClick={()=>{this.handleProduct(record)}}>设置为生产</Button>
-                    <Button style={record.production==="历史"?{color:'black',background:'white'}:{background: 'rgb(190, 200, 200)'}}
-                            onClick={()=>{this.handleDeleteHistory(record)}}
-                            disabled={record.production==="历史"?false:true}
-                    >删除</Button>
+                    <Button style={record.production==="历史"?{color:'black',background:'white'}:{display:'none'}}
+                            onClick={()=>{this.handleDeleteHistory(record)}}>删除</Button>
                 </Space>
             ),
         },
@@ -291,10 +292,20 @@ export default class TestType extends Component {
     //判读逻辑
     logicColumns=[
         {
-            title: '当前函数值',
+            title: '函数值',
             dataIndex: 'functionMethod',
             ellipsis:true,
-
+        },
+        {
+            title: '操作',
+            dataIndex: 'option',
+            width:100,
+            render: (text, record) => (
+                <Space size="middle">
+                    <Button style={{backgroundColor:'#f05d73', color:'#FFFAFA',position:'absolute',width: '80%',left:'10%',top:'20%'}}
+                            onClick={()=>{this.onModifyPrompt(record)}}><p style={{display:'inline-block',whiteSpace:'nowrap'}}>修改</p></Button>
+                </Space>
+            ),
         },
     ]
     //判读参数
@@ -309,7 +320,17 @@ export default class TestType extends Component {
             title: '值',
             dataIndex: 'judgeParamValue',
             ellipsis:true,
-
+        },
+        {
+            title: '操作',
+            dataIndex: 'option',
+            width:100,
+            render: (text, record) => (
+                <Space size="middle">
+                    <Button style={{backgroundColor:'#f05d73', color:'#FFFAFA',position:'absolute',width: '80%',left:'10%',top:'20%'}}
+                            onClick={()=>{this.onModifyPrompt(record)}}><p style={{display:'inline-block',whiteSpace:'nowrap'}}>修改</p></Button>
+                </Space>
+            ),
         },
     ]
     //判读提示语
@@ -331,14 +352,6 @@ export default class TestType extends Component {
             dataIndex: 'resultType',
             ellipsis:true,
             width:100,
-            // render: (text, record) => (
-            //     <Space size="middle">
-            //         <Button style={{color:'black',background:'white',position:'absolute',width: '80%',left:'10%',top:'20%'}}
-            //                 onClick={()=>{this.onSelectResult(record)}}>
-            //             <p style={{display:'inline-block',whiteSpace:'nowrap'}}>{this.resultDic[record.resultType]}</p>
-            //         </Button>
-            //     </Space>
-            // ),
         },
         {
             title: '提示语',
@@ -386,7 +399,7 @@ export default class TestType extends Component {
             width:100,
             render: (text, record) => (
                 <Space size="middle">
-                    <Button style={{color:'black',background:'white',position:'absolute',width: '80%',left:'10%',top:'20%'}}
+                    <Button style={{backgroundColor:'#f05d73',color:'#FFFAFA',position:'absolute',width: '80%',left:'10%',top:'20%'}}
                             onClick={()=>{this.onModifyPrompt(record)}}><p style={{display:'inline-block',whiteSpace:'nowrap'}}>修改</p></Button>
                 </Space>
             ),
@@ -436,8 +449,21 @@ export default class TestType extends Component {
                 testSetGroup:[],
                 currentId:null,
 
-                judgeMethodId:'',
                 modifyPromptVisible:false,
+
+                //判读逻辑
+                functionMethodVisible:false,
+                //判读参数
+                judgeParamVisible:false,
+                judgeParamId:'',
+
+                //判读提示语
+                messageVisible:false,
+                resultVisible:false,
+                viewVisible:false,
+                imageVisible:false,
+                judgeMethodId:'',
+
             });
         }, 1000);
     };
@@ -689,27 +715,62 @@ export default class TestType extends Component {
     }
 
     //修改提示语表格
-    onModifyPrompt=record=>{
+    onModifyPrompt=(record)=>{
         console.log(record);
-        this.setState({
-            modifyPromptVisible:true,
-        },()=>{
-            let promptForm=this.promptForm.current;
-            console.log("修改提示语表格",promptForm)
-            if(promptForm){
-                promptForm.setFieldsValue({
-                    judgeTipsCode:record.judgeTipsCode,
-                    judgeTipsType:record.judgeTipsType,
-                    resultType:record.resultType,
-                    judgeTipsValue:record.judgeTipsValue,
-                    resultDataTips:record.resultDataTips,
-                    shortTips:record.shortTips,
-                    longTips:record.longTips,
-                    tipsImage:record.tipsImage
+        if(record.functionMethod) {
+            //当前函数值
+            this.setState({
+                functionMethodVisible:true,
 
-                })
-            }
-        })
+            },()=>{
+                let functionMethodForm=this.functionMethodForm.current;
+                if(functionMethodForm){
+                    functionMethodForm.setFieldsValue({
+                        functionMethod:record.functionMethod,
+
+                    })
+                }
+            })
+        }
+        else if(record.judgeParamId){
+            //判读参数
+            this.setState({
+                judgeParamVisible:true,
+                judgeParamId:record.judgeParamId,
+            },()=>{
+                let judgeParamForm=this.judgeParamForm.current;
+                if(judgeParamForm){
+                    judgeParamForm.setFieldsValue({
+                        judgeParamCode:record.judgeParamCode,
+                        judgeParamValue:record.judgeParamValue,
+                    })
+                }
+            })
+        }
+        else{
+            //判读提示语
+            this.setState({
+                modifyPromptVisible:true,
+                judgeMethodId:record.judgeMethodId,
+            },()=>{
+                let promptForm=this.promptForm.current;
+                console.log("修改提示语表格",promptForm)
+                if(promptForm){
+                    promptForm.setFieldsValue({
+                        judgeTipsCode:record.judgeTipsCode,
+                        judgeTipsType:record.judgeTipsType,
+                        resultType:record.resultType,
+                        judgeTipsValue:record.judgeTipsValue,
+                        resultDataTips:record.resultDataTips,
+                        shortTips:record.shortTips,
+                        longTips:record.longTips,
+                        tipsImage:record.tipsImage
+
+                    })
+                }
+            })
+        }
+
     }
     //查看当前所关联的试剂类型
     handleAssociate=(record)=>{
@@ -856,21 +917,78 @@ export default class TestType extends Component {
     //修改判读历史数据
     handleModifyHistory=(record)=>{
         console.log("修改判读历史数据")
-        console.log(record)
+        console.log('当前生产判读逻辑',record)
+        this.setState({
+            logicVisible:true,
+            testTypeId:record.testTypeId,
+            judgeMethodId:record.judgeMethodId,
+        },()=>{
+            let params={
+                testTypeId:this.state.testTypeId
+            }
+            httpRequest('post','/test/type/judge/list',params)
+                .then(response=>{
+                    console.log("发送的参数",params)
+                    let res=response.data;
+                    if(res.code===1000){
+                        console.log(res.data)
+                        this.setState({
+                            logicData:[{functionMethod:res.data.functionMethod}],
+                            parametersData:res.data.judgeParam,
+                            promptData:res.data.judgeTips,
+                        },()=>{
+                            console.log(this.state.logicData)
+                        })
+                    }
+                }).catch(err => {
+                console.log(err);
+            })
+        })
+
+
     }
     //设置为生产
     handleProduct=(record)=>{
-        console.log("设置为生产")
+        console.log("设置为生产",record)
         let params={
             judgeMethodHisId:record.judgeMethodHisId,
         }
+        console.log("生产",params)
         httpRequest('post','/test/type/judge/history/production',params)
             .then(response=>{
+                console.log("response",response)
                 if(response.data.code===1004){
                     //重新请求当前生产判读逻辑
+                    let param={
+                        page:1,
+                        pageSize:10,
+                        testTypeId:record.testTypeId
+                    };
+                    httpRequest('post','/test/type/judge/history/list',param)
+                        .then(response=>{
+                            console.log("发送的参数",param)
+                            let res=response.data;
+                            console.log("回应",res);
+                            if(res.code===1000){
+                                let tempData=[...res.data.info];
+                                for(let i=0;i<tempData.length;i++){
+                                    tempData[i].key=i;
+                                    if(tempData[i].production===true){
+                                        tempData[i].production="生产";
+                                    }
+                                    else {
+                                        tempData[i].production="历史";
+                                    }
+                                }
+                                this.setState({
+                                    historyData:tempData
+                                })
+                            }
+                        }).catch(err => {
+                            console.log(err);
+                        })
                 }
             })
-        console.log(params)
     }
 
     //删除判读逻辑历史
@@ -1086,6 +1204,33 @@ export default class TestType extends Component {
         }
     };
 
+    //提交判读的修改
+    handleJudgeModify=()=>{
+        let promptForm = this.promptForm.current;
+        this.setState({
+            loading: true,
+        });
+        promptForm.validateFields()//表单输入校验
+            .then((values) => {
+                console.log("判读",values);
+                let params={
+                    judgeMethodId:this.state.judgeMethodId,
+                    // judgeTips:[{
+                    //
+                    // }]
+                    judgeTipsCode:values.judgeTipsCode,
+                    judgeTipsType:values.judgeTipsType,
+                    judgeTipsValue:values.judgeTipsValue,
+                    longTips:values.longTips,
+                    resultDataTips:values.resultDataTips,
+                    resultType:values.resultType,
+                    shortTips:values.shortTips,
+                }
+                console.log("参数",params)
+
+            })
+}
+
     //搜索选择框变化
     handleChange=(e,Option) =>{
         console.log(e)
@@ -1122,6 +1267,16 @@ export default class TestType extends Component {
         });
     };
 
+    //关闭修改判读参数
+    handleCancelJudgeModify=e=>{
+        console.log(e);
+        this.setState({
+            functionMethodVisible:false,
+            judgeParamVisible:false,
+            modifyPromptVisible:false,
+
+        });
+    }
     //返回
     handleReturn = e => {
         console.log(e);
@@ -1401,6 +1556,8 @@ export default class TestType extends Component {
     };
     form = React.createRef();
     promptForm=React.createRef();
+    judgeParamForm=React.createRef();
+    functionMethodForm=React.createRef();
     render() {
         const { loading, selectedRowKeys, associtedSelectedRowKeys} = this.state;
         const rowSelection = {
@@ -1636,7 +1793,7 @@ export default class TestType extends Component {
                 </Modal>
 
                 <Modal
-                    title="当前生产判读逻辑"
+                    title="修改判读逻辑"
                     visible={this.state.logicVisible}
                     onCancel={this.handleCancel}
                     width={1400}
@@ -1644,9 +1801,6 @@ export default class TestType extends Component {
                         <div style={{textAlign:"center"}}>
                             <Button type="primary" key="generate" onClick={this.handleCancel}>
                                 生成预览
-                            </Button>,
-                            <Button type="primary" key="confirm" onClick={this.handleCancel}>
-                                确定修改
                             </Button>,
                             <Button key="back" onClick={this.handleCancel}>
                                 取消
@@ -1820,27 +1974,6 @@ export default class TestType extends Component {
                     </Modal>
                 </Modal>
 
-                {/*<Modal*/}
-                {/*    title="信息"*/}
-                {/*    visible={this.state.messageVisible}*/}
-                {/*    onOk={this.handleSubmitPrompt}*/}
-                {/*    footer={[*/}
-                {/*        <div style={{textAlign:"center"}}>*/}
-                {/*            <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmitPrompt}>*/}
-                {/*                确定*/}
-                {/*            </Button>*/}
-                {/*        </div>*/}
-                {/*    ]}>*/}
-                {/*    <div style={{position:'relative'}}>*/}
-                {/*        <Radio.Group onChange={this.onChangeType} style={{position:'absolute',left:'20%'}}>*/}
-                {/*            <Radio value={'tips_finish'}>结束</Radio>*/}
-                {/*            <Radio value={'tips_no_finish'}>非结束</Radio>*/}
-                {/*            <Radio value={'key_event'}>关键事件</Radio>*/}
-                {/*        </Radio.Group>*/}
-                {/*    </div>*/}
-
-
-                {/*</Modal>*/}
 
                 <Modal
                     title="查看图片"
@@ -1863,39 +1996,79 @@ export default class TestType extends Component {
 
                 </Modal>
 
-                {/*<Modal*/}
-                {/*    title="信息"*/}
-                {/*    visible={this.state.resultVisible}*/}
-                {/*    onOk={this.handleSubmitPrompt}*/}
-                {/*    footer={[*/}
-                {/*        <div style={{textAlign:"center"}}>*/}
-                {/*            <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmitPrompt}>*/}
-                {/*                确定*/}
-                {/*            </Button>*/}
-                {/*        </div>*/}
-                {/*    ]}>*/}
-                {/*    <div style={{position:'relative'}}>*/}
-                {/*        <Radio.Group onChange={this.onChangeResult} style={{position:'absolute',left:'20%'}}>*/}
-                {/*            <Radio value={'tips_normal'}>正常</Radio>*/}
-                {/*            <Radio value={'tips_error'}>异常</Radio>*/}
-                {/*            <Radio value={'tips_no_result'}>无结果</Radio>*/}
-                {/*            <Radio value={'tips_no_test'}>未测试</Radio>*/}
-                {/*        </Radio.Group>*/}
-                {/*    </div>*/}
-                {/*</Modal>*/}
+                <Modal
+                    title="修改判读逻辑"
+                    visible={this.state.functionMethodVisible}
+                    onOk={this.handleJudgeModify}
+                    onCancel={this.handleCancelJudgeModify}
+                    footer={[
+                        <div style={{textAlign:"center"}}>
+                            <Button key="submit" type="primary" loading={loading} onClick={this.handleJudgeModify}>
+                                修改
+                            </Button>,
+                            <Button key="back" onClick={this.handleCancelJudgeModify}>
+                                取消
+                            </Button>,
+                        </div>
+                    ]}>
+                    <Form {...formItemLayout}
+                          name="functionMethod"
+                          ref={this.functionMethodForm}>
+                        <Form.Item label="函数值"
+                                   name="functionMethod"
+                                   rules={[{required:true,message:"必填项不能为空"}]}>
+                            <Input.TextArea rows={3}
+                                            allowClear
+                                   placeholder="请输入函数值"/>
+                        </Form.Item>
+                    </Form>
+                </Modal>
+
+                <Modal
+                    title="修改判读参数"
+                    visible={this.state.judgeParamVisible}
+                    onOk={this.handleJudgeModify}
+                    onCancel={this.handleCancelJudgeModify}
+                    footer={[
+                        <div style={{textAlign:"center"}}>
+                            <Button key="submit" type="primary" loading={loading} onClick={this.handleJudgeModify}>
+                                修改
+                            </Button>,
+                            <Button key="back" onClick={this.handleCancelJudgeModify}>
+                                取消
+                            </Button>,
+                        </div>
+                    ]}>
+                    <Form {...formItemLayout}
+                          name="judgeParam"
+                          ref={this.judgeParamForm}>
+                        <Form.Item label="编码"
+                                   name="judgeParamCode"
+                                   rules={[{required:true,message:"必填项不能为空"}]}>
+                            <Input allowClear
+                                   placeholder="请输入编码"/>
+                        </Form.Item>
+                        <Form.Item label="值"
+                                   name="judgeParamValue"
+                                   rules={[{required:true,message:"必选项不能为空"}]}>
+                            <Input allowClear
+                                   placeholder="请输入值"/>
+                        </Form.Item>
+                    </Form>
+                </Modal>
 
                 {/*修改判读提示语*/}
                 <Modal
                     title="修改判读提示语"
                     visible={this.state.modifyPromptVisible}
-                    onOk={this.handleOk}
-                    onCancel={this.handleCancel}
+                    onOk={this.handleJudgeModify}
+                    onCancel={this.handleCancelJudgeModify}
                     footer={[
                         <div style={{textAlign:"center"}}>
-                            <Button key="submit" type="primary" loading={loading} onClick={this.handleOk}>
+                            <Button key="submit" type="primary" loading={loading} onClick={this.handleJudgeModify}>
                                 修改
                             </Button>,
-                            <Button key="back" onClick={this.handleCancel}>
+                            <Button key="back" onClick={this.handleCancelJudgeModify}>
                                 取消
                             </Button>,
                         </div>

@@ -132,7 +132,8 @@ export default class ReagentJudgeParams extends Component {
             dataIndex: 'revisions',
             render: (text, record) => (
                 <Space size="middle">
-                    <Button type="link" style={{color:'#000000'}} onClick={()=>{this.handleRevisions(record)}}>历史版本</Button>
+                    <Button type="link" style={{color:'#000000'}} block
+                            onClick={()=>{this.handleRevisions(record)}}>历史版本</Button>
                 </Space>
             ),
         },
