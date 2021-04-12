@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/icons": "^4.2.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -12,11 +13,14 @@
     "customize-cra": "^1.0.0",
     "less": "^3.12.2",
     "less-loader": "^7.0.2",
+    "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-app-rewired": "^2.1.6",
+    "react-axios": "^2.0.3",
     "react-dom": "^16.14.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.3"
+    "react-scripts": "3.4.3",
+    "xlsx": "^0.16.9"
   },
   "scripts": {
     "start": "react-app-rewired start",
