@@ -15,94 +15,10 @@ import {
   DeleteOutlined,
 } from '@ant-design/icons'
 import locale from 'antd/lib/date-picker/locale/zh_CN';
-import {queryLog,emptyLog} from '../../api/index'
+import {queryWorkLog,emptyWorkLog} from '../../api/index'
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
-
-//主页面表格数据
-const data = [
-  {   
-    key: '0',     
-    logType: '异常日志',
-    logName: '异常日志',
-    userName:'admin',
-    className:'entity',
-    methodName:'add',
-    date:'2021-4-5 10:01:32',
-    msg: 'error',
-  },
-  {
-    key: '2',
-    logType: '异常日志',
-    logName: '异常日志',
-    userName:'admin',
-    className:'entity',
-    methodName:'add',
-    date:'2021-4-5 10:01:32',
-    msg: 'error',
-  },
-  {    
-    key: '3',    
-    logType: '异常日志',
-    logName: '异常日志',
-    userName:'admin',
-    className:'entity',
-    methodName:'add',
-    date:'2021-4-5 10:01:32',
-    msg: 'error',
-  },
-  {
-    key: '4',
-    logType: '异常日志',
-    logName: '异常日志',
-    userName:'admin',
-    className:'entity',
-    methodName:'add',
-    date:'2021-4-5 10:01:32',
-    msg: 'error',
-  },
-  {    
-    key: '5',    
-    logType: '异常日志',
-    logName: '异常日志',
-    userName:'admin',
-    className:'entity',
-    methodName:'add',
-    date:'2021-4-5 10:01:32',
-    msg: 'error',
-  },
-  {
-    key: '6',
-    logType: '异常日志',
-    logName: '异常日志',
-    userName:'admin',
-    className:'entity',
-    methodName:'add',
-    date:'2021-4-5 10:01:32',
-    msg: 'error',
-  },
-  {      
-    key: '7',  
-    logType: '异常日志',
-    logName: '异常日志',
-    userName:'admin',
-    className:'entity',
-    methodName:'add',
-    date:'2021-4-5 10:01:32',
-    msg: 'error',
-  },
-  {
-    key: '8',
-    logType: '异常日志',
-    logName: '异常日志',
-    userName:'admin',
-    className:'entity',
-    methodName:'add',
-    date:'2021-4-5 10:01:32',
-    msg: 'error',
-  },
-];
 
 export default class WorkLog extends Component {
   constructor(props){
@@ -111,16 +27,15 @@ export default class WorkLog extends Component {
       workLogs:[],
       visible:0,//弹窗显示
       logType:["全部","异常日志","业务日志"],//日志类型
-      selectedRowKeys: [],      
-      paginationProps : {//分页栏参数    
-        showQuickJumper:true,
-        showSizeChanger:true,
-      },
+      selectedRowKeys: [],     
+      total:null,//数据总条数
+      current:1,//当前页数
+      pageSize:10,//当前页面条数
       input:{
-        startDate:'',
-        endDate:'',
-        logName:'',
-        logType:''        
+        startDate:'',//开始日期
+        endDate:'',//结束日期
+        nickName:'',//日志名称
+        logType:'',//日志类型     
       }
     }
   }
@@ -129,7 +44,7 @@ initColumns=()=>{
   this.columns =[
     {
       title:'日志类型',
-      dataIndex:'logType',
+      dataIndex:'clientId',
       width:200,
       align:'center'
     },   
@@ -147,7 +62,7 @@ initColumns=()=>{
     },
     {
       title:'类名',
-      dataIndex:'className',
+      dataIndex:'nickName',
       width:200,
       align:'center',
     },
@@ -159,13 +74,13 @@ initColumns=()=>{
     },  
     {
       title:'时间',
-      dataIndex:'date',
+      dataIndex:'regTime',
       width:200,
       align:'center'
     },  
     {
       title:'具体消息',
-      dataIndex:'msg',
+      dataIndex:'hasBearing',
       width:200,
       align:'center'
     },  
@@ -180,7 +95,7 @@ initColumns=()=>{
   ];
 }
  //选择框
- selectChange =(e,Option) => {
+selectChange =(e,Option) => {
   console.log(e)
   console.log(Option)
   this.setState({
@@ -190,35 +105,80 @@ initColumns=()=>{
 //表格行选择
 onSelectChange = row => {
   console.log('所选择行',row)
-  //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+  //setState为异步操作，
+  //若在this.setState函数外获取，则仍是赋值之前的值，没有改变
   this.setState(
     {selectedRowKeys:row}
   )
 };
-
-//获取日志数据
-getWorkLogs=(logName,logType)=>{
-  this.setState({loading:true})
-  logName=logName||this.state.logName
-  //const result = await reqlogs(logName)
-  const result = setTimeout(()=>data,1000)
-  this.setState({loading:false})    
-  console.log("获取列表数据");  
-  const worklogs = result         
-  this.setState({worklogs})
+// 获取业务日志数据
+getWorkLogs=()=>{  
+  this.setState({loading:true}) 
+  const {input,current,pageSize}=this.state; 
+  queryWorkLog({
+    page:current,
+    pageSize,
+    nickName:input.nickName}).then((result)=>{
+    this.setState({loading:false})    
+  console.log("获取列表数据") 
+  console.log(result) 
+  const data = result.data.data      
+  this.setState({
+    workLogs:data.info,
+    total:data.total,
+  })
+  })   
+}
+//表格行选择操作
+onSelectChange = selectedRowKey => {
+  //setState为异步操作，
+  //若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+  this.setState(
+    {selectedRowKeys:selectedRowKey},
+    ()=>{console.log('所选择行',this.state.selectedRowKeys)}
+  )
+};
+/* //主页面表格页数变化
+handTablechange = (pagination) =>{
+  console.log(pagination,pagination.current,pagination.pageSize);
+  console.log(this.state.current,this.state.pageSize); 
+  queryWorkLog({
+    page:pagination.current,
+    pageSize:pagination.pageSize,
+  }).then(res=>{    
+    console.log(res.data.data.info)
+    this.setState({ 
+      current:pagination.current,
+      pageSize:pagination.pageSize,
+      workLogs:res.data.data.info,
+    })
+  })
+}; */
+//主页面表格页数变化
+handTablechange = (pagination) =>{
+  this.setState({ 
+    current:pagination.current,
+    pageSize:pagination.pageSize,    
+  }) 
+  this.getWorkLogs()
+};
+//获取日志名称值
+logNameChange(e){  
+  this.setState({
+    input:Object.assign(this.state.input,{nickName:e.target.value}),
+  })
 }
 
-onSelectChange = selectedRowKeys => {    
-  this.setState({ selectedRowKeys });
-};
 //清空日志
 empty=()=>{
   this.setState({visible:1})
 }
 //搜索
 search=()=>{  
-  message.info('搜索中')
-  console.log('搜索',this.state.input)
+  message.info('搜索成功');
+  //请求表格数据
+ console.log(this.state.input);
+ this.getWorkLogs();
 }
 //查看详情
 showDetail=(worklog)=>{  
@@ -245,26 +205,26 @@ componentWillMount(){
 componentDidMount(){
   // this.getWorkLogs()
   //请求表格数据
-  queryLog({
+  queryWorkLog({
     page:1,
     pageSize:10
   }).then(res=>{
-    console.log(res)    
+    var data=res.data.data.info;
+    console.log(data)    
     this.setState({
-      tableData:data,
+      workLogs:data,
       total:res.data.data.total,
     })
   })
-  // getPaper().then(res=>{
-  //   console.log(res)
-  //   this.setState({
-  //     paperType:res.data.data.paperType
-  //   })
-  // })
 }
- 
   render() {
-    const { selectedRowKeys,visible,loading,logType} = this.state;   
+    const { 
+      selectedRowKeys,
+      workLogs,
+      visible,
+      logType,
+      loading,      
+      total} = this.state;   
     const worklog = this.worklog || {}//如果还没有，指定一个空对象
     const rowSelection = {
       selectedRowKeys,
@@ -283,16 +243,16 @@ componentDidMount(){
             </Col>
             <Col>
                 <Input 
-                  placeholder="日志名称"                 
-                  value={this.state.logName}
-                  className="input2"
+                  placeholder="日志名称"  
+                  onChange={(e)=>this.logNameChange(e)}               
+                  value={this.state.input.nickName}                  
                 >              
                 </Input>
             </Col>
             <Col>
             <Select 
               placeholder="日志类型"   
-              value={this.state.logType}              
+              value={this.state.input.logType}              
               dropdownStyle={{width:'300px'}}
               allowClear 
             >
@@ -329,10 +289,18 @@ componentDidMount(){
         {/* 表格 */}
         <Table 
           columns={this.columns}
-          dataSource={data}
+          dataSource={workLogs}
           bordered={true}
           style={{margin:'20px 0'}}
-          pagination={ this.state.paginationProps}
+          pagination={{
+            position: ['bottomLeft'] ,
+            total:total,
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true,
+            current:this.state.current,
+            pageSize:this.state.pageSize,
+          }}
           onChange={this.handTablechange}
           rowSelection={rowSelection}  
         />
@@ -359,7 +327,7 @@ componentDidMount(){
           onCancel={this.handleCancel}  
           footer={null} 
         >
-          <p>{worklog.msg}</p>         
+          <p>{worklog.userName}</p>         
         </Modal>
       </div>
     )

@@ -12,6 +12,8 @@ import {
   Form,
   message,
   Modal,
+  Select,
+  TreeSelect
 } from 'antd'
 import {
   SearchOutlined,
@@ -19,63 +21,101 @@ import {
   PlusOutlined,
   DownOutlined 
 } from '@ant-design/icons'
+import moment from 'moment';
 import locale from 'antd/lib/date-picker/locale/zh_CN';
+import { 
+  queryAlldept, 
+  querySysUser,
+  queryAllPosition,
+  queryAllSysRole,
+  addSysUser,
+  deleteSysUser,
+  modifySysUserStatus,
+  exportSysUser,
+} from '../../api';
+import Item from 'antd/lib/list/Item';
+
 const { RangePicker } = DatePicker;
- 
+const {Option}=Select;
+
 export default class User extends Component {
-    
-  state = {
-    selectedRowKeys: [],
-    visible_add:false, 
-    visible_modify:false,  
-    visible_delete:false,  
-    visible_role_assign:false,
-    visible_reset:false,
-    loading:false,    
-    paginationProps : {//分页栏参数    
-      showQuickJumper:true,
-      showSizeChanger:true,
-    },
+  constructor(props){
+    super(props)
+    this.state = {
+      users:[],//用户
+      selectedRowKeys: [],//选择行
+      visible:0,
+      loading:false,    
+      total:null,//数据总条数
+      current:1,//当前页数
+      pageSize:10,//当前页面条数
+      depts:[],//部门
+      treeData:[],
+      treeSelectData:[],
+      birthday:0,
+      roles:[],//角色
+      positions:[],//职位
+      input:{//搜索框参数
+        account:'',
+        name:'',
+        phone:'',
+        createTimeStart:'',
+        createTimeEnd:'',
+        deptId:'',//部门id
+      },      
+    }
+    this.addFormRef = React.createRef()
+    this.modifyFormRef = React.createRef()
   }
 
-  onSelectChange = selectedRowKeys => {    
+  onSelectChange = selectedRowKeys => {
+    console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys });
   };
 
-//列表名称
-  columns =[
+  //主页面表格页数变化
+handTablechange = (pagination) =>{
+  this.setState({ 
+    current:pagination.current,
+    pageSize:pagination.pageSize,    
+  }) 
+  this.getUsers()
+};
+  //初始化列表名称
+  initColumns=()=>{
+    this.columns =[
     {
-      title:'账号',
+      title:'账号',      
       dataIndex:'account',     
       align:'center'
     },   
     {
-      title:'姓名',
+      title:'姓名',      
       dataIndex:'name',      
       align:'center'
     },    
     {
-      title:'部门',
-      dataIndex:'department',      
+      title:'部门',      
+      dataIndex:'deptName',      
       align:'center',
     },
     {
-      title:'职位',
-      dataIndex:'position',      
+      title:'职位',      
+      dataIndex:'roleName',      
       align:'center',
     },
     {
-      title:'电话',
-      dataIndex:'name',      
+      title:'电话',      
+      dataIndex:'phone',      
       align:'center'
     },  
     {
-      title:'创建时间',
-      dataIndex:'name',      
+      title:'创建时间',      
+      dataIndex:'createTime',      
       align:'center'
     },  
     {
-      title:'状态',
+      title:'状态',      
       dataIndex:'status',      
       align:'center',
       render:(o,record)=>(
@@ -89,7 +129,7 @@ export default class User extends Component {
       )
     },  
     {
-      title:'操作',
+      title:'操作',      
       dataIndex:'option',      
       align:'center',
       render:(text,record) => (
@@ -101,74 +141,261 @@ export default class User extends Component {
         </Space>
       ),
     },  
-  ];  
+    ];  
+  }
+// 获取用户数据
+getUsers=()=>{  
+  this.setState({loading:true}) 
+  const {input,current,pageSize}=this.state; 
+  const {account,name,phone,createTimeStart,createTimeEnd,deptId}=input;
+  querySysUser({
+    page:current,
+    pageSize,
+    account,
+    name,
+    phone,
+    createTimeStart,
+    createTimeEnd,
+    deptId:'',
+    }).then((result)=>{
+    this.setState({loading:false})    
+  console.log("获取用户信息列表数据",result) 
+  const data = result.data.data  
+  const users=data.info 
+  for(const user of users){
+    user.key=user.userId
+  }  
+  this.setState({
+    users,
+    total:data.total,
+  })
+  })   
+}
+
+// 获取所有部门
+getDepartment=()=>{  
+  this.setState({loading:true})   
+  queryAlldept().then((result)=>{
+    this.setState({loading:false})    
+  console.log("获取所有部门",result) 
+  const depts = result.data.data   
+  for(const dept of depts){
+    dept.key=dept.deptId
+  }  
+  this.setState({
+    depts,    
+  },()=>{
+    this.getTreeData()
+  })
+  })
+}
+
+// 获取所有角色
+getRole=()=>{  
+  this.setState({loading:true})   
+  queryAllSysRole().then((result)=>{
+  this.setState({loading:false})    
+  console.log("获取所有角色") 
+  console.log(result) 
+  const roles = result.data.data
+  for(const role of roles){
+    role.key=role.roleId
+  }  
+  this.setState({
+    roles,    
+  })
+  })   
+}
+
+// 获取所有职位
+getPosition=()=>{  
+  this.setState({loading:true})   
+  queryAllPosition().then((result)=>{
+  this.setState({loading:false})    
+  console.log("获取所有职位",result)
+  const positions = result.data.data  
+  for(const position of positions){
+    position.key=position.positionId
+  }  
+  this.setState({
+    positions,    
+  },)  
+  })   
+}
+
+//获得树形结构
+getTreeData=()=>{
+  const{depts}=this.state 
+  const tree=depts.filter(item=>{return item.pid==="0"})
+  tree.map(item=>{
+    let children=depts.filter(dept=>{
+      return dept.pid===item.deptId
+    })
+    item.children=children
+  })   
+  const treeData = [
+    {
+      title: '顶级',
+      key: '000',
+      children:tree.map(item=>{   
+        if(item.children!=null){
+          return{      
+            title:item.fullName, 
+            key:item.key,
+            children:item.children.map(child=>{
+              return{
+              title:child.fullName, 
+              key:child.key
+            }})
+          }
+        }
+        else return{      
+          title:item.fullName, 
+          key:item.key
+        }
+      }),      
+       }
+      ];  
+  const treeSelectData = 
+    tree.map(item=>{   
+      if(item.children!=null){
+        return{      
+          title:item.fullName, 
+          key:item.key,
+          children:item.children.map(child=>{
+            return{
+            title:child.fullName, 
+            key:child.key,
+          }})
+        }
+      }
+      else return{      
+        title:item.fullName, 
+        key:item.key,
+      }
+    })        
+  this.setState({treeData,treeSelectData},()=>{
+    console.log('tree:',this.state.treeData)
+    console.log('treeSelect:',this.state.treeSelectData)
+  })
+  
+}
+
+
+//获取账号
+accountChange(e){  
+  this.setState({
+    input:Object.assign(this.state.input,{account:e.target.value}),
+  })
+}
+
+//获取名字
+nameChange(e){  
+  this.setState({
+    input:Object.assign(this.state.input,{name:e.target.value}),
+  })
+}
+
+//获取手机号
+phoneChange(e){  
+  this.setState({
+    input:Object.assign(this.state.input,{phone:e.target.value}),
+  })
+}
+
+//获取时间
+dateChange(value,dateString){  
+  const createTimeStart=dateString[0]
+  const createTimeEnd=dateString[1]
+  this.setState({
+    input:Object.assign(this.state.input,{
+    createTimeStart,
+    createTimeEnd}),
+  })
+}
+
+birthdayChange(value,dateString){
+  const birthday=dateString
+  console.log(value,birthday);
+  this.setState({birthday})
+}
+handlePositionChange=(value)=>{
+  console.log(this.state.positions);
+  console.log(`selected ${value}`);
+}
+  //关闭弹窗
+  handleCancel = () => {
+    this.setState({ visible:0 });  
+  };
+
+  //关闭添加用户弹窗
+  handleCancel_Add (e) {
+    this.setState({ visible:0 });    
+    
+    this.addFormRef.current.resetFields()
+    
+  };
 
   handleOk_role_assign = () => {
     this.setState({ loading: true });
     setTimeout(() => {
-      this.setState({ loading: false, visible_role_assign: false });
+      this.setState({ loading: false, visible:0 });
     }, 300);
   };
-
-  handleCancel_role_assign = () => {
-    this.setState({ visible_role_assign: false });
-  };
-
 
   handleOk_reset = () => {
     this.setState({ loading: true });
     setTimeout(() => {
-      this.setState({ loading: false, visible_reset: false });
+      this.setState({ loading: false, visible:0});
     }, 300);
-  };
-
-  handleCancel_reset = () => {
-    this.setState({ visible_reset: false });
   };
 
   handleOk_delete = () => {
     this.setState({ loading: true });
     setTimeout(() => {
-      this.setState({ loading: false, visible_delete: false });
+      this.setState({ loading: false, visible:0});
     }, 300);
-  };
-
-  handleCancel_delete = () => {
-    this.setState({ visible_delete: false });
-  };
+  };  
 
   handleOk_modify = () => {
     this.setState({ loading: true });
     setTimeout(() => {
-      this.setState({ loading: false, visible_modify: false });
+      this.setState({ loading: false, visible:0 });
     }, 300);
   };
-
-  handleCancel_modify = () => {
-    this.setState({ visible_modify: false });
-  };
-
+  //请求添加用户
   handleOk_add = () => {
     this.setState({ loading: true });
     setTimeout(() => {
-      this.setState({ loading: false, visible_add: false });
-    }, 300);
-  };
-
-  handleCancel_add = () => {
-    this.setState({ visible_add: false });
+      this.setState({ loading: false, visible:0 });
+    }, 300);    
+    let data=this.addFormRef.current.getFieldValue();
+    data.birthday=this.state.birthday
+    console.log("获取表单数据",data);  
+    addSysUser(data).then((result)=>{
+      this.setState({loading:false})    
+      console.log("请求添加用户",result)
+      // const positions = result.data.data  
+      // for(const position of positions){
+      //   position.key=position.positionId
+      // }  
+      // this.setState({
+      //   positions,    
+      // },)  
+       })   
   };
 
 //搜索用户
 search=()=>{
-  message.info('搜索用户')
+  console.log(this.state.input);
+  this.getUsers()
 }
 
 //添加用户
   add =() =>{    
     this.setState({
-      visible_add: true,
-    });
+      visible:"visible_add",
+    });     
   };
 
 //导出数据
@@ -179,28 +406,28 @@ search=()=>{
 //修改用户信息
   modify=()=>{
     this.setState({
-      visible_modify:true,      
+      visible:"visible_modify",      
     })
   }
 
   //删除用户
   delete=()=>{
     this.setState({
-      visible_delete:true,      
+      visible:"visible_delete",      
     })
   }
 
   //分配角色
   role_assign=()=>{
     this.setState({
-      visible_role_assign:true,      
+      visible:'visible_role_assign',      
     })
   }
 
   //重置密码
   reset=()=>{
     this.setState({
-      visible_reset:true,      
+      visible:'visible_reset',      
     })
   }
 
@@ -215,133 +442,89 @@ search=()=>{
     }
   }
 
+  componentWillMount(){
+    this.initColumns()
+     }
+  
+  componentDidMount(){
+    this.getUsers()
+    this.getDepartment()
+    this.getPosition()    
+    this.getRole()    
+  }
+  
   render() {
-    const {visible_add,
-           visible_modify,
-           visible_delete,
-           visible_role_assign,
-           visible_reset,
+    const {visible,
            loading,
-           selectedRowKeys
+           users,
+           birthday,
+           positions,
+           treeData,
+           treeSelectData,
+           selectedRowKeys,
+           input,
+           total
           }=this.state
-    
+    const user=this.user||{}  
+
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
-    };  
-    //主页面表格数据
-    const data = [
-      {        
-        name: '胡彦斌',
-        account: 32,
-        department: '西湖区湖底公园1号',
-      },
-      {
-        key: '1',
-        name: '胡彦祖',
-        age: 42,
-        address: '西湖区湖底公园1号',
-      },
-      {        
-        name: '胡彦斌',
-        account: 32,
-        department: '西湖区湖底公园1号',
-      },
-      {
-        key: '2',
-        name: '胡彦祖',
-        age: 42,
-        address: '西湖区湖底公园1号',
-      },
-      {        
-        name: '胡彦斌',
-        account: 32,
-        department: '西湖区湖底公园1号',
-      },
-      {
-        key: '3',
-        name: '胡彦祖',
-        age: 42,
-        address: '西湖区湖底公园1号',
-      },
-      {        
-        name: '胡彦斌',
-        account: 32,
-        department: '西湖区湖底公园1号',
-      },
-      {
-        key: '4',
-        name: '胡彦祖',
-        age: 42,
-        address: '西湖区湖底公园1号',
-      },
-    ];
-    
-    //树形控件列表
-    const treeData = [
-    {
-      title: '顶级',
-      key: '0-0',      
-      children: [
-        {
-          title: '总公司',
-          key: '0-0-0', 
-          children:[
-            {
-              title: '开发部',
-              key: '0-0-1',         
-            },
-            {
-              title: '客服部',
-              key: '0-0-2',         
-            },
-            {
-              title: '销售部',
-              key: '0-0-3',         
-            },
-            {
-              title: '生产部',
-              key: '0-0-4',         
-            },
-            {
-              title: '质检',
-              key: '0-0-5',         
-            },
-          ]        
-        },      
-      ],
-    },
-    ];
+    };    
     return (
       <div style={{height:'100%'}}>
-         <Row>
+         <Row gutter={{xs:8,sm:16,md:24,lg:32}}>         
             {/* 树形控件 */}
-          <Col span={4}>           
-          <Tree
-            showIcon
-            defaultExpandAll
-            defaultSelectedKeys={['0-0-0']}
-            switcherIcon={<DownOutlined />}
-            treeData={treeData}
-          />
+          <Col span={4}>   
+          {this.state.treeData.length ? (
+              <Tree                
+                defaultExpandAll={true}
+                // expandedKeys={treekeys}
+                defaultSelectedKeys={['000']}
+                switcherIcon={<DownOutlined />}
+                treeData={treeData}
+              />             
+            ) : ('loading tree')
+          }       
           </Col>
             {/* 表格页面主体 */}
           <Col span={20}>
            {/* 搜索栏 */}
            <div style={{'margin':'0 0 15px  0'}}>
             <Row gutter={{xs:8,sm:16,md:24,lg:32}}>
-            <Col span={4}>
+            <Col span={2}>
                 <Input 
-                  placeholder="账号/姓名/电话"
-                  onChange={this.typeChange}
-                  value={this.state.card_type}
-                  className="input2"
+                  placeholder="账号"
+                  onChange={(e)=>this.accountChange(e)}
+                  value={input.account}                  
+                >              
+                </Input>
+            </Col>            
+            <Col span={2}>
+                <Input 
+                  placeholder="姓名"
+                  onChange={(e)=>this.nameChange(e)}
+                  value={input.name}                  
                 >              
                 </Input>
             </Col>
-            <Col>
-                <RangePicker 
-                  locale={locale}                                       
+            <Col span={3}>
+                <Input 
+                  placeholder="电话号"
+                  onChange={(e)=>this.phoneChange(e)}
+                  value={input.phone}                  
+                >              
+                </Input>
+            </Col>
+            <Col span={7}>
+                <RangePicker                 
+                  locale={locale}
+                  showTime={{
+                    hideDisabledOptions: true,
+                    defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
+                  }}
+                  format="YYYY-MM-DD HH:mm:ss"
+                  onChange={(value,dateString)=>{this.dateChange(value,dateString)}}                                       
                 />
             </Col>
             <Col>
@@ -378,27 +561,36 @@ search=()=>{
            {/* 表格 */}
            <Table 
              columns={this.columns}
-             dataSource={data}
+             dataSource={users}
              bordered={true}
              style={{margin:'20px 0',borderBottom:'1px,soild'}}
-             pagination={ this.state.paginationProps}
-             onChange={this.handTablechange}
-             rowSelection={rowSelection}     
+             pagination={{
+              position: ['bottomLeft'] ,
+              total:total,
+              showTotal:total => `共 ${total} 条`,
+              showQuickJumper:true,
+              showSizeChanger:true,
+              current:this.state.current,
+              pageSize:this.state.pageSize,
+            }}
+             onChange={this.handTablechange}             
+             rowSelection={rowSelection}   
            />    
           </Col>
         </Row>
       {/* 弹窗模块 */}
       {/* 修改用户弹窗 */}
       <Modal
-          visible={visible_modify}
-          title="编辑用户"          
+          visible={visible==='visible_modify'}
+          title="编辑用户"     
+          forceRender={true}     
           onOk={this.handleOk_modify}
-          onCancel={this.handleCancel_modify}
+          onCancel={this.handleCancel}
           footer={[            
             <Button key="submit" type="primary" loading={loading} onClick={this.handleOk_modify}>
               提交
             </Button>,
-            <Button key="back" onClick={this.handleCancel_modify}>
+            <Button key="back" onClick={this.handleCancel}>
             取消
           </Button>,
           ]}
@@ -407,31 +599,32 @@ search=()=>{
         </Modal>
         {/* 添加用户弹窗 */}
       <Modal
-          width={900}
-          visible={visible_add}
+          width={900}    
+          forceRender={true}
+          visible={visible==='visible_add'}
           title="添加用户"          
           onOk={this.handleOk_add}
-          onCancel={this.handleCancel_add}
+          onCancel={(e)=>this.handleCancel_Add(e)}
           footer={[            
             <Button key="submit" type="primary" loading={loading} onClick={this.handleOk_add}>
               提交
             </Button>,
-            <Button key="back" onClick={this.handleCancel_add}>
+            <Button key="back" onClick={(e)=>this.handleCancel_Add(e)}>
             取消
           </Button>,
           ]}         
         >
           <Form
+          ref={this.addFormRef} 
           labelCol={{ span: 7}}
           wrapperCol={{ span: 12 }}
-          layout="horizontal"
-          ref={this.form_modify}
+          layout="horizontal"         
         >
           <b>基本信息</b><hr/><br/>         
               <Form.Item
                label="账号"
-               id="modify_user"
-               name="modify_user"           
+               id="account"
+               name="account"           
                rules={[
                  {required:true,message:'请输入账号！'}
                ]}
@@ -440,8 +633,8 @@ search=()=>{
               </Form.Item>
               <Form.Item
                label="姓名"
-               id="modify_user"
-               name="modify_user"           
+               id="name"
+               name="name"           
                rules={[
                  {required:true,message:'请输入姓名！'}
                ]}
@@ -449,73 +642,113 @@ search=()=>{
                   <Input placeholder="请输入姓名"/>
               </Form.Item>
               <Form.Item
-               label="出生日期" 
-               id="modify_name"
-               name="modify_name"
+               label="出生日期"              
+               id="birthday"                       
+               name="birthdayAlert"               
                rules={[
                  {required:true,message:'请输入出生日期！'}
                ]}
               >
-                  <Input placeholder="请输入出生日期"/>
-              </Form.Item>
+                   <DatePicker
+                   format={'YYYY-MM-DD'}                
+                   onChange={(value,dateString)=>{this.birthdayChange(value,dateString)}}  
+                   placeholder="请输入出生日期" />
+              </Form.Item>  
               <Form.Item
-               label="密码"
-               id="modify_phone_num"
-               name="modify_phone_num"
-               rules={[
-                 {required:true,message:'请输入密码！'}
-               ]}
+                name="password"
+                label="密码"
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入密码',
+                  },
+                ]}                
               >
-                  <Input placeholder="请输入密码" />
-              </Form.Item>         
+                  <Input.Password placeholder="请输入密码"/>
+              </Form.Item>
+              <Form.Item                
+                label="确认密码"
+                name="confirm"
+                dependencies={['password']}                
+                rules={[
+                  {
+                    required: true,
+                    message: '请确认密码',
+                  },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue('password') === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error('两次输入的密码不一致!'));
+                    },
+                  }),
+                ]}
+              >
+                <Input.Password placeholder="请确认密码"/>
+              </Form.Item>                              
               <Form.Item
                label="邮箱"
-               id="modify_user"
-               name="modify_user"           
+               id="email"
+               name="email"           
               >
                   <Input placeholder="请输入邮箱"/>
-              </Form.Item>
+              </Form.Item>              
               <Form.Item
                label="电话"
-               id="modify_user"
-               name="modify_user"           
+               id="phone"
+               name="phone"           
               >
                   <Input placeholder="请输入电话"/>
               </Form.Item>
           <b>职务信息</b><hr/><br/> 
               <Form.Item
                label="部门"
-               id="modify_phone_num"
-               name="modify_phone_num"
+               id="deptId"
+               name="depId"
                rules={[
                  {required:true,message:'请输入部门！'}
                ]}
-              >
-                  <Input placeholder="请输入部门" />
-              </Form.Item>  
+              >                 
+                  <TreeSelect                    
+                    style={{ width: '100%' }}                    
+                    dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                    treeData={treeSelectData}
+                    placeholder="请输入部门"
+                    treeDefaultExpandAll                    
+                  />
+              </Form.Item> 
+              
               <Form.Item
                label="职位"
-               id="modify_phone_num"
-               name="modify_phone_num"
+               id="positionId"
+               name="positionId"
                rules={[
-                 {required:true,message:'请输入职位！'}
+                 {required:true,message:'请选择职位！'}
                ]}
               >
-                  <Input placeholder="请输入职位" />
+                <Select 
+                    allowClear={true}                    
+                    placeholder="请选择职位"
+                 >
+                      {positions.map(item=>
+                      <Option value={item.positionId}>{item.name}</Option>
+                    )}                
+                </Select>
               </Form.Item>  
           </Form>         
         </Modal>
          {/* 删除用户弹窗 */}
       <Modal
-          visible={visible_delete}
+          visible={visible==='visible_delete'}
           title="信息"          
           onOk={this.handleOk_delete}
-          onCancel={this.handleCancel_delete}
+          onCancel={this.handleCancel}
           footer={[            
             <Button key="submit" type="primary" loading={loading} onClick={this.handleOk_delete}>
               提交
             </Button>,
-            <Button key="back" onClick={this.handleCancel_delete}>
+            <Button key="back" onClick={this.handleCancel}>
             取消
           </Button>,
           ]}
@@ -524,15 +757,15 @@ search=()=>{
         </Modal>
         {/* 分配角色弹窗 */}
       <Modal
-          visible={visible_role_assign}
+          visible={visible==='visible_role_assign'}
           title="信息"          
           onOk={this.handleOk_role_assign}
-          onCancel={this.handleCancel_role_assign}
+          onCancel={this.handleCancel}
           footer={[            
             <Button key="submit" type="primary" loading={loading} onClick={this.handleOk_role_assign}>
               提交
             </Button>,
-            <Button key="back" onClick={this.handleCancel_role_assign}>
+            <Button key="back" onClick={this.handleCancel}>
             取消
           </Button>,
           ]}
@@ -541,15 +774,15 @@ search=()=>{
         </Modal>
         {/* 重置密码弹窗 */}
       <Modal
-          visible={visible_reset}
+          visible={visible==='visible_reset'}
           title="信息"          
           onOk={this.handleOk_reset}
-          onCancel={this.handleCancel_reset}
+          onCancel={this.handleCancel}
           footer={[            
             <Button key="submit" type="primary" loading={loading} onClick={this.handleOk_reset}>
               提交
             </Button>,
-            <Button key="back" onClick={this.handleCancel_reset}>
+            <Button key="back" onClick={this.handleCancel}>
             取消
           </Button>,
           ]}

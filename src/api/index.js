@@ -23,7 +23,8 @@ export function exportFile(url, data) {
             console.log(res)
                 // 创建下载的链接
             const url = window.URL.createObjectURL(new Blob([res.data], {
-                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // 设置该文件的mime类型，这里对应的mime类型对应为.xlsx格式   
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    // 设置该文件的mime类型，这里对应的mime类型对应为.xlsx格式   
             }));
             const link = document.createElement('a');
             link.href = url;
@@ -69,28 +70,59 @@ export function exp_person(data) {
 }
 
 /* 7.系统管理模块 */
-
 /* 7.1用户管理 */
-/* 7.4角色管理 */
+//7.1.1搜索系统管理用户
+export function querySysUser(data) {
+    return ajax('/system/manage/user/info/list', data, 'POST')
+}
+//1.1.2  查询所有部门
+export function queryAlldept() {
+    return ajax('/system/manage/user/dept/list', 'GET')
+}
+//1.1.3 查询所有职位
+export function queryAllPosition() {
+    return ajax('/system/manage/user/position/list', 'GET')
+}
+//1.1.4 添加系统管理用户
+export function addSysUser(data) {
+    return ajax('/system/manage/user/info/add', data, 'POST')
+}
+//1.1.5 导出系统管理用户
+export function exportSysUser() {
+    return ajax('/system/manage/user/info/export/condition', 'GET')
+}
+//1.1.6 修改用户状态
+export function modifySysUserStatus(data) {
+    return ajax('/system/manage/user/status/{userId}/{status}', data, 'GET')
+}
+//1.1.7删除用户
+export function deleteSysUser(data) {
+    return ajax('/system/manage/user/info/delete/{userId}', data, 'GET')
+}
+//1.1.8 查询所有角色
+export function queryAllSysRole(data) {
+    return ajax('/system/manage/user/query/all/role', data, 'GET')
+}
+/* 7.2角色管理 */
 /* 7.3部门管理 */
 /* 7.4登录日志 */
 //7.5.1查询登录日志
-export function queryLog(data) {
+export function queryLoginLog(data) {
     return ajax('/system/manage/login/log/list', data, 'POST')
 }
 //7.4.2 清空日志
-export function emptyLog(data) {
+export function emptyLoginLog(data) {
     return ajax('/manage/operation/log/remove/all', data, 'GET')
 }
 /* 7.5业务日志 */
 //7.5.1查询业务日志
-export function queryLog(data) {
+export function queryWorkLog(data) {
     return ajax('/user/base/info/list', data, 'POST')
 }
 // export function queryLog(data){
 //   return ajax('/system/manage/operation/log/list',data,'POST')
 // }
 //7.5.2 清空日志
-export function emptyLog(data) {
+export function emptyWorkLog(data) {
     return ajax('/manage/operation/log/remove/all', data, 'GET')
 }
