@@ -1,279 +1,279 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Select, Space, Modal, Form, Checkbox} from 'antd';
-import { DatePicker} from 'antd';
+import {Table, Button, Input, Space, Modal, Form} from 'antd';
+//import { DatePicker} from 'antd';
 import { Radio } from 'antd';
-import { Switch } from 'antd';
+//import { Switch } from 'antd';
 import {ReloadOutlined,
     SearchOutlined ,
-    PlusOutlined,
-    CloudUploadOutlined,
-    CloudDownloadOutlined,
-    CheckCircleOutlined,
-    CloseCircleTwoTone
+//    PlusOutlined,
+//    CloudUploadOutlined,
+//    CloudDownloadOutlined,
+//    CheckCircleOutlined,
+//    CloseCircleTwoTone
 } from '@ant-design/icons'
 import './index.less'
-import { Row, Col } from 'antd';
+//import { Row, Col } from 'antd';
 import ajax from "../../api/ajax";
 import addKey from "../../api/addKey";
 import {exportFile} from "../../api";
 const { TextArea } = Input;
-const { Option } = Select;
+//const { Option } = Select;
 
-class PatientTable extends Component{
-    columns = [
-        {
-            title:'设备码',
-            dataIndex:'doctor_phone',
-            width:150,
-            align:'center',
-            sorter: {
-                compare: (a, b) => a.patient_name - b.patient_name,
-                multiple: 3,
-            },
-        },
-        {
-            title:'绑定用户',
-            dataIndex:'doctor_name',
-            width:150,
-            align:'center',
-            sorter: {
-                compare: (a, b) => a.patient_name - b.patient_name,
-                multiple: 3,
-            },
-        },
-        {
-            title:'激活状态',
-            dataIndex:'doctor_phone',
-            width:150,
-            align:'center',
-            sorter: {
-                compare: (a, b) => a.patient_name - b.patient_name,
-                multiple: 3,
-            },
-        },
-        {
-            title:'使用状态',
-            dataIndex:'doctor_name',
-            width:150,
-            align:'center',
-            sorter: {
-                compare: (a, b) => a.patient_name - b.patient_name,
-                multiple: 3,
-            },
-        },
-        {
-            title:'是否共享',
-            dataIndex:'doctor_phone',
-            width:150,
-            align:'center',
-            sorter: {
-                compare: (a, b) => a.patient_name - b.patient_name,
-                multiple: 3,
-            },
-        },
-        {
-            title:'操作',
-            dataIndex:'operation',
-            width:300,
-            align:'center',
-            render:(text,record)=>(
-                <Space>
-                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}}>修改</Button>
-                    <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{}}>使用人员</Button>
-                </Space>
-            ),
-        },
-    ];
-    paginationProps={
-        position:['bottomLeft'],
-        total:'data.length',
-        showTotal:total => `共 ${total} 条`,
-        showQuickJumper:true,
-        showSizeChanger:true,
-    };
-    rowSelection={
-        rowSelection:this.props.selectedRowKeys,
-        onchange:this.props.onSelectChange,
-    }
-    state={
-        visible_patientInfo:false,
-        visible_latestData:false,
-        record:{
-            key:'',
-            doctor_phone:'',
-            doctor_name:'',
-        },
-        patientsData:[{
-            key:1,
-            test_time:'0',
-            patient_name:'白病人',
-        }],
-        latestData:[],
-        singleSelectValue:1,
-    }
-    handleTableChange = (pagination) =>{
-        console.log(pagination)
-    };
-    singleSelectonChange = e => {
-        console.log('radio checked', e.target.value);
-        this.setState({
-            value: e.target.value,
-        });
-    };
-
-    lookPatientInfo=(record)=>{
-        this.setState({
-            visible_PatientInfo:true,
-            record,
-        });
-    }
-    looklatestData=(record)=>{
-        this.setState({
-            visible_latestData:true,
-            record,
-        });
-    }
-
-    handleCancle_patientInfo=()=>{
-        this.setState({
-            visible_PatientInfo:false,
-        })
-    }
-    handleCancle_latestData=()=>{
-        this.setState({
-            visible_latestData:false,
-        })
-    }
-
-    setLatestData=(data)=>{
-        this.setState({
-            latestData:data,
-        });
-    }
-
-    setPatientsData=(data)=>{
-        this.setState({
-            patientsData:data,
-        });
-    }
-
-    render() {
-        return(
-            <div>
-                <Table
-                    columns={this.columns}
-                    dataSource={this.props.data}
-                    bordered={true}
-                    style={{margin:"20px 0",borderBottom:'1px,soild'}}
-                    pagination={this.paginationProps}
-                    onChange={this.handleTableChange}
-                    rowSelection={this.rowSelection}
-                />
-            </div>
-        );
-    }
-}
-class DeviceManagement_Serve2 extends Component {
-    //参数设置
-    state={
-        doctorsData:[{
-            key:1,
-            doctor_phone:'177777777',
-            doctor_name:'白护士',
-        }],
-        selectedRowKeysDoctors:[],
-        visible_add:false,
-        record:{
-            key:1,
-            doctor_phone:'177777777',
-            doctor_name:'白护士2',
-        },
-    };
-
-    add=()=>{
-        this.setState({
-            visible_add:true,
-        });
-    }
-    //doctabledata functions
-    patientTable = ()=>{
-        return(
-            <PatientTable
-                data={this.state.doctorsData}
-                dataChange={this.setDoctorsData}
-                selectedRowKeys={this.state.selectedRowKeysDoctors}
-                onSelectChange={this.setSelectedRowKeysDoctors}
-            />
-        );
-    }
-    setDoctorsData=(data)=>{
-        this.setState({
-            doctorsData:data,
-        });
-    }
-    setSelectedRowKeysDoctors=(data)=>{
-        this.setState({
-            selectedRowKeysDoctors:data,
-        });
-    }
-
-
-
-    onSelectChange=selectedRowKeys=>{
-        const rowSelectionPatientTable={
-            selectedRowKeys,
-            onChange:this.onSelectChange,
-        }
-        this.setState({rowSelectionPatientTable});
-        console.log(this.state);
-    }
-    handleSexselectChange=()=>{
-
-    }
-
-
-    start=()=>{
-        //??
-        setTimeout(()=>{
-            this.setState({
-                selectedRowKeys:[],
-                selectedRowKeys_patientInfo:[],
-            })
-        },1000)
-    };
-
-    render() {
-        return (
-            <div style={{height:"100%"}}>
-                <div style={{'margin':'0 0 15px 0'}}>
-                    <div   style={{display:"flex"}}>
-                        <Input placeholder={'设备码'} className={'input1'}/>
-                        <Button
-                            type={"primary"}
-                            icon={<SearchOutlined className={"icon1"}/> }
-                            onClick={this.search}
-                            className={"button1"}
-                        >
-                            搜索
-                        </Button>
-                        <Button
-                            type={"primary"}
-                            icon={<ReloadOutlined className={"icon1"}/> }
-                            onClick={this.reset}
-                            className={"button1"}
-                        >
-                            重置
-                        </Button>
-                    </div>
-                </div>
-                {/*表格*/}
-                <div style={{heigh:"100%"}}>
-                    {this.patientTable()}
-                </div>
-            </div>
-        )
-    }
-}
+// class PatientTable extends Component{
+//     columns = [
+//         {
+//             title:'设备码',
+//             dataIndex:'doctor_phone',
+//             width:150,
+//             align:'center',
+//             sorter: {
+//                 compare: (a, b) => a.patient_name - b.patient_name,
+//                 multiple: 3,
+//             },
+//         },
+//         {
+//             title:'绑定用户',
+//             dataIndex:'doctor_name',
+//             width:150,
+//             align:'center',
+//             sorter: {
+//                 compare: (a, b) => a.patient_name - b.patient_name,
+//                 multiple: 3,
+//             },
+//         },
+//         {
+//             title:'激活状态',
+//             dataIndex:'doctor_phone',
+//             width:150,
+//             align:'center',
+//             sorter: {
+//                 compare: (a, b) => a.patient_name - b.patient_name,
+//                 multiple: 3,
+//             },
+//         },
+//         {
+//             title:'使用状态',
+//             dataIndex:'doctor_name',
+//             width:150,
+//             align:'center',
+//             sorter: {
+//                 compare: (a, b) => a.patient_name - b.patient_name,
+//                 multiple: 3,
+//             },
+//         },
+//         {
+//             title:'是否共享',
+//             dataIndex:'doctor_phone',
+//             width:150,
+//             align:'center',
+//             sorter: {
+//                 compare: (a, b) => a.patient_name - b.patient_name,
+//                 multiple: 3,
+//             },
+//         },
+//         {
+//             title:'操作',
+//             dataIndex:'operation',
+//             width:300,
+//             align:'center',
+//             render:(text,record)=>(
+//                 <Space>
+//                     <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}}>修改</Button>
+//                     <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{}}>使用人员</Button>
+//                 </Space>
+//             ),
+//         },
+//     ];
+//     paginationProps={
+//         position:['bottomLeft'],
+//         total:'data.length',
+//         showTotal:total => `共 ${total} 条`,
+//         showQuickJumper:true,
+//         showSizeChanger:true,
+//     };
+//     rowSelection={
+//         rowSelection:this.props.selectedRowKeys,
+//         onchange:this.props.onSelectChange,
+//     }
+//     state={
+//         visible_patientInfo:false,
+//         visible_latestData:false,
+//         record:{
+//             key:'',
+//             doctor_phone:'',
+//             doctor_name:'',
+//         },
+//         patientsData:[{
+//             key:1,
+//             test_time:'0',
+//             patient_name:'白病人',
+//         }],
+//         latestData:[],
+//         singleSelectValue:1,
+//     }
+//     handleTableChange = (pagination) =>{
+//         console.log(pagination)
+//     };
+//     singleSelectonChange = e => {
+//         console.log('radio checked', e.target.value);
+//         this.setState({
+//             value: e.target.value,
+//         });
+//     };
+//
+//     lookPatientInfo=(record)=>{
+//         this.setState({
+//             visible_PatientInfo:true,
+//             record,
+//         });
+//     }
+//     looklatestData=(record)=>{
+//         this.setState({
+//             visible_latestData:true,
+//             record,
+//         });
+//     }
+//
+//     handleCancle_patientInfo=()=>{
+//         this.setState({
+//             visible_PatientInfo:false,
+//         })
+//     }
+//     handleCancle_latestData=()=>{
+//         this.setState({
+//             visible_latestData:false,
+//         })
+//     }
+//
+//     setLatestData=(data)=>{
+//         this.setState({
+//             latestData:data,
+//         });
+//     }
+//
+//     setPatientsData=(data)=>{
+//         this.setState({
+//             patientsData:data,
+//         });
+//     }
+//
+//     render() {
+//         return(
+//             <div>
+//                 <Table
+//                     columns={this.columns}
+//                     dataSource={this.props.data}
+//                     bordered={true}
+//                     style={{margin:"20px 0",borderBottom:'1px,soild'}}
+//                     pagination={this.paginationProps}
+//                     onChange={this.handleTableChange}
+//                     rowSelection={this.rowSelection}
+//                 />
+//             </div>
+//         );
+//     }
+// }
+// class DeviceManagement_Serve2 extends Component {
+//     //参数设置
+//     state={
+//         doctorsData:[{
+//             key:1,
+//             doctor_phone:'177777777',
+//             doctor_name:'白护士',
+//         }],
+//         selectedRowKeysDoctors:[],
+//         visible_add:false,
+//         record:{
+//             key:1,
+//             doctor_phone:'177777777',
+//             doctor_name:'白护士2',
+//         },
+//     };
+//
+//     add=()=>{
+//         this.setState({
+//             visible_add:true,
+//         });
+//     }
+//     //doctabledata functions
+//     patientTable = ()=>{
+//         return(
+//             <PatientTable
+//                 data={this.state.doctorsData}
+//                 dataChange={this.setDoctorsData}
+//                 selectedRowKeys={this.state.selectedRowKeysDoctors}
+//                 onSelectChange={this.setSelectedRowKeysDoctors}
+//             />
+//         );
+//     }
+//     setDoctorsData=(data)=>{
+//         this.setState({
+//             doctorsData:data,
+//         });
+//     }
+//     setSelectedRowKeysDoctors=(data)=>{
+//         this.setState({
+//             selectedRowKeysDoctors:data,
+//         });
+//     }
+//
+//
+//
+//     onSelectChange=selectedRowKeys=>{
+//         const rowSelectionPatientTable={
+//             selectedRowKeys,
+//             onChange:this.onSelectChange,
+//         }
+//         this.setState({rowSelectionPatientTable});
+//         console.log(this.state);
+//     }
+//     handleSexselectChange=()=>{
+//
+//     }
+//
+//
+//     start=()=>{
+//         //??
+//         setTimeout(()=>{
+//             this.setState({
+//                 selectedRowKeys:[],
+//                 selectedRowKeys_patientInfo:[],
+//             })
+//         },1000)
+//     };
+//
+//     render() {
+//         return (
+//             <div style={{height:"100%"}}>
+//                 <div style={{'margin':'0 0 15px 0'}}>
+//                     <div   style={{display:"flex"}}>
+//                         <Input placeholder={'设备码'} className={'input1'}/>
+//                         <Button
+//                             type={"primary"}
+//                             icon={<SearchOutlined className={"icon1"}/> }
+//                             onClick={this.search}
+//                             className={"button1"}
+//                         >
+//                             搜索
+//                         </Button>
+//                         <Button
+//                             type={"primary"}
+//                             icon={<ReloadOutlined className={"icon1"}/> }
+//                             onClick={this.reset}
+//                             className={"button1"}
+//                         >
+//                             重置
+//                         </Button>
+//                     </div>
+//                 </div>
+//                 {/*表格*/}
+//                 <div style={{heigh:"100%"}}>
+//                     {this.patientTable()}
+//                 </div>
+//             </div>
+//         )
+//     }
+// }
 
 //使用人员
 class Modal3 extends Component{
@@ -348,14 +348,14 @@ class Modal3 extends Component{
         for(let ii=0;ii<myInput.length;ii++){
             data[myInput[ii]]='';
         }
-        this.state.input=data;
+        //this.state.input=data;
         this.setState(
           {
               selectedRowKeys:[],
               input:data,
-          },
+          },this.search
         )
-        this.search();
+        //this.search();
     };
     //请求表格数据
     requestData=(page)=>{
@@ -366,7 +366,7 @@ class Modal3 extends Component{
         ajax(url,data,'POST')
           .then((response)=>{
               console.log("response:",response);
-              if(response.data.data==null)
+              if(response.data.data===null||response.data.data===undefined)
                   console.log("查询失败");
               else{
                   let data=response.data.data.info;
@@ -391,7 +391,7 @@ class Modal3 extends Component{
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==""){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
@@ -573,8 +573,10 @@ class Modal2 extends Component{
     rangePickerOnChange=(value, dateString)=>{
         console.log('Selected Time: ', value);
         console.log('Formatted Selected Time: ', dateString);
-        this.state.input.testTime=dateString;
+        let input = {}
+        input.testTime=dateString;
         this.setState({
+            input:input,
             testTime:value,
         })
     }
@@ -764,9 +766,11 @@ class Modal1 extends Component{
     rangePickerOnChange=(value, dateString)=>{
         console.log('Selected Time: ', value);
         console.log('Formatted Selected Time: ', dateString);
-        this.state.input.testTime=dateString;
+        let input = {}
+        input.testTime=dateString;
         this.setState({
-            testTime:value,
+        input:input,
+        testTime:value,
         })
     }
     rangePickerOnOk=(value)=> {
@@ -955,10 +959,10 @@ export default class DeviceManagement_Serve extends Component {
     //翻页
     handleTableChange = (pagination) =>{
         //console.log(this.props.data.total);
-        let page={
-            page:pagination.current,
-            pageSize: pagination.pageSize,
-        };
+        // let page={
+        //     page:pagination.current,
+        //     pageSize: pagination.pageSize,
+        // };
         this.requestData();
         //this.setState({paginationProps:pagination});
         //console.log(pagination)
@@ -979,14 +983,14 @@ export default class DeviceManagement_Serve extends Component {
         for(let ii=0;ii<myInput.length;ii++){
             data[myInput[ii]]='';
         }
-        this.state.input=data;
+        //this.state.input=data;
         this.setState(
             {
                 selectedRowKeys:[],
                 input:data,
-            },
+            },this.search
         )
-        this.search();
+        //this.search();
     };
     //请求表格数据
     requestData=()=>{
@@ -995,7 +999,7 @@ export default class DeviceManagement_Serve extends Component {
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==""){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
@@ -1003,7 +1007,7 @@ export default class DeviceManagement_Serve extends Component {
         ajax("/device/managment/list",data,'POST')
             .then((response)=>{
                 //console.log(response);
-                if(response.code=="1000"){
+                if(response.code===1000){
                     let data=response.data.data.info;
                     let paginationProps={...this.state.paginationProps};
                     addKey(data);
@@ -1029,7 +1033,7 @@ export default class DeviceManagement_Serve extends Component {
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==""){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
@@ -1140,7 +1144,7 @@ export default class DeviceManagement_Serve extends Component {
             );
     }
     setModalvisible2=(flag)=>{
-        if(flag==false){
+        if(flag===false){
             this.handleTableChange(this.state.paginationProps);
         }
         this.setState({

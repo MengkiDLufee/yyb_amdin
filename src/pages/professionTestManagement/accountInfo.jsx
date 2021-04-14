@@ -1,25 +1,25 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Select, Space, Modal, Form, Checkbox, message} from 'antd';
-import { DatePicker} from 'antd';
+import {Table, Button, Input, Space, Modal, Form, message} from 'antd';
+//import { DatePicker} from 'antd';
 
 import {ReloadOutlined,
     SearchOutlined ,
     PlusOutlined,
-    CloudUploadOutlined,
+//    CloudUploadOutlined,
     CloudDownloadOutlined,
-    CheckCircleOutlined,
-    CloseCircleTwoTone
+//    CheckCircleOutlined,
+//    CloseCircleTwoTone
 } from '@ant-design/icons'
-import { Row, Col } from 'antd';
+//import { Row, Col } from 'antd';
 import './index.less'
 import ajax from "../../api/ajax";
 import addKey from "../../api/addKey";
 import {exportFile} from "../../api";
-import changeData from "../../api/changeData";
-import moment from "moment";
+//import changeData from "../../api/changeData";
+//import moment from "moment";
 
-const { TextArea } = Input;
-const { Option } = Select;
+//const { TextArea } = Input;
+//const { Option } = Select;
 
 //查看历史设备
 class Modal3 extends Component{
@@ -135,15 +135,15 @@ class Modal3 extends Component{
         for(let ii=0;ii<myInput.length;ii++){
             data[myInput[ii]]='';
         }
-        this.state.input=data;
+        //this.state.input=data;
         this.setState(
             {
                 selectedRowKeys:[],
                 selectedIDs:[],
                 input:data,
-            },
+            },this.search
         )
-        this.search();
+        //this.search();
     };
     //请求表格数据
     requestData=(page)=>{
@@ -152,7 +152,7 @@ class Modal3 extends Component{
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==""){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
@@ -189,7 +189,7 @@ class Modal3 extends Component{
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==""){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
@@ -341,7 +341,12 @@ class Modal2 extends Component{
     rangePickerOnChange=(value, dateString)=>{
         console.log('Selected Time: ', value);
         console.log('Formatted Selected Time: ', dateString);
-        this.state.input.testTime=dateString;
+        let input = {};
+        Object.assign(input,this.state.input);
+        input.testTime=dateString;
+        this.setState({
+            input:input
+        })
         this.setState({
             testTime:value,
         })
@@ -349,19 +354,19 @@ class Modal2 extends Component{
     rangePickerOnOk=(value)=> {
         console.log('onOk: ', value);
     }
-    //得到文本框输入
-    inputChange = (e,name) => {
-        //console.log(name);
-        let themename = e.target.name;
-        console.log(themename)
-        //console.log(e.target.name);
-        let source={};
-        source[name]=e.target.value;
-        this.setState({
-            input:Object.assign(this.state.input,source),
-        });
-        console.log(this.state);
-    }
+    // //得到文本框输入
+    // inputChange = (e,name) => {
+    //     //console.log(name);
+    //     let themename = e.target.name;
+    //     console.log(themename)
+    //     //console.log(e.target.name);
+    //     let source={};
+    //     source[name]=e.target.value;
+    //     this.setState({
+    //         input:Object.assign(this.state.input,source),
+    //     });
+    //     console.log(this.state);
+    // }
     //参数设置
     // state={
     //     //表格1数据
@@ -493,8 +498,11 @@ class Modal1 extends Component{
     rangePickerOnChange=(value, dateString)=>{
         console.log('Selected Time: ', value);
         console.log('Formatted Selected Time: ', dateString);
-        this.state.input.testTime=dateString;
+        let input = {};
+        Object.assign(input, this.state.input)
+        //this.state.input.testTime=dateString;
         this.setState({
+            input:input,
             testTime:value,
         })
     }
@@ -714,15 +722,15 @@ export default class AccountInfo extends Component {
         for(let ii=0;ii<myInput.length;ii++){
             data[myInput[ii]]='';
         }
-        this.state.input=data;
+        //this.state.input=data;
         this.setState(
             {
                 selectedRowKeys:[],
                 selectedIDs:[],
                 input:data,
-            },
+            },this.search
         )
-        this.search();
+        //this.search();
     };
     //添加
     add= ()=>{
@@ -735,7 +743,7 @@ export default class AccountInfo extends Component {
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==""){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
@@ -771,7 +779,7 @@ export default class AccountInfo extends Component {
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==""){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
@@ -889,7 +897,7 @@ export default class AccountInfo extends Component {
             );
     }
     setModalvisible=(flag)=>{
-        if(flag==false){
+        if(flag===false){
             this.handleTableChange(this.state.paginationProps)
         }
         this.setState({

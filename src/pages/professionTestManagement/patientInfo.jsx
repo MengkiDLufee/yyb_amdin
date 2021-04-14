@@ -1,617 +1,616 @@
 import React, { Component } from 'react'
 import {Table, Button, Input, Select, Space, Modal, Form} from 'antd';
-import { DatePicker} from 'antd';
 
 import {ReloadOutlined,
     SearchOutlined ,
     PlusOutlined,
-    CloudUploadOutlined,
-    CloudDownloadOutlined,
-    CheckCircleOutlined,
-    CloseCircleTwoTone
+//    CloudUploadOutlined,
+//    CloudDownloadOutlined,
+//    CheckCircleOutlined,
+//    CloseCircleTwoTone
 } from '@ant-design/icons'
 import './index.less'
-import { Row, Col } from 'antd';
+//import { Row, Col } from 'antd';
 import ajax from "../../api/ajax";
 import addKey from "../../api/addKey";
 import {exportFile} from "../../api";
 const { TextArea } = Input;
 const { Option } = Select;
 
-class PatientDetailInfoTable extends Component{
-    columns = [
-        {
-            title: '用户账号',
-            dataIndex: 'patient_accountNumber',
-            width:150,
-        },
-        {
-            title: '病人年龄',
-            dataIndex: 'patient_age',
-            width: 150,
-        },
-        {
-            title:'病人地址',
-            dataIndex:'patient_address',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'病人测试状况',
-            dataIndex:'patient_testState',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'创建时间',
-            dataIndex:'patient_createTime',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'备注',
-            dataIndex:'patient_createTime',
-            width:150,
-            align:'center',
-        },
-    ];
-    render() {
-        return(
-            <div>
-                <Table
-                    columns={this.columns}
-                    dataSource={this.props.data}
-                    bordered={true}
-                    style={{margin:"20px 0",borderBottom:'1px,soild'}}
-                    pagination={false}
-                />
-            </div>
-        );
-    }
-}
+// class PatientDetailInfoTable extends Component{
+//     columns = [
+//         {
+//             title: '用户账号',
+//             dataIndex: 'patient_accountNumber',
+//             width:150,
+//         },
+//         {
+//             title: '病人年龄',
+//             dataIndex: 'patient_age',
+//             width: 150,
+//         },
+//         {
+//             title:'病人地址',
+//             dataIndex:'patient_address',
+//             width:150,
+//             align:'center',
+//         },
+//         {
+//             title:'病人测试状况',
+//             dataIndex:'patient_testState',
+//             width:150,
+//             align:'center',
+//         },
+//         {
+//             title:'创建时间',
+//             dataIndex:'patient_createTime',
+//             width:150,
+//             align:'center',
+//         },
+//         {
+//             title:'备注',
+//             dataIndex:'patient_createTime',
+//             width:150,
+//             align:'center',
+//         },
+//     ];
+//     render() {
+//         return(
+//             <div>
+//                 <Table
+//                     columns={this.columns}
+//                     dataSource={this.props.data}
+//                     bordered={true}
+//                     style={{margin:"20px 0",borderBottom:'1px,soild'}}
+//                     pagination={false}
+//                 />
+//             </div>
+//         );
+//     }
+// }
 
-class PatientTable extends Component{
-    columns = [
-        {
-            title:'手机号',
-            dataIndex:'doctor_phone',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'病人姓名',
-            dataIndex:'doctor_name',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'性别',
-            dataIndex:'doctor_phone',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'医生',
-            dataIndex:'doctor_name',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'操作',
-            dataIndex:'operation',
-            width:300,
-            align:'center',
-            render:(text,record)=>(
-                <Space>
-                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.patientDetail(record)}}>查看详情</Button>
-                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.patient_modify(record)}}>修改</Button>
-                    <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{}}>删除</Button>
-                </Space>
-            ),
-        },
-    ];
-    paginationProps={
-        position:['bottomLeft'],
-        total:'data.length',
-        showTotal:total => `共 ${total} 条`,
-        showQuickJumper:true,
-        showSizeChanger:true,
-    };
-    rowSelection={
-        rowSelection:this.props.selectedRowKeys,
-        onchange:this.props.onSelectChange,
-    }
-    state={
-        visible_patientInfo:false,
-        visible_latestData:false,
-        visible_modify:false,
-        visible_patientDetail:false,
-        record:{
-            key:'',
-            doctor_phone:'',
-            doctor_name:'',
-        },
-        patientsData:[{
-            key:1,
-            test_time:'0',
-            patient_name:'白病人',
-        }],
-        latestData:[],
-    }
-    patientDetail=(record)=>{
-        this.setState({
-            visible_patientDetail:true,
-            record,
-        });
-    }
-    patient_modify=record=>{
-        console.log(record);
-        this.setState({visible_modify:true});
-    }
-    handleCancle_modify=()=>{
-        this.setState({
-            visible_modify:false,
-        });
-    }
-    handleOk_modify=()=>{
-        this.setState({
-            visible_modify:false,
-        });
-    }
-    handleTableChange = (pagination) =>{
-        console.log(pagination)
-    };
-
-    lookPatientInfo=(record)=>{
-        this.setState({
-            visible_PatientInfo:true,
-            record,
-        });
-    }
-    looklatestData=(record)=>{
-        this.setState({
-            visible_latestData:true,
-            record,
-        });
-    }
-
-    handleCancle_patientInfo=()=>{
-        this.setState({
-            visible_PatientInfo:false,
-        })
-    }
-    handleCancle_latestData=()=>{
-        this.setState({
-            visible_latestData:false,
-        })
-    }
-
-    // patientTable = ()=>{
-    //     return(
-    //         <PatientTable
-    //             data={this.state.patientsData}
-    //             dataChange={this.setPatientsData}
-    //         />
-    //     );
-    // }
-    // latestDataTable = ()=>{
-    //     return(
-    //         <LatestDataTable
-    //             data={this.state.latestDataData}
-    //             dataChange={this.setLatestData}
-    //         />
-    //     );
-    // }
-    setLatestData=(data)=>{
-        this.setState({
-            latestData:data,
-        });
-    }
-
-    setPatientsData=(data)=>{
-        this.setState({
-            patientsData:data,
-        });
-    }
-    patientDetailInfoTable = ()=>{
-        return(
-            <PatientDetailInfoTable
-                data={this.state.patientDetailInfoData}
-                dataChange={this.setpatientDetailInfoData}
-            />
-        );
-    }
-    handleCancle_patientDetail=()=>{
-        this.setState({
-            visible_patientDetail:false,
-        });
-    }
-
-    render() {
-        return(
-            <div>
-                <Table
-                    columns={this.columns}
-                    dataSource={this.props.data}
-                    bordered={true}
-                    rowSelection={this.rowSelection}
-                    style={{margin:"20px 0",borderBottom:'1px,soild'}}
-                    pagination={this.paginationProps}
-                    onChange={this.handleTableChange}
-                />
-                <Modal
-                    title={"修改病人"}
-                    centered
-                    visible={this.state.visible_modify}
-                    onCancel={this.handleCancle_modify}
-                    onOk={this.handleOk_modify}
-                    okText={'提交'}
-                    cancelText={'取消'}
-                    className="modal1"
-                >
-                    <div className="ant-modal-body" >
-                        <div className="modal-body" style={{height:"100%"}}>
-                            <Form
-                                labelCol={{ span: 5 }}
-                                wrapperCol={{ span: 16 }}
-                                layout="horizontal"
-                                name="add"
-                            >
-                                <Form.Item
-                                    label="手机号"
-                                    name="手机号"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: '请输入手机号!',
-                                        },
-                                    ]}
-                                >
-                                    <Input placeholder={"请输入手机号"}/>
-                                </Form.Item>
-                                <Form.Item label="医生"
-                                           name={"医生"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请选择医生!',
-                                               },
-                                           ]}
-                                >
-                                    <Select placeholder="请选择医生 ">
-                                        <Option value="on">男</Option>
-                                        <Option value="close">女</Option>
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item label="姓名"
-                                           name={"姓名"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请输入姓名!',
-                                               },
-                                           ]}
-                                >
-                                    <Input placeholder={"请输入姓名"}/>
-                                </Form.Item>
-                                <Form.Item label="性别"
-                                           name={"性别"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请选择性别!',
-                                               },
-                                           ]}
-                                >
-                                    <Select placeholder="请选择性别 " >
-                                        <Option value="on">男</Option>
-                                        <Option value="close">女</Option>
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item label="年龄"
-                                           name={"年龄"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请输入年龄!',
-                                               },
-                                           ]}
-                                >
-                                    <Input  placeholder={"请输入年龄"} />
-                                </Form.Item>
-                                <Form.Item label="地址"
-                                           name={"地址"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请输入地址!',
-                                               },
-                                           ]}
-                                >
-                                    <Input  placeholder={"请输入地址"} />
-                                </Form.Item>
-                                <Form.Item label="测试状态"
-                                           name={"测试状态"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请选择测试状态!',
-                                               },
-                                           ]}
-                                >
-                                    <Select placeholder="请选择测试状态">
-                                        <Option value="on">未测试</Option>
-                                        <Option value="close">完成测试</Option>
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item label="备注">
-                                    <TextArea rows={4}  placeholder={"请输入备注"} />
-                                </Form.Item>
-                            </Form>
-                        </div>
-                    </div>
-                </Modal>
-                <Modal
-                    title={"病人详情"}
-                    centered
-                    visible={this.state.visible_patientDetail}
-                    onCancel={this.handleCancle_patientDetail}
-                    footer={null}
-                    width={1000}
-                >
-                    <div style={{height:'100%',margin:'3px'}}>
-                        <p>{this.state.record.patient_name}</p>
-                        <div style={{heigh:"100%"}}>
-                            {this.patientDetailInfoTable()}
-                        </div>
-                    </div>
-                </Modal>
-            </div>
-        );
-    }
-}
-class PatientInfo2 extends Component {
-    //参数设置
-    state={
-        doctorsData:[{
-            key:1,
-            doctor_phone:'177777777',
-            doctor_name:'白护士',
-        }],
-        selectedRowKeysDoctors:[],
-        visible_add:false,
-        record:{
-            key:1,
-            doctor_phone:'177777777',
-            doctor_name:'白护士2',
-        },
-    };
-
-    add=()=>{
-        this.setState({
-            visible_add:true,
-        });
-    }
-    //doctabledata functions
-    patientTable = ()=>{
-        return(
-            <PatientTable
-                data={this.state.doctorsData}
-                dataChange={this.setDoctorsData}
-                selectedRowKeys={this.state.selectedRowKeysDoctors}
-                onSelectChange={this.setSelectedRowKeysDoctors}
-            />
-        );
-    }
-    setDoctorsData=(data)=>{
-        this.setState({
-            doctorsData:data,
-        });
-    }
-    setSelectedRowKeysDoctors=(data)=>{
-        this.setState({
-            selectedRowKeysDoctors:data,
-        });
-    }
-
-
-
-    onSelectChange=selectedRowKeys=>{
-        const rowSelectionPatientTable={
-            selectedRowKeys,
-            onChange:this.onSelectChange,
-        }
-        this.setState({rowSelectionPatientTable});
-        console.log(this.state);
-    }
-    handleSexselectChange=()=>{
-
-    }
-    handlModalPatientDoctorChange=(value)=>{
-        console.log(value);
-    }
-    handlModalPatientSexChange=(value)=>{
-        console.log(value);
-    }
-    handlModalPatientTestStateChange=(value)=>{
-        console.log(value);
-    }
-    handleCancle_add=()=>{
-        this.setState({visible_add:false});
-    }
-    handleAddOk=()=>{
-        this.setState({visible_add:false});
-    }
-
-
-    start=()=>{
-        //??
-        setTimeout(()=>{
-            this.setState({
-                selectedRowKeys:[],
-                selectedRowKeys_patientInfo:[],
-            })
-        },1000)
-    };
-
-    render() {
-        return (
-            <div style={{height:"100%"}}>
-                <div style={{'margin':'0 0 15px 0'}}>
-                    <div justify="space-between" gutter="15" style={{display:"flex"}}>
-                        <Input placeholder={'手机号'} className={'input1'}/>
-                        <Input placeholder={'病人姓名'} className={'input1'}/>
-                        <Select placeholder="请选择性别 "  onChange={this.handleSexselectChange} className="input1" >
-                            <Option value="on">男</Option>
-                            <Option value="close">女</Option>
-                        </Select>
-                        <Button
-                            type={"primary"}
-                            icon={<SearchOutlined className={"icon1"}/> }
-                            onClick={this.search}
-                            className={"button1"}
-                        >
-                            搜索
-                        </Button>
-                        <Button
-                            type={"primary"}
-                            icon={<ReloadOutlined className={"icon1"}/> }
-                            onClick={this.reset}
-                            className={"button1"}
-                        >
-                            重置
-                        </Button>
-                        <Button
-                            type="primary"
-                            icon={<PlusOutlined  className="icon1" />}
-                            onClick={this.add}
-                            className="button1"
-                        >
-                            添加
-                        </Button>
-                    </div>
-                </div>
-                {/*表格*/}
-                <div style={{heigh:"100%"}}>
-                    {this.patientTable()}
-                </div>
-
-                <Modal
-                    title={"添加病人"}
-                    centered
-                    visible={this.state.visible_add}
-                    onCancel={this.handleCancle_add}
-                    onOk={this.handleAddOk}
-                    okText={'提交'}
-                    cancelText={'取消'}
-                    className="modal1"
-                >
-                    <div className="ant-modal-body" >
-                        <div className="modal-body" style={{height:"100%"}}>
-                            <Form
-                                labelCol={{ span: 5 }}
-                                wrapperCol={{ span: 16 }}
-                                layout="horizontal"
-                                name="add"
-                            >
-                                <Form.Item
-                                    label="手机号"
-                                    name="手机号"
-                                    rules={[
-                                        {
-                                            required: true,
-                                            message: '请输入手机号!',
-                                        },
-                                    ]}
-                                >
-                                    <Input placeholder={"请输入手机号"}/>
-                                </Form.Item>
-                                <Form.Item label="医生"
-                                           name={"医生"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请选择医生!',
-                                               },
-                                           ]}
-                                >
-                                    <Select placeholder="请选择医生 "  onChange={this.handlModalPatientDoctorChange}>
-                                        <Option value="on">男</Option>
-                                        <Option value="close">女</Option>
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item label="姓名"
-                                           name={"姓名"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请输入姓名!',
-                                               },
-                                           ]}
-                                >
-                                    <Input placeholder={"请输入姓名"}/>
-                                </Form.Item>
-                                <Form.Item label="性别"
-                                           name={"性别"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请选择性别!',
-                                               },
-                                           ]}
-                                >
-                                    <Select placeholder="请选择性别 "  onChange={this.handlModalPatientSexChange} >
-                                        <Option value="on">男</Option>
-                                        <Option value="close">女</Option>
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item label="年龄"
-                                           name={"年龄"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请输入年龄!',
-                                               },
-                                           ]}
-                                >
-                                    <Input  placeholder={"请输入年龄"} />
-                                </Form.Item>
-                                <Form.Item label="地址"
-                                           name={"地址"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请输入地址!',
-                                               },
-                                           ]}
-                                >
-                                    <Input  placeholder={"请输入地址"} />
-                                </Form.Item>
-                                <Form.Item label="测试状态"
-                                           name={"测试状态"}
-                                           rules={[
-                                               {
-                                                   required: true,
-                                                   message: '请选择测试状态!',
-                                               },
-                                           ]}
-                                >
-                                    <Select placeholder="请选择测试状态"  onChange={this.handlModalPatientTestStateChange} >
-                                        <Option value="on">未测试</Option>
-                                        <Option value="close">完成测试</Option>
-                                    </Select>
-                                </Form.Item>
-                                <Form.Item label="备注">
-                                    <TextArea rows={4}  placeholder={"请输入备注"} />
-                                </Form.Item>
-                            </Form>
-                        </div>
-                    </div>
-                </Modal>
-            </div>
-    )
-    }
-}
+// class PatientTable extends Component{
+//     columns = [
+//         {
+//             title:'手机号',
+//             dataIndex:'doctor_phone',
+//             width:150,
+//             align:'center',
+//         },
+//         {
+//             title:'病人姓名',
+//             dataIndex:'doctor_name',
+//             width:150,
+//             align:'center',
+//         },
+//         {
+//             title:'性别',
+//             dataIndex:'doctor_phone',
+//             width:150,
+//             align:'center',
+//         },
+//         {
+//             title:'医生',
+//             dataIndex:'doctor_name',
+//             width:150,
+//             align:'center',
+//         },
+//         {
+//             title:'操作',
+//             dataIndex:'operation',
+//             width:300,
+//             align:'center',
+//             render:(text,record)=>(
+//                 <Space>
+//                     <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.patientDetail(record)}}>查看详情</Button>
+//                     <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.patient_modify(record)}}>修改</Button>
+//                     <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{}}>删除</Button>
+//                 </Space>
+//             ),
+//         },
+//     ];
+//     paginationProps={
+//         position:['bottomLeft'],
+//         total:'data.length',
+//         showTotal:total => `共 ${total} 条`,
+//         showQuickJumper:true,
+//         showSizeChanger:true,
+//     };
+//     rowSelection={
+//         rowSelection:this.props.selectedRowKeys,
+//         onchange:this.props.onSelectChange,
+//     }
+//     state={
+//         visible_patientInfo:false,
+//         visible_latestData:false,
+//         visible_modify:false,
+//         visible_patientDetail:false,
+//         record:{
+//             key:'',
+//             doctor_phone:'',
+//             doctor_name:'',
+//         },
+//         patientsData:[{
+//             key:1,
+//             test_time:'0',
+//             patient_name:'白病人',
+//         }],
+//         latestData:[],
+//     }
+//     patientDetail=(record)=>{
+//         this.setState({
+//             visible_patientDetail:true,
+//             record,
+//         });
+//     }
+//     patient_modify=record=>{
+//         //console.log(record);
+//         this.setState({visible_modify:true});
+//     }
+//     handleCancle_modify=()=>{
+//         this.setState({
+//             visible_modify:false,
+//         });
+//     }
+//     handleOk_modify=()=>{
+//         this.setState({
+//             visible_modify:false,
+//         });
+//     }
+//     handleTableChange = (pagination) =>{
+//         //console.log(pagination)
+//     };
+//
+//     lookPatientInfo=(record)=>{
+//         this.setState({
+//             visible_PatientInfo:true,
+//             record,
+//         });
+//     }
+//     looklatestData=(record)=>{
+//         this.setState({
+//             visible_latestData:true,
+//             record,
+//         });
+//     }
+//
+//     handleCancle_patientInfo=()=>{
+//         this.setState({
+//             visible_PatientInfo:false,
+//         })
+//     }
+//     handleCancle_latestData=()=>{
+//         this.setState({
+//             visible_latestData:false,
+//         })
+//     }
+//
+//     // patientTable = ()=>{
+//     //     return(
+//     //         <PatientTable
+//     //             data={this.state.patientsData}
+//     //             dataChange={this.setPatientsData}
+//     //         />
+//     //     );
+//     // }
+//     // latestDataTable = ()=>{
+//     //     return(
+//     //         <LatestDataTable
+//     //             data={this.state.latestDataData}
+//     //             dataChange={this.setLatestData}
+//     //         />
+//     //     );
+//     // }
+//     setLatestData=(data)=>{
+//         this.setState({
+//             latestData:data,
+//         });
+//     }
+//
+//     setPatientsData=(data)=>{
+//         this.setState({
+//             patientsData:data,
+//         });
+//     }
+//     patientDetailInfoTable = ()=>{
+//         return(
+//             <PatientDetailInfoTable
+//                 data={this.state.patientDetailInfoData}
+//                 dataChange={this.setpatientDetailInfoData}
+//             />
+//         );
+//     }
+//     handleCancle_patientDetail=()=>{
+//         this.setState({
+//             visible_patientDetail:false,
+//         });
+//     }
+//
+//     render() {
+//         return(
+//             <div>
+//                 <Table
+//                     columns={this.columns}
+//                     dataSource={this.props.data}
+//                     bordered={true}
+//                     rowSelection={this.rowSelection}
+//                     style={{margin:"20px 0",borderBottom:'1px,soild'}}
+//                     pagination={this.paginationProps}
+//                     onChange={this.handleTableChange}
+//                 />
+//                 <Modal
+//                     title={"修改病人"}
+//                     centered
+//                     visible={this.state.visible_modify}
+//                     onCancel={this.handleCancle_modify}
+//                     onOk={this.handleOk_modify}
+//                     okText={'提交'}
+//                     cancelText={'取消'}
+//                     className="modal1"
+//                 >
+//                     <div className="ant-modal-body" >
+//                         <div className="modal-body" style={{height:"100%"}}>
+//                             <Form
+//                                 labelCol={{ span: 5 }}
+//                                 wrapperCol={{ span: 16 }}
+//                                 layout="horizontal"
+//                                 name="add"
+//                             >
+//                                 <Form.Item
+//                                     label="手机号"
+//                                     name="手机号"
+//                                     rules={[
+//                                         {
+//                                             required: true,
+//                                             message: '请输入手机号!',
+//                                         },
+//                                     ]}
+//                                 >
+//                                     <Input placeholder={"请输入手机号"}/>
+//                                 </Form.Item>
+//                                 <Form.Item label="医生"
+//                                            name={"医生"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请选择医生!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Select placeholder="请选择医生 ">
+//                                         <Option value="on">男</Option>
+//                                         <Option value="close">女</Option>
+//                                     </Select>
+//                                 </Form.Item>
+//                                 <Form.Item label="姓名"
+//                                            name={"姓名"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请输入姓名!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Input placeholder={"请输入姓名"}/>
+//                                 </Form.Item>
+//                                 <Form.Item label="性别"
+//                                            name={"性别"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请选择性别!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Select placeholder="请选择性别 " >
+//                                         <Option value="on">男</Option>
+//                                         <Option value="close">女</Option>
+//                                     </Select>
+//                                 </Form.Item>
+//                                 <Form.Item label="年龄"
+//                                            name={"年龄"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请输入年龄!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Input  placeholder={"请输入年龄"} />
+//                                 </Form.Item>
+//                                 <Form.Item label="地址"
+//                                            name={"地址"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请输入地址!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Input  placeholder={"请输入地址"} />
+//                                 </Form.Item>
+//                                 <Form.Item label="测试状态"
+//                                            name={"测试状态"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请选择测试状态!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Select placeholder="请选择测试状态">
+//                                         <Option value="on">未测试</Option>
+//                                         <Option value="close">完成测试</Option>
+//                                     </Select>
+//                                 </Form.Item>
+//                                 <Form.Item label="备注">
+//                                     <TextArea rows={4}  placeholder={"请输入备注"} />
+//                                 </Form.Item>
+//                             </Form>
+//                         </div>
+//                     </div>
+//                 </Modal>
+//                 <Modal
+//                     title={"病人详情"}
+//                     centered
+//                     visible={this.state.visible_patientDetail}
+//                     onCancel={this.handleCancle_patientDetail}
+//                     footer={null}
+//                     width={1000}
+//                 >
+//                     <div style={{height:'100%',margin:'3px'}}>
+//                         <p>{this.state.record.patient_name}</p>
+//                         <div style={{heigh:"100%"}}>
+//                             {this.patientDetailInfoTable()}
+//                         </div>
+//                     </div>
+//                 </Modal>
+//             </div>
+//         );
+//     }
+// }
+// class PatientInfo2 extends Component {
+//     //参数设置
+//     state={
+//         doctorsData:[{
+//             key:1,
+//             doctor_phone:'177777777',
+//             doctor_name:'白护士',
+//         }],
+//         selectedRowKeysDoctors:[],
+//         visible_add:false,
+//         record:{
+//             key:1,
+//             doctor_phone:'177777777',
+//             doctor_name:'白护士2',
+//         },
+//     };
+//
+//     add=()=>{
+//         this.setState({
+//             visible_add:true,
+//         });
+//     }
+//     //doctabledata functions
+//     patientTable = ()=>{
+//         return(
+//             <PatientTable
+//                 data={this.state.doctorsData}
+//                 dataChange={this.setDoctorsData}
+//                 selectedRowKeys={this.state.selectedRowKeysDoctors}
+//                 onSelectChange={this.setSelectedRowKeysDoctors}
+//             />
+//         );
+//     }
+//     setDoctorsData=(data)=>{
+//         this.setState({
+//             doctorsData:data,
+//         });
+//     }
+//     setSelectedRowKeysDoctors=(data)=>{
+//         this.setState({
+//             selectedRowKeysDoctors:data,
+//         });
+//     }
+//
+//
+//
+//     onSelectChange=selectedRowKeys=>{
+//         const rowSelectionPatientTable={
+//             selectedRowKeys,
+//             onChange:this.onSelectChange,
+//         }
+//         this.setState({rowSelectionPatientTable});
+//         //console.log(this.state);
+//     }
+//     handleSexselectChange=()=>{
+//
+//     }
+//     handlModalPatientDoctorChange=(value)=>{
+//         //console.log(value);
+//     }
+//     handlModalPatientSexChange=(value)=>{
+//         //console.log(value);
+//     }
+//     handlModalPatientTestStateChange=(value)=>{
+//         //console.log(value);
+//     }
+//     handleCancle_add=()=>{
+//         this.setState({visible_add:false});
+//     }
+//     handleAddOk=()=>{
+//         this.setState({visible_add:false});
+//     }
+//
+//
+//     start=()=>{
+//         //??
+//         setTimeout(()=>{
+//             this.setState({
+//                 selectedRowKeys:[],
+//                 selectedRowKeys_patientInfo:[],
+//             })
+//         },1000)
+//     };
+//
+//     render() {
+//         return (
+//             <div style={{height:"100%"}}>
+//                 <div style={{'margin':'0 0 15px 0'}}>
+//                     <div justify="space-between" gutter="15" style={{display:"flex"}}>
+//                         <Input placeholder={'手机号'} className={'input1'}/>
+//                         <Input placeholder={'病人姓名'} className={'input1'}/>
+//                         <Select placeholder="请选择性别 "  onChange={this.handleSexselectChange} className="input1" >
+//                             <Option value="on">男</Option>
+//                             <Option value="close">女</Option>
+//                         </Select>
+//                         <Button
+//                             type={"primary"}
+//                             icon={<SearchOutlined className={"icon1"}/> }
+//                             onClick={this.search}
+//                             className={"button1"}
+//                         >
+//                             搜索
+//                         </Button>
+//                         <Button
+//                             type={"primary"}
+//                             icon={<ReloadOutlined className={"icon1"}/> }
+//                             onClick={this.reset}
+//                             className={"button1"}
+//                         >
+//                             重置
+//                         </Button>
+//                         <Button
+//                             type="primary"
+//                             icon={<PlusOutlined  className="icon1" />}
+//                             onClick={this.add}
+//                             className="button1"
+//                         >
+//                             添加
+//                         </Button>
+//                     </div>
+//                 </div>
+//                 {/*表格*/}
+//                 <div style={{heigh:"100%"}}>
+//                     {this.patientTable()}
+//                 </div>
+//
+//                 <Modal
+//                     title={"添加病人"}
+//                     centered
+//                     visible={this.state.visible_add}
+//                     onCancel={this.handleCancle_add}
+//                     onOk={this.handleAddOk}
+//                     okText={'提交'}
+//                     cancelText={'取消'}
+//                     className="modal1"
+//                 >
+//                     <div className="ant-modal-body" >
+//                         <div className="modal-body" style={{height:"100%"}}>
+//                             <Form
+//                                 labelCol={{ span: 5 }}
+//                                 wrapperCol={{ span: 16 }}
+//                                 layout="horizontal"
+//                                 name="add"
+//                             >
+//                                 <Form.Item
+//                                     label="手机号"
+//                                     name="手机号"
+//                                     rules={[
+//                                         {
+//                                             required: true,
+//                                             message: '请输入手机号!',
+//                                         },
+//                                     ]}
+//                                 >
+//                                     <Input placeholder={"请输入手机号"}/>
+//                                 </Form.Item>
+//                                 <Form.Item label="医生"
+//                                            name={"医生"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请选择医生!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Select placeholder="请选择医生 "  onChange={this.handlModalPatientDoctorChange}>
+//                                         <Option value="on">男</Option>
+//                                         <Option value="close">女</Option>
+//                                     </Select>
+//                                 </Form.Item>
+//                                 <Form.Item label="姓名"
+//                                            name={"姓名"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请输入姓名!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Input placeholder={"请输入姓名"}/>
+//                                 </Form.Item>
+//                                 <Form.Item label="性别"
+//                                            name={"性别"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请选择性别!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Select placeholder="请选择性别 "  onChange={this.handlModalPatientSexChange} >
+//                                         <Option value="on">男</Option>
+//                                         <Option value="close">女</Option>
+//                                     </Select>
+//                                 </Form.Item>
+//                                 <Form.Item label="年龄"
+//                                            name={"年龄"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请输入年龄!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Input  placeholder={"请输入年龄"} />
+//                                 </Form.Item>
+//                                 <Form.Item label="地址"
+//                                            name={"地址"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请输入地址!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Input  placeholder={"请输入地址"} />
+//                                 </Form.Item>
+//                                 <Form.Item label="测试状态"
+//                                            name={"测试状态"}
+//                                            rules={[
+//                                                {
+//                                                    required: true,
+//                                                    message: '请选择测试状态!',
+//                                                },
+//                                            ]}
+//                                 >
+//                                     <Select placeholder="请选择测试状态"  onChange={this.handlModalPatientTestStateChange} >
+//                                         <Option value="on">未测试</Option>
+//                                         <Option value="close">完成测试</Option>
+//                                     </Select>
+//                                 </Form.Item>
+//                                 <Form.Item label="备注">
+//                                     <TextArea rows={4}  placeholder={"请输入备注"} />
+//                                 </Form.Item>
+//                             </Form>
+//                         </div>
+//                     </div>
+//                 </Modal>
+//             </div>
+//     )
+//     }
+// }
 
 //查看详情
 class Modal3 extends Component{
@@ -619,8 +618,8 @@ class Modal3 extends Component{
     constructor(props) {
         super(props);
         this.data = [this.props.record];
-        console.log(this.data);
-        console.log(this.props.data);
+        //console.log(this.data);
+        //console.log(this.props.data);
         //this.search();
     }
 
@@ -684,8 +683,8 @@ class Modal3 extends Component{
     }
     //得到输入
     inputChange = (e,name) => {
-        //console.log(name);
-        //console.log(e.target.value);
+        ////console.log(name);
+        ////console.log(e.target.value);
         let source={};
         source[name]=e.target.value;
         this.setState({
@@ -694,7 +693,7 @@ class Modal3 extends Component{
     }
     //表格行选择
     onSelectChange = row => {
-        console.log('所选择行',row)
+        //console.log('所选择行',row)
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
         this.setState(
             {selectedRowKeys:row}
@@ -702,14 +701,14 @@ class Modal3 extends Component{
     };
     //翻页
     handleTableChange = (pagination) =>{
-        //console.log(this.props.data.total);
+        ////console.log(this.props.data.total);
         let page={
             page:pagination.current,
             pageSize: pagination.pageSize,
         };
         this.requestData(page);
         //this.setState({paginationProps:pagination});
-        //console.log(pagination)
+        ////console.log(pagination)
     };
     //搜索
     search= ()=> {
@@ -721,32 +720,32 @@ class Modal3 extends Component{
     }
     //重置
     reset = () => {
-        console.log('重置',this.state.input);
+        //console.log('重置',this.state.input);
         let myInput=Object.keys(this.state.input);
         let data = {};
         for(let ii=0;ii<myInput.length;ii++){
             data[myInput[ii]]='';
         }
-        this.state.input=data;
+        //this.state.input=data;
         this.setState(
             {
                 selectedRowKeys:[],
                 input:data,
-            },
+            },this.search
         )
-        this.search();
+        //this.search();
     };
     //请求表格数据
     requestData=(page)=>{
         let data={};
         data.patientId=this.props.record.patientId;
         let url="/exam/patient/detail";
-        //console.log("request:",data);
+        ////console.log("request:",data);
         ajax(url,data,'POST')
             .then((response)=>{
-                console.log("response:",response);
-                if(response.data.data==null)
-                    console.log("查询失败");
+                //console.log("response:",response);
+                if(response.data.data==null){}
+                    //console.log("查询失败");
                 else{
                     let data=[response.data.data.info];
                     let paginationProps={...this.state.paginationProps};
@@ -754,7 +753,7 @@ class Modal3 extends Component{
                     paginationProps.total=response.data.data.total;
                     paginationProps.current=page.page;
                     paginationProps.pageSize=page.pageSize;
-                    console.log("data:",response);
+                    //console.log("data:",response);
                     this.setState({
                         data:data,
                         paginationProps:paginationProps,
@@ -770,19 +769,19 @@ class Modal3 extends Component{
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==""){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        console.log("exportFile input:",data);
+        //console.log("exportFile input:",data);
         //exportFile("/exam/data/export/login/condition",data);
         exportFile('/user/base/info/export/condition',{});
-        //console.log("request:",data);
+        ////console.log("request:",data);
         // ajax("/exam/data/export/login/condition",data,'POST')
         //     .then((response)=>{
-        //         console.log(response);
+        //         //console.log(response);
         //     }).catch(e=>{
-        //     console.log("search error!",e);
+        //     //console.log("search error!",e);
         // });
     }
 
@@ -865,7 +864,7 @@ class Modal2 extends Component{
         //参数设置
         let input={};
         Object.assign(input,this.props.record);
-        console.log("init record:",input);
+        //console.log("init record:",input);
         this.state= {
             //testTime: '',
             input: input,
@@ -887,16 +886,16 @@ class Modal2 extends Component{
     //请求数据
     requestData=(input)=>{
         let url="/exam/patient/all/doctor";
-        //console.log("request:",data);
+        ////console.log("request:",data);
         ajax(url, {},'GET')
           .then((response)=>{
-              console.log("response:",response);
+              //console.log("response:",response);
               if(response.data.data==null){
-                  console.log("请求错误！");
+                  //console.log("请求错误！");
               }
               else{
                   let mydata=response.data.data;
-                  console.log(response);
+                  //console.log(response);
                   this.dataTable = mydata;
               }
               delete input['updateUser'];
@@ -918,8 +917,8 @@ class Modal2 extends Component{
     }
     //点击完成
     handleOk = () => {
-        console.log('修改')
-        console.log(this.form)
+        //console.log('修改')
+        //console.log(this.form)
         let form = this.form.current;
         form.validateFields()//表单输入校验
             .then((values) => {
@@ -933,21 +932,21 @@ class Modal2 extends Component{
                 //data.patientId=this.props.record.patientId;
                 //data.loginId=this.props.record.loginId;
                 let url="/exam/patient/modify";
-                //console.log("request:",data);
+                ////console.log("request:",data);
                 ajax(url,data,'POST')
                     .then((response)=>{
                         if(response.data.code!==1004){
-                            console.log("请求错误！",response);
+                            //console.log("请求错误！",response);
                         }else{
                             form.resetFields();
-                            console.log("修改成功：",response);
+                            //console.log("修改成功：",response);
                             Object.assign(this.props.record,this.state.input);
                             this.props.setVisible(false);
                         }
                     });
             })
             .catch((info) => {
-                console.log('Validate Failed:', info);
+                //console.log('Validate Failed:', info);
             });
 
 
@@ -955,28 +954,30 @@ class Modal2 extends Component{
 
     //时间选择函数
     rangePickerOnChange=(value, dateString)=>{
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
-        this.state.input.testTime=dateString;
+        //console.log('Selected Time: ', value);
+        //console.log('Formatted Selected Time: ', dateString);
+        let input = {}
+        input.testTime=dateString;
         this.setState({
-            testTime:value,
+        input:input,
+        testTime:value,
         })
     }
     rangePickerOnOk=(value)=> {
-        console.log('onOk: ', value);
+        //console.log('onOk: ', value);
     }
     //得到文本框输入
     inputChange = (e,name) => {
-        //console.log(name);
-        let themename = e.target.name;
-        console.log(themename)
-        //console.log(e.target.name);
+        ////console.log(name);
+        //let themename = e.target.name;
+        //console.log(themename)
+        ////console.log(e.target.name);
         let source={};
         source[name]=e.target.value;
         this.setState({
             input:Object.assign(this.state.input,source),
         });
-        console.log(this.state);
+        //console.log(this.state);
     }
     //参数设置
     // state={
@@ -987,7 +988,7 @@ class Modal2 extends Component{
     //得到selet项目
     optuLoginId(){
         let ii = 1;
-        console.log("opt:",this.dataTable)
+        //console.log("opt:",this.dataTable)
         return(
           this.dataTable.map((item)=>{
               ii = ii+1;
@@ -997,8 +998,8 @@ class Modal2 extends Component{
     }
     //选择框变化（完成）
     handleChange=(e,Option) =>{
-        console.log(e)
-        console.log(Option)
+        //console.log(e)
+        //console.log(Option)
         let source = {};
         source[Option.title] = Option.value;
         this.setState({
@@ -1126,7 +1127,7 @@ class Modal1 extends Component{
         //参数设置
         let input={};
         Object.assign(input,this.props.record);
-        console.log("init record:",input);
+        //console.log("init record:",input);
         this.state= {
             testTime: '',
             input: input,
@@ -1144,16 +1145,16 @@ class Modal1 extends Component{
     //请求数据
     requestData=()=>{
         let url="/exam/patient/all/doctor";
-        //console.log("request:",data);
+        ////console.log("request:",data);
         ajax(url, {},'GET')
           .then((response)=>{
-              console.log("response:",response);
+              //console.log("response:",response);
               if(response.data.data==null){
-                  console.log("请求错误！");
+                  //console.log("请求错误！");
               }
               else{
                   let mydata=response.data.data;
-                  console.log(response);
+                  //console.log(response);
                   this.dataTable = mydata;
                   this.setState({
                       input:{}
@@ -1167,8 +1168,8 @@ class Modal1 extends Component{
     }
     //点击完成
     handleOk = () => {
-        console.log('添加完成')
-        console.log(this.form)
+        //console.log('添加完成')
+        //console.log(this.form)
         let form = this.form.current;
         form.validateFields()//表单输入校验
             .then((values) => {
@@ -1182,21 +1183,21 @@ class Modal1 extends Component{
                 //data.patientId=this.props.record.patientId;
                 //data.loginId=this.props.record.loginId;
                 let url="/exam/patient/add";
-                //console.log("request:",data);
+                ////console.log("request:",data);
                 ajax(url,data,'POST')
                     .then((response)=>{
                         if(response.data.code!==1002){
-                            console.log("请求错误！",response);
+                            //console.log("请求错误！",response);
                         }else{
                             form.resetFields();
-                            console.log("修改成功：",response);
+                            //console.log("修改成功：",response);
                             //Object.assign(this.props.record,this.state.input);
                             this.props.setVisible(false);
                         }
                     });
             })
             .catch((info) => {
-                console.log('Validate Failed:', info);
+                //console.log('Validate Failed:', info);
             });
 
 
@@ -1204,28 +1205,30 @@ class Modal1 extends Component{
 
     //时间选择函数
     rangePickerOnChange=(value, dateString)=>{
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
-        this.state.input.testTime=dateString;
+        //console.log('Selected Time: ', value);
+        //console.log('Formatted Selected Time: ', dateString);
+        let input = {}
+        input.testTime=dateString;
         this.setState({
-            testTime:value,
+        input:input,
+        testTime:value,
         })
     }
     rangePickerOnOk=(value)=> {
-        console.log('onOk: ', value);
+        //console.log('onOk: ', value);
     }
     //得到文本框输入
     inputChange = (e,name) => {
-        //console.log(name);
-        let themename = e.target.name;
-        console.log(themename)
-        //console.log(e.target.name);
+        ////console.log(name);
+        //let themename = e.target.name;
+        //console.log(themename)
+        ////console.log(e.target.name);
         let source={};
         source[name]=e.target.value;
         this.setState({
             input:Object.assign(this.state.input,source),
         });
-        console.log(this.state);
+        //console.log(this.state);
     }
     //参数设置
     // state={
@@ -1237,7 +1240,7 @@ class Modal1 extends Component{
     //得到selet项目
     optuLoginId(){
         let ii = 1;
-        console.log("opt:",this.dataTable)
+        //console.log("opt:",this.dataTable)
         return(
           this.dataTable.map((item)=>{
               ii = ii+1;
@@ -1247,8 +1250,8 @@ class Modal1 extends Component{
     }
     //选择框变化（完成）
     handleChange=(e,Option) =>{
-        console.log(e)
-        console.log(Option)
+        //console.log(e)
+        //console.log(Option)
         let source = {};
         source[Option.title] = Option.value;
         this.setState({
@@ -1417,8 +1420,8 @@ export default class PatientInfo extends Component {
     //函数部分
     //得到输入
     inputChange = (e,name) => {
-        //console.log(name);
-        //console.log(e.target.value);
+        ////console.log(name);
+        ////console.log(e.target.value);
         let source={};
         source[name]=e.target.value;
         this.setState({
@@ -1427,7 +1430,7 @@ export default class PatientInfo extends Component {
     }
     //表格行选择
     onSelectChange = row => {
-        console.log('所选择行',row)
+        //console.log('所选择行',row)
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
         this.setState(
             {selectedRowKeys:row}
@@ -1435,14 +1438,14 @@ export default class PatientInfo extends Component {
     };
     //翻页
     handleTableChange = (pagination) =>{
-        //console.log(this.props.data.total);
+        ////console.log(this.props.data.total);
         let page={
             page:pagination.current,
             pageSize: pagination.pageSize,
         };
         this.requestData(page);
         //this.setState({paginationProps:pagination});
-        //console.log(pagination)
+        ////console.log(pagination)
     };
     //搜索
     search= ()=> {
@@ -1454,20 +1457,20 @@ export default class PatientInfo extends Component {
     }
     //重置
     reset = () => {
-        console.log('重置',this.state.input);
+        //console.log('重置',this.state.input);
         let myInput=Object.keys(this.state.input);
         let data = {};
         for(let ii=0;ii<myInput.length;ii++){
             data[myInput[ii]]='';
         }
-        this.state.input=data;
+        //this.state.input=data;
         this.setState(
             {
                 selectedRowKeys:[],
                 input:data,
-            },
+            },this.search
         )
-        this.search();
+        //this.search();
     };
     //添加
     add= ()=>{
@@ -1480,28 +1483,28 @@ export default class PatientInfo extends Component {
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==""){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        //console.log("request:",data);
+        ////console.log("request:",data);
         ajax("/exam/patient/list",data,'POST')
             .then((response)=>{
-                if(response.data.data!=null){
+                if(response.data.data!==null&&response.data.data!==undefined){
                     let data=response.data.data.info;
                     let paginationProps={...this.state.paginationProps};
                     addKey(data);
                     paginationProps.total=response.data.data.total;
                     paginationProps.current=page.page;
                     paginationProps.pageSize=page.pageSize;
-                    console.log("data:",response);
+                    //console.log("data:",response);
                     this.setState({
                         data:data,
                         paginationProps:paginationProps,
                     });
                 }else{
-                    console.log("/exam/patient/list error!");
-                    console.log(response)
+                    //console.log("/exam/patient/list error!");
+                    //console.log(response)
                 }
             });
     }
@@ -1513,34 +1516,34 @@ export default class PatientInfo extends Component {
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==""){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        console.log("exportFile input:",data);
+        //console.log("exportFile input:",data);
         //exportFile("/exam/data/export/login/condition",data);
         exportFile('/user/base/info/export/condition',{});
-        //console.log("request:",data);
+        ////console.log("request:",data);
         // ajax("/exam/data/export/login/condition",data,'POST')
         //     .then((response)=>{
-        //         console.log(response);
+        //         //console.log(response);
         //     }).catch(e=>{
-        //     console.log("search error!",e);
+        //     //console.log("search error!",e);
         // });
     }
 
     //重置密码
     resetPassword=(record)=>{
         let data={};
-        console.log("record:",record);
+        //console.log("record:",record);
         data.loginId=record.loginId;
-        console.log("request:",data);
+        //console.log("request:",data);
         ajax("/exam/login/resetpwd",data,'POST')
             .then((response)=>{
                 if(response.data.code!==1000){
-                    console.log("请求错误！",response);
+                    //console.log("请求错误！",response);
                 }else{
-                    console.log("重置成功：",response);
+                    //console.log("重置成功：",response);
                 }
             });
     }
@@ -1556,9 +1559,9 @@ export default class PatientInfo extends Component {
         ajax(url, {},'GET')
             .then((response)=>{
                 if(response.data.code!==1006){
-                    console.log("请求错误！",response);
+                    //console.log("请求错误！",response);
                 }else{
-                    console.log("请求成功：",response);
+                    //console.log("请求成功：",response);
                     this.handleTableChange(this.state.paginationProps);
                 }
             });
@@ -1628,7 +1631,7 @@ export default class PatientInfo extends Component {
             );
     }
     setModalvisible=(flag)=>{
-        if(flag==false){
+        if(flag===false){
             this.handleTableChange(this.state.paginationProps)
         }
         this.setState({

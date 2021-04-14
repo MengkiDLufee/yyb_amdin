@@ -1,21 +1,22 @@
 import React, { Component } from 'react'
-import {Row, Col, Form, Checkbox} from 'antd';
-import { Table ,Button , Input , Select, Space ,Modal,DatePicker} from 'antd';
+import { Form} from 'antd';
+import { Table ,Button , Input , Select, Space ,Modal} from 'antd';
+import {DatePicker} from 'antd';
 import ajax from "../../api/ajax";
 import {exportFile} from '../../api/index'
 import addKey from "../../api/addKey";
 
 import {ReloadOutlined,
     SearchOutlined ,
-    PlusOutlined,
-    CloudUploadOutlined,
+//    PlusOutlined,
+//    CloudUploadOutlined,
     CloudDownloadOutlined,
-    CheckCircleOutlined,
-    CloseCircleTwoTone
+//    CheckCircleOutlined,
+//    CloseCircleTwoTone
 } from '@ant-design/icons'
 import './index.less'
 import moment from 'moment';
-import changeData from "../../api/changeData";
+//import changeData from "../../api/changeData";
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
@@ -26,7 +27,7 @@ class ModifyDetailPatientInfoModal extends Component{
         //参数设置
         let input={};
         Object.assign(input,this.props.record);
-        //console.log("init record:",input);
+        ////console.log("init record:",input);
         this.state= {
             testTime: '',
             input:'',
@@ -34,7 +35,8 @@ class ModifyDetailPatientInfoModal extends Component{
         //时间格式转换
         let testTime=this.props.record.testTime;
         let mymoment = '';
-        if(testTime!='')mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
+        //console.log(testTime);
+        if(testTime!==null)mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
         this.state.testTime=mymoment;
 
         //获取列表
@@ -47,44 +49,44 @@ class ModifyDetailPatientInfoModal extends Component{
         //     let ii = 1;
         // }
         //根据列表对input进行修改
-        //console.log(input);
+        ////console.log(input);
     }
    //函数部分
     //请求数据
     requestData=()=>{
         let url="/exam/data/query/before/modify/"+this.props.uloginId;
-        //console.log("request:",data);
+        ////console.log("request:",data);
         ajax(url, {},'GET')
           .then((response)=>{
-              console.log("response:",response);
+              //console.log("response:",response);
               if(response.data.data==null){
-                  console.log("请求错误！");
+                  //console.log("请求错误！");
               }
               else{
                   let mydata=response.data.data;
-                  //console.log(response);
+                  ////console.log(response);
                   this.dataTable = mydata;
                   let input = {};
                   Object.assign(input,this.props.record);
                   input.proDeviceId = input.deviceId;
                   input.paperTypeName = input.paperTypeId;
-                  console.log("input",input)
+                  //console.log("input",input)
                   this.setState({
                       input:input,
                   },()=>{
                       this.form.current.setFieldsValue(input);
                   });
-                  //console.log("ccc",input);
+                  ////console.log("ccc",input);
                   // let paperTypeName = input.paperTypeName;
-                  // console.log(paperTypeName);
-                  // console.log(this.dataTable);
+                  // //console.log(paperTypeName);
+                  // //console.log(this.dataTable);
                   // let that = this;
                   // let flag1 = false;
                   // for(let ii = 0;ii<this.dataTable.allPaperType.length;ii++){
                   //     let tmp = this.dataTable.allPaperType[ii];
-                  //     console.log(tmp);
+                  //     //console.log(tmp);
                   //     if(tmp.paperTypeName==paperTypeName){
-                  //         console.log("find it!",tmp);
+                  //         //console.log("find it!",tmp);
                   //         input.paperTypeName = tmp.paperTypeId;
                   //         this.setState({
                   //             input:input,
@@ -92,7 +94,7 @@ class ModifyDetailPatientInfoModal extends Component{
                   //             this.form.current.setFieldsValue(input);
                   //         });
                   //
-                  //         //console.log("find it!",this.state);
+                  //         ////console.log("find it!",this.state);
                   //         //this.state.input.paperTypeName =  tmp.paperTypeId;
                   //         flag1 = true;
                   //         break;
@@ -100,9 +102,9 @@ class ModifyDetailPatientInfoModal extends Component{
                   // }
                   // for(let ii = 0;ii<this.dataTable.allPaperType.length;ii++){
                   //     let tmp = this.dataTable.allPaperType[ii];
-                  //     console.log(tmp);
+                  //     //console.log(tmp);
                   //     if(tmp.paperTypeName==paperTypeName){
-                  //         console.log("find it!",tmp);
+                  //         //console.log("find it!",tmp);
                   //         input.paperTypeName = tmp.paperTypeId;
                   //         this.setState({
                   //             input:input,
@@ -110,13 +112,13 @@ class ModifyDetailPatientInfoModal extends Component{
                   //             this.form.current.setFieldsValue(input);
                   //         });
                   //
-                  //         //console.log("find it!",this.state);
+                  //         ////console.log("find it!",this.state);
                   //         //this.state.input.paperTypeName =  tmp.paperTypeId;
                   //         flag1 = true;
                   //         break;
                   //     }
                   // }
-                  // console.log("paperTypeName error!");
+                  // //console.log("paperTypeName error!");
                   // input.paperTypeName = '';
                   // this.setState({
                   //     input:input,
@@ -131,8 +133,8 @@ class ModifyDetailPatientInfoModal extends Component{
     }
     //点击完成
     handleOk = () => {
-        console.log('添加完成')
-        console.log(this.form)
+        //console.log('添加完成')
+        //console.log(this.form)
         let form = this.form.current;
         form.validateFields()//表单输入校验
             .then((values) => {
@@ -144,25 +146,25 @@ class ModifyDetailPatientInfoModal extends Component{
                     }
                 }
                 //data.patientId=this.props.record.patientId;
-                //console.log(data);
-                //console.log(this.props.record);
+                ////console.log(data);
+                ////console.log(this.props.record);
                 //data.loginId=this.props.record.loginId;
                 let url="/exam/data/newdata/modify";
-                //console.log("request:",data);
+                ////console.log("request:",data);
                 ajax(url,data,'POST')
                     .then((response)=>{
                         if(response.data.code!==1004){
-                            console.log("请求错误！",response);
+                            //console.log("请求错误！",response);
                         }else{
                             form.resetFields();
-                            console.log("修改成功：",response);
+                            //console.log("修改成功：",response);
                             Object.assign(this.props.record,this.state.input);
                             this.props.setVisible(false);
                         }
                     });
             })
             .catch((info) => {
-                console.log('Validate Failed:', info);
+                //console.log('Validate Failed:', info);
             });
 
 
@@ -170,28 +172,32 @@ class ModifyDetailPatientInfoModal extends Component{
 
     //时间选择函数
     rangePickerOnChange=(value, dateString)=>{
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
-        this.state.input.testTime=dateString;
+        //console.log('Selected Time: ', value);
+        //console.log('Formatted Selected Time: ', dateString);
+        let input = {};
+        Object.assign(input, this.state.input);
+        input.testTime=dateString;
         this.setState({
+            input:input
+        },()=>{        this.setState({
             testTime:value,
-        })
+        })})
     }
     rangePickerOnOk=(value)=> {
-        console.log('onOk: ', value);
+        //console.log('onOk: ', value);
     }
     //得到文本框输入
     inputChange = (e,name) => {
-        //console.log(name);
-        let themename = e.target.name;
-        console.log(themename)
-        //console.log(e.target.name);
+        ////console.log(name);
+        //let themename = e.target.name;
+        //console.log(themename)
+        ////console.log(e.target.name);
         let source={};
         source[name]=e.target.value;
         this.setState({
             input:Object.assign(this.state.input,source),
         });
-        console.log(this.state);
+        //console.log(this.state);
     }
 
     //得到selet项目
@@ -225,8 +231,8 @@ class ModifyDetailPatientInfoModal extends Component{
 
     //选择框变化（完成）
     handleChange=(e,Option) =>{
-        console.log(e)
-        console.log(Option)
+        //console.log(e)
+        //console.log(Option)
         let source = {};
         source[Option.title] = Option.value;
         this.setState({
@@ -499,7 +505,7 @@ class LatestTestDataModal extends Component {
                 multiple: 2,
             },
             render: (text) =>
-                //   console.log("record的内容",record)
+                //   //console.log("record的内容",record)
                 <img src={text} width="100px" alt=""/>
         },
         {
@@ -522,8 +528,8 @@ class LatestTestDataModal extends Component {
 
     //得到输入
     inputChange = (e,name) => {
-        //console.log(name);
-        //console.log(e.target.value);
+        ////console.log(name);
+        ////console.log(e.target.value);
         let source={};
         source[name]=e.target.value;
         this.setState({
@@ -532,7 +538,7 @@ class LatestTestDataModal extends Component {
     }
     //表格行选择
     onSelectChange = row => {
-        console.log('所选择行',row)
+        //console.log('所选择行',row)
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
         this.setState(
             {selectedRowKeys:row}
@@ -540,14 +546,14 @@ class LatestTestDataModal extends Component {
     };
     //翻页
     handleTableChange = (pagination) =>{
-        //console.log(this.props.data.total);
+        ////console.log(this.props.data.total);
         let page={
             page:pagination.current,
             pageSize: pagination.pageSize,
         };
         this.requestData(page);
         //this.setState({paginationProps:pagination});
-        //console.log(pagination)
+        ////console.log(pagination)
     };
     //搜索
     search= ()=> {
@@ -559,21 +565,21 @@ class LatestTestDataModal extends Component {
     }
     //重置
     reset = () => {
-        console.log('重置',this.state.input);
+        //console.log('重置',this.state.input);
         let myInput=Object.keys(this.state.input);
         let data = {};
         for(let ii=0;ii<myInput.length;ii++){
             data[myInput[ii]]='';
         }
-        this.state.input=data;
+        //this.state.input=data;
         this.setState(
             {
                 selectedRowKeys:[],
                 input:data,
                 rangePickerData:[],
-            },
+            },this.search
         )
-        this.search();
+        //this.search();
     };
     //请求表格数据
     requestData=(page)=>{
@@ -582,28 +588,28 @@ class LatestTestDataModal extends Component {
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==''){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
         data.uloginId=this.props.record.uloginId;
         let url="/exam/data/newdata/list";
-        //console.log("request:",data);
+        ////console.log("request:",data);
         ajax(url,data,'POST')
             .then((response)=>{
-                console.log("response:",response);
+                //console.log("response:",response);
                 if(response.data.data==null){
-                    console.log("请求错误！");
+                    //console.log("请求错误！");
                 }
                 else{
                     let mydata=response.data.data.info;
-                    console.log(mydata);
+                    //console.log(mydata);
                     let paginationProps={...this.state.paginationProps};
                     addKey(mydata);
                     paginationProps.total=response.data.data.total;
                     paginationProps.current=page.page;
                     paginationProps.pageSize=page.pageSize;
-                    //console.log("data:",response);
+                    ////console.log("data:",response);
                     this.setState({
                         data:mydata,
                         paginationProps:paginationProps,
@@ -619,30 +625,32 @@ class LatestTestDataModal extends Component {
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==''){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        console.log("exportFile input:",data);
+        //console.log("exportFile input:",data);
         //exportFile("/exam/data/export/login/condition",data);
         exportFile('/user/base/info/export/condition',{});
-        //console.log("request:",data);
+        ////console.log("request:",data);
         // ajax("/exam/data/export/login/condition",data,'POST')
         //     .then((response)=>{
-        //         console.log(response);
+        //         //console.log(response);
         //     }).catch(e=>{
-        //     console.log("search error!",e);
+        //     //console.log("search error!",e);
         // });
     }
 
     //得到输入时间
     rangePickerDataChange=(datas,dateStrings)=>{
-        console.log("timeTest!");
-        console.log(datas);
-        console.log(dateStrings);
-        this.state.input.startDate=dateStrings[0]+" 00:00:00";
-        this.state.input.endDate=dateStrings[1]+" 23:59:59";
+        //console.log("timeTest!");
+        //console.log(datas);
+        //console.log(dateStrings);
+        let input = {}
+        input.startDate=dateStrings[0]+" 00:00:00";
+        input.endDate=dateStrings[1]+" 23:59:59";
         this.setState({
+            input:input,
             rangePickerData:datas,
         })
     }
@@ -722,7 +730,7 @@ class LatestTestDataModal extends Component {
 
     }
     setModalvisible2=(flag)=>{
-        if(flag == false){
+        if(flag === false){
             this.requestData({page:1,pageSize:10});
         }
         this.setState({
@@ -799,9 +807,9 @@ class LatestTestDataModal extends Component {
 }
 class DetailPatientInfoModal extends Component{
     //初始化
-    constructor(props) {
-        super(props);
-    }
+    // constructor(props) {
+    //     super(props);
+    // }
 
     //表格1数据以及函数
     //常量数据部分
@@ -864,17 +872,17 @@ class DetailPatientInfoModal extends Component{
     //     let data={};
     //     data.patientId=this.props.record.patientId;
     //     let url="/exam/data/patient/details";
-    //     //console.log("request:",data);
+    //     ////console.log("request:",data);
     //     ajax(url,data,'POST')
     //         .then((response)=>{
-    //             console.log("response:",response);
+    //             //console.log("response:",response);
     //             if(response.data.data==null){
-    //                 console.log("查询失败");
+    //                 //console.log("查询失败");
     //             }else{
     //                 let mydata=response.data.data.info;
     //                 mydata.key=1;
     //                 //addKey(data);
-    //                 console.log("data:",mydata);
+    //                 //console.log("data:",mydata);
     //                 this.setState({
     //                     data:[mydata],
     //                 });
@@ -964,8 +972,8 @@ class PatientInfoModal extends Component{
 
     //得到输入
     inputChange = (e,name) => {
-        //console.log(name);
-        //console.log(e.target.value);
+        ////console.log(name);
+        ////console.log(e.target.value);
         let source={};
         source[name]=e.target.value;
         this.setState({
@@ -974,7 +982,7 @@ class PatientInfoModal extends Component{
     }
     //表格行选择
     onSelectChange = row => {
-        console.log('所选择行',row)
+        //console.log('所选择行',row)
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
         this.setState(
             {selectedRowKeys:row}
@@ -982,14 +990,14 @@ class PatientInfoModal extends Component{
     };
     //翻页
     handleTableChange = (pagination) =>{
-        //console.log(this.props.data.total);
+        ////console.log(this.props.data.total);
         let page={
             page:pagination.current,
             pageSize: pagination.pageSize,
         };
         this.requestData(page);
         //this.setState({paginationProps:pagination});
-        //console.log(pagination)
+        ////console.log(pagination)
     };
     //搜索
     search= ()=> {
@@ -1001,20 +1009,20 @@ class PatientInfoModal extends Component{
     }
     //重置
     reset = () => {
-        console.log('重置',this.state.input);
+        //console.log('重置',this.state.input);
         let myInput=Object.keys(this.state.input);
         let data = {};
         for(let ii=0;ii<myInput.length;ii++){
             data[myInput[ii]]='';
         }
-        this.state.input=data;
+        //this.state.input=data;
         this.setState(
             {
                 selectedRowKeys:[],
                 input:data,
-            },
+            },this.search
         )
-        this.search();
+        //this.search();
     };
     //请求表格数据
     requestData=(page)=>{
@@ -1023,19 +1031,20 @@ class PatientInfoModal extends Component{
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==''){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        console.log("record",this.props.record);
+        //console.log("record",this.props.record);
         data.uloginId=this.props.record.uloginId;
         let url="/exam/data/patient/login";
-        //console.log("request:",data);
+        ////console.log("request:",data);
         ajax(url,data,'POST')
             .then((response)=>{
-                console.log("response:",response);
-                if(response.data.data==null)
-                    console.log("查询失败");
+                //console.log("response:",response);
+                if(response.data.data==null){
+                    //console.log("查询失败");
+                }
                 else{
                     let data=response.data.data.info;
                     let paginationProps={...this.state.paginationProps};
@@ -1043,7 +1052,7 @@ class PatientInfoModal extends Component{
                     paginationProps.total=response.data.data.total;
                     paginationProps.current=page.page;
                     paginationProps.pageSize=page.pageSize;
-                    console.log("data:",response);
+                    //console.log("data:",response);
                     this.setState({
                         data:data,
                         paginationProps:paginationProps,
@@ -1059,20 +1068,20 @@ class PatientInfoModal extends Component{
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==''){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
         data.uloginId = this.props.record.uloginId;
-        console.log("exportFile input:",data);
+        //console.log("exportFile input:",data);
         //exportFile("/exam/data/export/login/condition",data);
         exportFile('/exam/data/patient/export/condition',data);
-        //console.log("request:",data);
+        ////console.log("request:",data);
         // ajax("/exam/data/export/login/condition",data,'POST')
         //     .then((response)=>{
-        //         console.log(response);
+        //         //console.log(response);
         //     }).catch(e=>{
-        //     console.log("search error!",e);
+        //     //console.log("search error!",e);
         // });
     }
 
@@ -1236,8 +1245,8 @@ export default class ProfessionTestData extends Component {
     //函数部分
     //得到输入
     inputChange = (e,name) => {
-        //console.log(name);
-        //console.log(e.target.value);
+        ////console.log(name);
+        ////console.log(e.target.value);
         let source={};
         source[name]=e.target.value;
         this.setState({
@@ -1246,7 +1255,7 @@ export default class ProfessionTestData extends Component {
     }
     //表格行选择
     onSelectChange = row => {
-        console.log('所选择行',row)
+        //console.log('所选择行',row)
         let IDs = [];
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
         for( let ii =0; ii<row.length;ii++){
@@ -1262,14 +1271,14 @@ export default class ProfessionTestData extends Component {
     };
     //翻页
     handleTableChange = (pagination) =>{
-        //console.log(this.props.data.total);
+        ////console.log(this.props.data.total);
         let page={
             page:pagination.current,
             pageSize: pagination.pageSize,
         };
         this.requestData(page);
         //this.setState({paginationProps:pagination});
-        //console.log(pagination)
+        ////console.log(pagination)
     };
     //搜索
     search= ()=> {
@@ -1281,19 +1290,19 @@ export default class ProfessionTestData extends Component {
     }
     //重置
     reset = () => {
-        console.log('重置',this.state.input);
+        //console.log('重置',this.state.input);
         let myInput=Object.keys(this.state.input);
         let data = {};
         for(let ii=0;ii<myInput.length;ii++){
             data[myInput[ii]]='';
         }
-        this.state.input=data;
+        //this.state.input=data;
         this.setState(
             {
                 selectedRowKeys:[],
                 selectedIDs:[],
                 input:data,
-            },
+            },this.search
         )
         this.search();
     };
@@ -1304,16 +1313,16 @@ export default class ProfessionTestData extends Component {
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==''){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        //console.log("request:",data);
+        ////console.log("request:",data);
         ajax("/exam/data/list",data,'POST')
             .then((response)=>{
-                console.log("response:",response);
+                //console.log("response:",response);
                 if(response.data.data==null){
-                    console.log("request error!");
+                    //console.log("request error!");
                     return;
                 }
                 let data=response.data.data.info;
@@ -1322,7 +1331,7 @@ export default class ProfessionTestData extends Component {
                 paginationProps.total=response.data.data.total;
                 paginationProps.current=page.page;
                 paginationProps.pageSize=page.pageSize;
-                console.log("data:",response);
+                //console.log("data:",response);
                 this.setState({
                     data:data,
                     paginationProps:paginationProps,
@@ -1341,19 +1350,19 @@ export default class ProfessionTestData extends Component {
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
-            if(this.state.input[myInput[ii]]!=""){
+            if(this.state.input[myInput[ii]]!==''){
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        console.log("exportFile input:",data);
+        //console.log("exportFile input:",data);
         //exportFile("/exam/data/export/login/condition",data);
         exportFile('/exam/data/export/login/condition',data);
-        //console.log("request:",data);
+        ////console.log("request:",data);
         // ajax("/exam/data/export/login/condition",data,'POST')
         //     .then((response)=>{
-        //         console.log(response);
+        //         //console.log(response);
         //     }).catch(e=>{
-        //     console.log("search error!",e);
+        //     //console.log("search error!",e);
         // });
     }
 
