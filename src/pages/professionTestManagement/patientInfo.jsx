@@ -618,7 +618,10 @@ class Modal3 extends Component{
     //初始化
     constructor(props) {
         super(props);
-        this.search();
+        this.data = [this.props.record];
+        console.log(this.data);
+        console.log(this.props.data);
+        //this.search();
     }
 
     //表格1数据以及函数
@@ -631,17 +634,12 @@ class Modal3 extends Component{
         },
         {
             title: '医生id',
-            dataIndex: 'loginId',
+            dataIndex: 'uloginId',
             width:150,
         },
         {
             title: '病人姓名',
             dataIndex: 'patientName',
-            width:150,
-        },
-        {
-            title: '测试次数',
-            dataIndex: 'testNumber',
             width:150,
         },
         {
@@ -674,7 +672,7 @@ class Modal3 extends Component{
         },
         {
             title:'备注',
-            dataIndex:'insertDate',
+            dataIndex:'remarks',
             width:150,
             align:'remarks',
         },
@@ -684,7 +682,6 @@ class Modal3 extends Component{
     handleCancel= ()=>{
         this.props.setVisible(false);
     }
-
     //得到输入
     inputChange = (e,name) => {
         //console.log(name);
@@ -846,7 +843,7 @@ class Modal3 extends Component{
                         <div style={{heigh:"100%"}}>
                             <Table
                                 columns={this.columns}
-                                dataSource={this.state.data}
+                                dataSource={this.data}
                                 bordered={true}
                                 rowSelection={false}
                                 style={{margin:"20px 0",borderBottom:'1px,soild'}}
@@ -873,12 +870,48 @@ class Modal2 extends Component{
             //testTime: '',
             input: input,
         }
+        //获取列表信息
+        this.dataTable = [];
+        let otmp = {};
+        otmp['未测试'] = 'patient_no_test';
+        otmp['正在测试'] = 'patient_testing';
+        otmp['完成测试'] = 'patient_finish';
+        input.patientTestStatus = otmp[input.patientTestStatus]
+        this.requestData(input);
         //时间格式转换
         // let testTime=this.props.record.testTime;
         // let mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
         // this.state.testTime=mymoment;
     }
     //函数部分
+    //请求数据
+    requestData=(input)=>{
+        let url="/exam/patient/all/doctor";
+        //console.log("request:",data);
+        ajax(url, {},'GET')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null){
+                  console.log("请求错误！");
+              }
+              else{
+                  let mydata=response.data.data;
+                  console.log(response);
+                  this.dataTable = mydata;
+              }
+              delete input['updateUser'];
+              delete input['delFlag'];
+              delete input['insertDate'];
+              delete input['key'];
+              delete input['updateDate'];
+              delete input['uloginName'];
+
+              this.form.current.setFieldsValue(input);
+              this.setState({
+                  input:input
+              });
+          });
+    }
     //弹窗关闭函数
     handleCancel= ()=>{
         this.props.setVisible(false);
@@ -951,7 +984,28 @@ class Modal2 extends Component{
     //     testTime:'',
     //     input:{}
     // };
+    //得到selet项目
+    optuLoginId(){
+        let ii = 1;
+        console.log("opt:",this.dataTable)
+        return(
+          this.dataTable.map((item)=>{
+              ii = ii+1;
+              return(<Option key = {ii} title="uloginId" value={item.uloginId}>{item.uloginName + " id: " + item.uloginId}</Option>)
+          })
+        )
+    }
+    //选择框变化（完成）
+    handleChange=(e,Option) =>{
+        console.log(e)
+        console.log(Option)
+        let source = {};
+        source[Option.title] = Option.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
 
+        })
+    }
     /*表单验证
       Form.useForm是是 React Hooks 的实现，只能用于函数组件
       class组件中通过 React.createRef()来获取数据域*/
@@ -1001,18 +1055,31 @@ class Modal2 extends Component{
                                 <Input    onChange={(e)=>{this.inputChange(e,"patientName")}} value={this.state.input.patientName}/>
                             </Form.Item>
                             <Form.Item
-                                label="医生ID"
-                                name="loginId"
-                                rules={[{ required: true ,message:"请输入医生ID"}]}//设置验证规则
+                              label="医生姓名"
+                              name="uloginId"
+                              rules={[{ required: true ,message:"请输入医生姓名"}]}//设置验证规则
                             >
-                                <Input    onChange={(e)=>{this.inputChange(e,"loginId")}} value={this.state.input.loginId}/>
+                                <Select
+                                  placeholder="请选择医生姓名 "
+                                  style={{width:'100%'}}
+                                  value={this.state.input.uloginId}
+                                  onChange={this.handleChange}>
+                                    {this.optuLoginId()}
+                                </Select>
                             </Form.Item>
                             <Form.Item label="性别"
                                        name="patientSex"
                                        rules={[
                                            {required:true,message:'请输入性别！',},
                                        ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientSex")}} value={this.state.input.patientSex}/>
+                                <Select
+                                  placeholder = "请选择性别"
+                                  style={{width:'100%'}}
+                                  value={this.state.input.patientSex}
+                                  onChange={this.handleChange}>
+                                    <Option key = '1'title = 'patientSex' value={'M'}>男</Option>
+                                    <Option key = '2'title = 'patientSex' value={'F'}>女</Option>
+                                </Select>
                             </Form.Item>
                             <Form.Item label="年龄"
                                        name="patientAge"
@@ -1029,11 +1096,16 @@ class Modal2 extends Component{
                                 <Input onChange={(e)=>{this.inputChange(e,"patientAddress")}} value={this.state.input.patientAddress}/>
                             </Form.Item>
                             <Form.Item label="测试状态"
-                                       name="patientTestStatus"
-                                       rules={[
-                                           {required:true,message:'测试状态！',},
-                                       ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientTestStatus")}} value={this.state.input.patientTestStatus}/>
+                                       name="patientTestStatus">
+                                <Select
+                                  placeholder = "测试状态"
+                                  style={{width:'100%'}}
+                                  value={this.state.input.patientTestStatus}
+                                  onChange={this.handleChange}>
+                                    <Option key = '1'title = 'patientTestStatus' value={'patient_no_test'}>未测试</Option>
+                                    <Option key = '2'title = 'patientTestStatus' value={'patient_testing'}>正在测试</Option>
+                                    <Option key = '3'title = 'patientTestStatus' value={'patient_finish'}>完成测试</Option>
+                                </Select>
                             </Form.Item>
                             <Form.Item label="备注"
                                        name="remarks">
@@ -1059,12 +1131,36 @@ class Modal1 extends Component{
             testTime: '',
             input: input,
         }
+
+        //获取列表信息
+        this.dataTable = [];
+        this.requestData();
         //时间格式转换
         // let testTime=this.props.record.testTime;
         // let mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
         // this.state.testTime=mymoment;
     }
     //函数部分
+    //请求数据
+    requestData=()=>{
+        let url="/exam/patient/all/doctor";
+        //console.log("request:",data);
+        ajax(url, {},'GET')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null){
+                  console.log("请求错误！");
+              }
+              else{
+                  let mydata=response.data.data;
+                  console.log(response);
+                  this.dataTable = mydata;
+                  this.setState({
+                      input:{}
+                  })
+              }
+          });
+    }
     //弹窗关闭函数
     handleCancel= ()=>{
         this.props.setVisible(false);
@@ -1138,6 +1234,28 @@ class Modal1 extends Component{
     //     input:{}
     // };
 
+    //得到selet项目
+    optuLoginId(){
+        let ii = 1;
+        console.log("opt:",this.dataTable)
+        return(
+          this.dataTable.map((item)=>{
+              ii = ii+1;
+              return(<Option key = {ii} title="uloginId" value={item.uloginId}>{item.uloginName + " id: " + item.uloginId}</Option>)
+          })
+        )
+    }
+    //选择框变化（完成）
+    handleChange=(e,Option) =>{
+        console.log(e)
+        console.log(Option)
+        let source = {};
+        source[Option.title] = Option.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+
+        })
+    }
     /*表单验证
       Form.useForm是是 React Hooks 的实现，只能用于函数组件
       class组件中通过 React.createRef()来获取数据域*/
@@ -1180,12 +1298,19 @@ class Modal1 extends Component{
                                 />
                             </Form.Item>
                             <Form.Item
-                                label="医生ID"
-                                name="loginId"
-                                rules={[{ required: true ,message:"请输入医生ID"}]}//设置验证规则
+                                label="医生姓名"
+                                name="uloginId"
+                                rules={[{ required: true ,message:"请输入医生姓名"}]}//设置验证规则
                             >
-                                <Input    onChange={(e)=>{this.inputChange(e,"loginId")}} value={this.state.input.loginId}/>
+                                <Select
+                                  placeholder="请选择医生姓名 "
+                                  style={{width:'100%'}}
+                                  value={this.state.input.uloginId}
+                                  onChange={this.handleChange}>
+                                    {this.optuLoginId()}
+                                </Select>
                             </Form.Item>
+
                             <Form.Item
                                 label="病人姓名"
                                 name="patientName"
@@ -1198,7 +1323,14 @@ class Modal1 extends Component{
                                        rules={[
                                            {required:true,message:'请输入性别！',},
                                        ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientSex")}} value={this.state.input.patientSex}/>
+                                <Select
+                                  placeholder = "请选择性别"
+                                  style={{width:'100%'}}
+                                  value={this.state.input.patientSex}
+                                  onChange={this.handleChange}>
+                                    <Option key = '1'title = 'patientSex' value={'M'}>男</Option>
+                                    <Option key = '2'title = 'patientSex' value={'F'}>女</Option>
+                                </Select>
                             </Form.Item>
                             <Form.Item label="年龄"
                                        name="patientAge"
@@ -1213,7 +1345,15 @@ class Modal1 extends Component{
                             </Form.Item>
                             <Form.Item label="测试状态"
                                        name="patientTestStatus">
-                                <Input onChange={(e)=>{this.inputChange(e,"patientTestStatus")}} value={this.state.input.patientTestStatus}/>
+                                <Select
+                                  placeholder = "测试状态"
+                                  style={{width:'100%'}}
+                                  value={this.state.input.patientTestStatus}
+                                  onChange={this.handleChange}>
+                                    <Option key = '1'title = 'patientTestStatus' value={'patient_no_test'}>未测试</Option>
+                                    <Option key = '2'title = 'patientTestStatus' value={'patient_testing'}>正在测试</Option>
+                                    <Option key = '3'title = 'patientTestStatus' value={'patient_finish'}>完成测试</Option>
+                                </Select>
                             </Form.Item>
                             <Form.Item label="备注"
                                        name="remarks">
@@ -1256,7 +1396,7 @@ export default class PatientInfo extends Component {
         },
         {
             title:'医生',
-            dataIndex:'loginName',
+            dataIndex:'uloginId',
             width:150,
             align:'center',
         },
@@ -1412,8 +1552,8 @@ export default class PatientInfo extends Component {
     delete=(record)=>{
         let data={};
         data.patientId=record.patientId;
-        let url="/exam/patient/remove";
-        ajax(url,data,'POST')
+        let url="/exam/patient/remove/"+data.patientId;
+        ajax(url, {},'GET')
             .then((response)=>{
                 if(response.data.code!==1006){
                     console.log("请求错误！",response);
