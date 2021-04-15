@@ -1,23 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="默认的">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/yyb_amdin.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/yyb_amdin.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compenents/importfile.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/compenents/importfile.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/exportFile.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/exportFile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/http.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/http.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +42,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../vue/xsr/xsr" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -64,7 +50,7 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="yarn" />
-    <property name="settings.editor.selected.configurable" value="configurable.group.build" />
+    <property name="settings.editor.selected.configurable" value="watcher.settings" />
     <property name="ts.external.directory.path" value="D:\Webstorm\WebStorm 2020.3\plugins\JavaScriptLanguage\jsLanguageServicesImpl\external" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
@@ -148,6 +134,36 @@
       <workItem from="1614596598649" duration="353000" />
       <workItem from="1614652912717" duration="6276000" />
       <workItem from="1614760999631" duration="8388000" />
+      <workItem from="1614824152929" duration="13829000" />
+      <workItem from="1615106842333" duration="632000" />
+      <workItem from="1615201504380" duration="6900000" />
+      <workItem from="1615255756204" duration="2974000" />
+      <workItem from="1615461496765" duration="4424000" />
+      <workItem from="1615514411657" duration="5606000" />
+      <workItem from="1615868819331" duration="4876000" />
+      <workItem from="1615955620172" duration="1874000" />
+      <workItem from="1615993868892" duration="4202000" />
+      <workItem from="1615998401650" duration="117000" />
+      <workItem from="1616072504215" duration="802000" />
+      <workItem from="1616128074737" duration="6456000" />
+      <workItem from="1616673368252" duration="7901000" />
+      <workItem from="1616683053570" duration="5412000" />
+      <workItem from="1616847073236" duration="1534000" />
+      <workItem from="1617080363837" duration="8045000" />
+      <workItem from="1617328446396" duration="2318000" />
+      <workItem from="1617366015380" duration="156000" />
+      <workItem from="1617500983475" duration="3656000" />
+      <workItem from="1617526226315" duration="831000" />
+      <workItem from="1617716423861" duration="5381000" />
+      <workItem from="1617725311693" duration="303000" />
+      <workItem from="1617857197260" duration="5231000" />
+      <workItem from="1617887105892" duration="814000" />
+      <workItem from="1617944571742" duration="625000" />
+      <workItem from="1618019500289" duration="2066000" />
+      <workItem from="1618106321982" duration="2408000" />
+      <workItem from="1618237324578" duration="4856000" />
+      <workItem from="1618288905832" duration="12565000" />
+      <workItem from="1618470117821" duration="5654000" />
     </task>
     <servers />
   </component>
