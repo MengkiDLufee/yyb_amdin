@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="">
+    <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="默认的">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/ajax.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/ajax.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/deviceManagement/deviceManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/deviceManagement/deviceManagement.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/experimentManagement/devTest.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/experimentManagement/devTest.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/style.less" beforeDir="false" afterPath="$PROJECT_DIR$/src/style.less" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -164,7 +156,11 @@
       <workItem from="1617857197260" duration="5231000" />
       <workItem from="1617887105892" duration="814000" />
       <workItem from="1617944571742" duration="625000" />
-      <workItem from="1618019500289" duration="613000" />
+      <workItem from="1618019500289" duration="2066000" />
+      <workItem from="1618106321982" duration="2408000" />
+      <workItem from="1618237324578" duration="4856000" />
+      <workItem from="1618288905832" duration="12565000" />
+      <workItem from="1618470117821" duration="1093000" />
     </task>
     <servers />
   </component>
