@@ -4,9 +4,8 @@
 
 //利用promise统一处理请求错误
 
-
 import axios from 'axios'
-import qs from 'qs'
+import qs from 'qs'//将url中的参数转为对象;将对象转为url参数形式
 import {
     message
 } from 'antd'

@@ -108,7 +108,7 @@ export default class TestType extends Component {
 
         //判断图片是否已经加载完成
         isload:false,
-        imgDisplay:'none'
+        imgDisplay:'none',
     };
 
     //表格列名
@@ -194,7 +194,8 @@ export default class TestType extends Component {
         },
 
     ];
-//所有可关联的试剂类型
+
+   //所有可关联的试剂类型
     reagentcolumns = [
         {
             title: '试剂名称',
@@ -779,9 +780,7 @@ export default class TestType extends Component {
                         judgeTipsId:record.judgeTipsId
                     }) .then(function (response) {
                         _this.setState({
-                            pictureSource:response.data.data
-                        },()=>{
-                            console.log("图片",_this.state.pictureSource)
+                            pictureSource:response.data.data,
                         })
                     })
                         .catch(function (error) {
@@ -848,6 +847,7 @@ export default class TestType extends Component {
         this.setState({
             logicVisible:true,
             testTypeId:record.testTypeId,
+            testTypeName:record.testTypeName,
         },()=>{
             console.log(this.state.judgeMethodId)
             let params={
@@ -886,7 +886,8 @@ export default class TestType extends Component {
         this.setState({
             visible_import:true,
             testTypeId:record.testTypeId,
-        })
+        },()=>{console.log("上传模板",this.state.testTypeId)})
+
     }
 
     //导入弹窗关闭
@@ -1280,6 +1281,10 @@ export default class TestType extends Component {
                                 }, 1000);
                             }
                         })
+                },reason=>{
+                    this.setState({
+                        loading: true,
+                    });
                 })
         }
         else if(promptForm){
@@ -1295,7 +1300,7 @@ export default class TestType extends Component {
                         resultDataTips:values.resultDataTips,
                         shortTips:values.shortTips,
                         longTips:values.longTips,
-                        pictureTips:values.pictureTips
+                        //pictureTips:values.pictureTips
                     }
                     console.log("判读提示语",params);
                     httpRequest('post','/test/type/judgeTips/modify',params)
@@ -1331,17 +1336,21 @@ export default class TestType extends Component {
                             }
                         })
 
+                },reason=>{
+                    this.setState({
+                        loading: true,
+                    });
                 })
         }
         else if(judgeParamForm){
+            console.log(judgeParamForm)
             judgeParamForm.validateFields()//表单输入校验
                 .then((values) => {
-                    //console.log("判读参数",values);
+                    console.log("判读参数",values);
                     let params={
                         judgeParamId:this.state.judgeParamId,
                         judgeParamValue:values.judgeParamValue
                     }
-                    console.log("判读参数",params)
                     httpRequest('post','/test/type/judgeParam/modify',params)
                         .then((response)=>{
                             if(response.data.code===1004){
@@ -1376,6 +1385,15 @@ export default class TestType extends Component {
                         })
 
                 })
+                .catch(errorInfo =>{
+                    console.log("错误",errorInfo)
+                    setTimeout(()=>{
+                        this.setState({
+                            loading: false,
+                        });
+                    },1000)
+                    console.log("转",this.state.loading)
+                })
         }
 
 }
@@ -1399,6 +1417,7 @@ export default class TestType extends Component {
             logicVisible:false,
             historyVisible:false,
             testTypeId:'',
+            testTypeName:'',
             associatedcurrentPage:1,
             currentItem:{
                 key:null,
@@ -1530,7 +1549,7 @@ export default class TestType extends Component {
     }
 
     //主页面表格分页
-    onChange = page => {
+    onChange= page => {
         console.log(page);
         this.setState({
             currentPage: page,
@@ -1711,16 +1730,57 @@ export default class TestType extends Component {
 
     //生成预览
     handleMakePreview=()=>{
-        console.log("生成预览")
-        console.log("testTypeId",this.state.testTypeId)
-        axios.get('http://123.57.33.240:8080/test/type/judge/showMapPic',{
-            params:{
-                pdfName:`生成${this.state.testTypeId}的预览`,
-                testTypeId:this.state.testTypeId,
-                type:1,
-            }
-        })
+        let params={
+            pdfName:`生成${this.state.testTypeId}的预览`,
+            testTypeId:this.state.testTypeId,
+            type:1,
+        }
+        console.log(params,"params")
+        httpRequest('get','http://123.57.33.240:8080/test/type/judge/showMapPic',params,{'responseType':'blob'})
+            .then(response=>{
+                console.log("生成预览",response)
+                if(response.data.code===0){
+                    alert("请先上传对应模板");
+                    this.setState({
+                        logicVisible:false,
+                        testTypeName:'',
+                        testTypeId:'',
+                    })
+                }
+                else {
+                    const link = document.createElement('a')
+                    let blob = new Blob([response.data], {type:'image/png'})
+                    link.style.display = 'none'
+                    link.href = URL.createObjectURL(blob)
+
+
+                    link.download =`当前生产判读逻辑(${this.state.testTypeName})` //下载的文件名
+                    document.body.appendChild(link)
+                    link.click()
+                    document.body.removeChild(link)
+
+                }
+            })
     }
+
+    //上传图片后的回调
+    uploadPicture=(e)=>{
+        console.log("上传回调",e)
+        if(e.file.status==='done'){
+            let _this=this;
+            axios.post('http://123.57.33.240:8080/test/type/judgeTips/imageUrlTest',{
+                judgeTipsId:this.state.judgeTipsId
+            }) .then(function (response) {
+                _this.setState({
+                    pictureSource:response.data.data,
+                })
+                e.fileList=[];
+            })
+                .catch(function (error) {
+                    console.log(error);
+                });
+        }
+}
 
     //修改提示语图片
     //设置如何将 event 的值转换成字段值
@@ -2312,10 +2372,10 @@ export default class TestType extends Component {
                             name="upload"
                             label="选择提示语图片"
                             valuePropName="fileList"
-                            getValueFromEvent={this.normFile}
-                        >
+                            getValueFromEvent={this.normFile}>
                             <Image
-                                src={this.state.pictureSource}
+                                src={this.state.pictureSource ? this.state.pictureSource : "data:image/png;base64,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"
+                                }
                                 fallback="data:image/png;base64,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"
                             />
                             <Upload
@@ -2324,6 +2384,7 @@ export default class TestType extends Component {
                                     //listType="picture"
                                     maxCount={1}
                                     data={{'judgeTipsId':this.state.judgeTipsId}}//上传所需额外参数或返回上传额外参数的方法
+                                    onChange={this.uploadPicture}
                             >
                                 <Button icon={<UploadOutlined />}>选择提示语图片</Button>
                             </Upload>

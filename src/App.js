@@ -21,11 +21,9 @@ export default class App extends Component {
     return (
       <BrowserRouter>
         <Switch>
-          
           <Route exact path='/login' component={Login} />
           <Route path='/' component={Admin} />  
-          <Redirect exact from='/' to='/login'/> 
-
+          <Redirect exact from='/' to='/login'/>
         </Switch>
       </BrowserRouter>
     )
