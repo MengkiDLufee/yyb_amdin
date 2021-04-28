@@ -92,16 +92,16 @@ export function devDelete(deviceId) {
 */
 //5.1.1 实验数据
 export function expList (data) {
-  return ajax('/experiment/list',data,'POST')
+  return ajax('/experiment/data/info/list',data,'POST')
 }
 //5.1.2.1 得到所有实验人员
 export function getExpPerson(){
-  return ajax('/experiment/get_test_people',{},'GET')
+  return ajax('/experiment/data/getTestPerson',{},'GET')
 }
 
 //5.1.2.2 得到所有试剂种类
 export function getPaper(){
-  return ajax('/experiment/get_paper_type',{},'GET')
+  return ajax('/experiment/data/getPaperType',{},'GET')
 }
 
 
@@ -116,7 +116,15 @@ export function getPaper(){
 
 
 //5.2.1 实验人员信息
-export function exp_person (data) {
-  return ajax('/testperson/list',data,'POST')
+export function expPersonList (data) {
+  return ajax('/experimenter/list',data,'POST')
+}
+//5.2.2 添加实验人员
+export function addExpPerson (data) {
+  return ajax('/experimenter/add',data,'POST')
+}
+//5.2.3 修改
+export function expPersonModify (data) {
+  return ajax('/experimenter/update',data,'POST')
 }
 

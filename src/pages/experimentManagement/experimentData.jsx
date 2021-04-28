@@ -64,7 +64,7 @@ const { Option } = Select;
     for(let i = 0;i<data.length;i++){
       let newItem = {};
       newItem.key = i;
-      newItem.batch_num = data[i].batchNumber;
+      newItem.batch_num = data[i].bathNumber;
       newItem.type = data[i].paperTypeId;
       newItem.r_time = data[i].reactiveTime;
       newItem.made_time = (data[i].madeTime ||"").split('T')[0];
@@ -184,6 +184,11 @@ export default class ExperimentData extends Component {
           dataIndex: 'state',
           width: 100,
           align:'center',
+          render:(state) => (
+            <Space>
+              <p>{state === null ? '无状态':(state === 'plan_finish'?'已完成':'进行中')}</p>
+            </Space>
+          )
         },
         {
           title: '实验结果',
@@ -254,11 +259,11 @@ export default class ExperimentData extends Component {
           total:res.data.data.total,
         })
       })
-
+      //请求实际类型
       getPaper().then(res=>{
         console.log(res)
         this.setState({
-          paperType:res.data.data.paperType
+          paperType:res.data.data
         })
       })
     }
@@ -516,7 +521,7 @@ export default class ExperimentData extends Component {
                         >
                             {
                               paperType.map(paper=>{
-                                return <Option key={paper.id} value={paper.id} >{paper.name}</Option>
+                                return <Option key={paper.id} value={paper.paperTypeId} >{paper.paperTypeName}</Option>
                               })
                             }
                         </Select>
