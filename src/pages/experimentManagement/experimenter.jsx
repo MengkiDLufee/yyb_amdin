@@ -1,60 +1,22 @@
 import React, { Component } from 'react'
-import { Table, Button, Input, Space, Modal, Form, Radio } from 'antd';
+import { Table, Button, Input, Space, Modal, Form, Radio, message, Popconfirm } from 'antd';
 import {
   ReloadOutlined,
   SearchOutlined,
   PlusOutlined,
-  CloudUploadOutlined,
   CloudDownloadOutlined,
 } from '@ant-design/icons';
 // import './radio.less';//radio样式修改
 import './index.less'
-import { expPersonList } from '../../api/index'
+import {
+  expPersonList,//获取表格数据
+  addExpPerson,//添加
+  expPersonModify,//修改
+  expDelete,//删除
+  exportFile,//导出
+  checkPassword,//查看密码
+} from '../../api/index'
 
-
-
-
-
-
-
-//主页面表格数据
-const data = [];
-for (let i = 0; i < 46; i++) {
-  if (i % 2 !== 0) {
-    data.push({
-      key: i,
-      user: `test${i}`,
-      name: `name ${i}`,
-      phone_num: `33`,
-      dev_code_now: `DEV${i}`,
-      dev_num_past: `${i + 7}`,
-      state: 1,
-      password: `1111111`
-    });
-  } else {
-    data.push({
-      key: i,
-      user: `test${i}`,
-      name: `name ${i}`,
-      phone_num: `33`,
-      dev_code_now: `DEV${i}`,
-      dev_num_past: `${i + 7}`,
-      state: 0,
-      password: `222222`
-    });
-  }
-}
-//历史设备弹窗表格数据dev_past
-const data_dev_past = [];
-for (let i = 0; i < 77; i++) {
-  data_dev_past.push({
-    key: i,
-    dev_code: `${i + 10}`,
-    on_use: `是`,
-    bind_time: `2020-11-11`,
-    stop_time: `2020-12-12`,
-  })
-}
 
 function transformData(data) {
   let newData = [];
@@ -116,6 +78,7 @@ export default class Experimenter extends Component {
     //查看密码弹窗
     password: '',
     //修改弹窗
+    personID: null,
     modify: {
       user: '',
       name: '',
@@ -166,9 +129,9 @@ export default class Experimenter extends Component {
       width: 100,
       align: 'center',
       render: state => {
-        if (state === 0) {
+        if (state === 'enable') {
           return ('启用')
-        } else {
+        } else if (state === 'frozen') {
           return ('冻结')
         }
       }
@@ -183,45 +146,19 @@ export default class Experimenter extends Component {
         <Space >
           <Button size="small" style={{ color: 'black', background: 'white' }} onClick={() => { this.password(record) }}>查看密码</Button>
           <Button size="small" style={{ color: 'black', background: 'white' }} onClick={() => { this.modify(record) }}>修改</Button>
-          <Button size="small" style={{ color: 'white', background: '#ff5621' }} onClick={() => { this.delete(record) }}>删除</Button>
-          <Button size="small" style={{ color: 'black', background: 'white' }} onClick={() => { this.past_dev(record) }}>历史设备</Button>
+          <Popconfirm
+            title="确定要删除吗?"
+            onConfirm={() => { this.delete(record) }}
+            okText="确认"
+            cancelText="取消"
+          >
+            <Button size="small" style={{ color: 'white', background: '#ff5621' }}>删除</Button>
+          </Popconfirm>
         </Space>
       ),
     }
   ];
 
-  //历史设备表格头
-  columns_dev_past = [
-    {
-      title: '设备号',
-      dataIndex: 'dev_code',
-      key: 'dev_code',
-      width: 150,
-      align: 'center',
-    },
-    {
-      title: '正在使用',
-      dataIndex: 'on_use',
-      key: 'on_use',
-      width: 150,
-      align: 'center',
-    },
-    {
-      title: '绑定时间',
-      dataIndex: 'bind_time',
-      key: 'bind_time',
-      width: 150,
-      align: 'center',
-    },
-    {
-      title: '终止时间',
-      dataIndex: 'stop_time',
-      key: 'stop_time',
-      width: 150,
-      align: 'center',
-    },
-
-  ]
   //表格行选择操作
   onSelectChange = selectedRowKey => {
     let newArr = [...new Set([...selectedRowKey, ...this.state.selectedRowKeysAll])]
@@ -236,11 +173,8 @@ export default class Experimenter extends Component {
 
 
   //加载数据
-  loadData = () => {
-    expPersonList({
-      page: 1,
-      pageSize: 10,
-    })
+  loadData = (params) => {
+    expPersonList(params)
       .then(res => {
         console.log(res)
         let data = transformData(res.data.data.info)
@@ -251,9 +185,12 @@ export default class Experimenter extends Component {
         })
       })
   }
-
+  //生命周期，组件挂在完后
   componentDidMount() {
-    this.loadData()
+    this.loadData({
+      page: 1,
+      pageSize: 10,
+    })
   }
 
   inputChange = (e) => {
@@ -304,7 +241,10 @@ export default class Experimenter extends Component {
         phone_num_in: '',
       },
     )
-    this.loadData()
+    this.loadData({
+      page: 1,
+      pageSize: 10,
+    })
 
   };
   //添加
@@ -319,16 +259,28 @@ export default class Experimenter extends Component {
     let form = this.form_add.current;
     form.validateFields()//表单验证
       .then((value) => {
-        this.setState({
-          visible_add: false
+        let params = {
+          username: value.add_user,
+          personName: value.add_name,
+          mobile: value.add_phone_num,
+          accountStatus: value.add_state
+        }
+        addExpPerson(params).then(res => {
+          console.log(res);
+          message.success('添加成功！')
+          this.loadData({
+            page: 1,
+            pageSize: 10,
+          })
+          this.setState({
+            visible_add: false
+          })
         })
         form.resetFields();//清空表单内容
-        console.log(value)
       })
       .catch(err => {
         console.log("验证不通过：", err)
       })
-    console.log('添加完成')
   };
   //添加关闭
   handleCancel_add = () => {
@@ -339,33 +291,59 @@ export default class Experimenter extends Component {
     });
     console.log('添加关闭')
   };
-  //导入
-  importStatic = () => {
-    console.log('导入')
-  };
+
   //导出已选择数据
   exportChoose = () => {
-    console.log('导出已选择数据')
+    console.log('导出已选择数据',this.state.selectedRowKeysAll)
+    exportFile('/experimenter/export/choose',this.state.selectedRowKeysAll)
+    
   };
   //按搜索条件导出
   exportSearch = () => {
     console.log('按搜索条件导出')
+    let params = {}
+    let { user_in, name_in, phone_num_in } = this.state
+    params.page = 1;
+    params.pageSize = 10;
+    if (user_in !== '') {
+      params.userName = user_in
+    }
+    if (name_in !== '') {
+      params.personName = name_in
+    }
+    if (phone_num_in !== '') {
+      params.mobile = phone_num_in
+    }
+    exportFile('/experimenter/export/condition',params)
   };
   //查看密码
   password = (record) => {
-    this.setState({
-      password: record.password,
-      visible_password: true,
+    let params = {
+      testPersonId:record.personId,
+      checkOrReset:true
+    }
+    checkPassword(params).then(res=>{
+      this.setState({
+        password: res.data.data.password,
+        visible_password: true,
+        personID:record.personId
+      })
     })
+    
   }
   //重置密码按钮
   handleOk_password = () => {
-    this.setState({
-      visible_password: false,
-      password: '00000'
-    },
-      () => console.log(this.state.password)
-    )
+    let params = {
+      testPersonId:this.state.personID,
+      checkOrReset:false
+    }
+    checkPassword(params).then(res=>{
+      this.setState({
+        password: res.data.data.password,
+        visible_password: false,
+      })
+      message.info('重置成功！')
+    })
   }
   //取消
   handleCancel_password = () => {
@@ -380,6 +358,7 @@ export default class Experimenter extends Component {
     if (form) {
       this.setState({
         visible_modify: true,
+        personID: record.personId
       })
       form.setFieldsValue({
         modify_user: record.user,
@@ -391,13 +370,29 @@ export default class Experimenter extends Component {
   };
   //完成修改
   handleOk_modify = () => {
+    const { current, pageSize } = this.state.paginationProps
     let form = this.form_modify.current;
     form.validateFields()
       .then(
         value => {
-          console.log(value)
-          this.setState({
-            visible_modify: false,
+          let params = {
+            testPersonId: this.state.personID,
+            username: value.modify_user,
+            personName: value.modify_name,
+            mobile: value.modify_phone_num,
+            accountStatus: value.modify_state
+          }
+          expPersonModify(params).then(res => {
+            console.log(res);
+            this.loadData({
+              page: current,
+              pageSize,
+            })
+            this.setState({
+              visible_modify: false,
+              personID: null
+            })
+            message.success('修改成功！')
           })
         }
       )
@@ -415,22 +410,20 @@ export default class Experimenter extends Component {
   };
   //删除
   delete = (record) => {
-    console.log('删除', record)
+    console.log('确认删除', record)
+    const { current, pageSize } = this.state.paginationProps
+    let params = {
+      testPersonId: record.personId
+    }
+    expDelete(params).then(res => {
+      console.log(res);
+      message.info(res.data.msg)
+      this.loadData({
+        page: current,
+        pageSize,
+      })
+    })
   };
-  //历史设备
-  past_dev = (record) => {
-    console.log(record)
-    this.setState({
-      visible_dev_past: true,
-      user_dev: record.user,
-    })
-  }
-  //历史设备弹窗关闭
-  handleCancel_dev = () => {
-    this.setState({
-      visible_dev_past: false,
-    })
-  }
   //表格页数变化
   handTablechange = (pagination) => {
     console.log(pagination)
@@ -464,10 +457,6 @@ export default class Experimenter extends Component {
       })
   };
 
-  //历史设备表格变化
-  handTablechange_dev_past = (pagination) => {
-    console.log(pagination)
-  };
 
 
   render() {
@@ -512,7 +501,7 @@ export default class Experimenter extends Component {
               className="button1"
             >
               搜索
-                        </Button>
+            </Button>
 
             <Button type="primary"
               icon={<ReloadOutlined className="icon1" />}
@@ -520,7 +509,7 @@ export default class Experimenter extends Component {
               className="button1"
             >
               重置
-                        </Button>
+            </Button>
 
             <Button
               type="primary"
@@ -529,17 +518,7 @@ export default class Experimenter extends Component {
               className="button1"
             >
               添加
-                        </Button>
-
-            <Button
-              type="primary"
-              icon={<CloudUploadOutlined className="icon1" />}
-              onClick={this.importStatic}
-              className="button1"
-            >
-              导入
-                        </Button>
-
+             </Button>
             <Button
               type="primary"
               icon={<CloudDownloadOutlined className="icon1" />}
@@ -547,7 +526,7 @@ export default class Experimenter extends Component {
               className="button2"
             >
               导出已选择数据
-                        </Button>
+            </Button>
 
             <Button
               type="primary"
@@ -556,7 +535,7 @@ export default class Experimenter extends Component {
               className="button2"
             >
               按检索条件导出
-                        </Button>
+            </Button>
 
 
           </div>
@@ -637,11 +616,11 @@ export default class Experimenter extends Component {
                 label="状态"
                 id="add_state"
                 name="add_state"
-                initialValue={0}
+                initialValue='enable'
               >
                 <Radio.Group >
-                  <Radio value={0}>启用</Radio>
-                  <Radio value={1}>冻结</Radio>
+                  <Radio value='enable'>启用</Radio>
+                  <Radio value='frozen'>冻结</Radio>
                 </Radio.Group>
               </Form.Item>
             </Form>
@@ -657,7 +636,7 @@ export default class Experimenter extends Component {
           onCancel={this.handleCancel_password}
           cancelText="取消"
         >
-          <div>你的密码是:{this.state.password}</div>
+          <div>你的密码是 : {this.state.password}</div>
         </Modal>
         {/* 修改弹窗 */}
         <Modal
@@ -716,34 +695,13 @@ export default class Experimenter extends Component {
                 name="modify_state"
               >
                 <Radio.Group buttonStyle="outline"  >
-                  <Radio value={0}>启用</Radio>
-                  <Radio value={1}>冻结</Radio>
+                  <Radio value='enable'>启用</Radio>
+                  <Radio value='frozen'>冻结</Radio>
                 </Radio.Group>
               </Form.Item>
 
             </Form>
           </div>
-        </Modal>
-        {/* 历史设备弹窗 */}
-        <Modal
-          title="历史设备"
-          centered
-          visible={this.state.visible_dev_past}
-          onCancel={this.handleCancel_dev}
-          footer={null}
-          width="800"
-          height="600"
-        >
-          <div style={{ margin: '5px', fontWeight: 'bold' }}>用户名：{this.state.user_dev}</div>
-          <div style={{ margin: '5px', fontWeight: 'bold' }}>历史设备：{data_dev_past.length}</div>
-          <Table
-            columns={this.columns_dev_past}
-            dataSource={data_dev_past}
-            bordered={true}
-            style={{ margin: '20px 0', borderBottom: '1px,soild' }}
-            pagination={this.state.paginationProps_dev_past}
-            onChange={this.handTablechange_dev_past}
-          />
         </Modal>
       </div>
     )

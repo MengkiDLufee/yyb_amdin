@@ -778,7 +778,7 @@ export default class TestType extends Component {
                 },()=>{
                     axios.post('http://123.57.33.240:8080/test/type/judgeTips/imageUrlTest',{
                         judgeTipsId:record.judgeTipsId
-                    }) .then(function (response) {
+                    }).then(function (response) {
                         _this.setState({
                             pictureSource:response.data.data,
                         })
@@ -1770,7 +1770,7 @@ export default class TestType extends Component {
             let _this=this;
             axios.post('http://123.57.33.240:8080/test/type/judgeTips/imageUrlTest',{
                 judgeTipsId:this.state.judgeTipsId
-            }) .then(function (response) {
+            }).then(function (response) {
                 _this.setState({
                     pictureSource:response.data.data,
                 })

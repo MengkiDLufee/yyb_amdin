@@ -127,4 +127,11 @@ export function addExpPerson (data) {
 export function expPersonModify (data) {
   return ajax('/experimenter/update',data,'POST')
 }
-
+//5.2.4 删除
+export function expDelete(data) {
+  return ajax('/experimenter/delete',data,'POST')
+}
+//5.2.7 查看密码
+export function checkPassword(data) {
+  return ajax('/experimenter/pwd',data,'POST')
+}
