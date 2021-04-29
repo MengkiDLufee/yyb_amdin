@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Space, Modal, Form} from 'antd';
+import {Table, Button, Input, Space, Modal, Form, Image} from 'antd';
 //import { DatePicker} from 'antd';
 import { Upload, message } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
@@ -16,8 +16,9 @@ import './index.less'
 import ajax from "../../api/ajax";
 import addKey from "../../api/addKey";
 import {exportFile} from "../../api";
-const { TextArea } = Input;
 //const { Dragger } = Upload;
+import {baseUrl} from "../../api/ajax";
+const { TextArea } = Input;
 
 class Avatar extends React.Component {
     state = {
@@ -504,13 +505,14 @@ class Avatar extends React.Component {
 
 
 
-//添加 废弃
+//添加
 class Modal1 extends Component{
     //初始化
     constructor(props) {
         super(props);
         //参数设置
         let input={};
+        console.log(this.props.record)
         Object.assign(input,this.props.record);
         console.log("init record:",input);
         this.state= {
@@ -581,22 +583,22 @@ class Modal1 extends Component{
     //得到文本框输入
     inputChange = (e,name) => {
         //console.log(name);
-        let themename = e.target.name;
-        console.log(themename)
+        //let themename = e.target.name;
+        //console.log(themename)
         //console.log(e.target.name);
         let source={};
         source[name]=e.target.value;
         this.setState({
             input:Object.assign(this.state.input,source),
         });
-        console.log(this.state);
+        //console.log(this.state);
     }
     //参数设置
-    // state={
-    //     //表格1数据
-    //     testTime:'',
-    //     input:{}
-    // };
+    state={
+        //表格1数据
+        testTime:'',
+        input:{}
+    };
 
     /*表单验证
       Form.useForm是是 React Hooks 的实现，只能用于函数组件
@@ -614,10 +616,12 @@ class Modal1 extends Component{
                     okText="确定"
                     onCancel={this.handleCancel}
                     cancelText="关闭"
-                    className="modal1"
-                    width="700"
+                    //className="modal1"
+                    width={1000}
                 >
-                    <div className="modal-body" style={{height:"550px"}}>
+                      <div className="modal-body"
+                         style={{height:"550px"}}
+                    >
                         <Form
                             labelCol={{ span: 5 }}
                             wrapperCol={{ span: 16 }}
@@ -626,17 +630,17 @@ class Modal1 extends Component{
                             initialValues={this.state.input}
                         >
                             <Form.Item
-                                label="服务内容"
-                                name="服务内容"
+                                label="服务记录"
+                                name="服务记录"
                                 rules={[
                                     {
                                         required: true,
-                                        message: '请输入服务内容!',
+                                        message: '请输入服务记录!',
                                     },
                                 ]}
                             >
-                                <TextArea rows={4} placeholder={"请输入手机号"} onChange={(e)=>{this.inputChange(e,"patientNumber")}}
-                                          value={this.state.input.patientNumber}/>
+                                <TextArea rows={4} placeholder={"请输入服务记录"} onChange={(e)=>{this.inputChange(e,"patientNumber")}}
+                                          value={this.state.input.serviceRecord}/>
                             </Form.Item>
                             <Form.Item label="服务时间"
                                        name={"服务时间"}
@@ -647,7 +651,7 @@ class Modal1 extends Component{
                                            },
                                        ]}
                             >
-                                <Input placeholder={"请输入服务时间"}/>
+                                <Input placeholder={"请输入服务时间"} value={this.state.input.serviceTime}/>
                             </Form.Item>
                             <Form.Item label="服务人员"
                                        name={"服务人员"}
@@ -658,20 +662,20 @@ class Modal1 extends Component{
                                            },
                                        ]}
                             >
-                                <Input placeholder={"请输入服务人员"}/>
+                                <Input placeholder={"请输入服务人员"} value={this.state.input.serviceStaff}/>
                             </Form.Item>
 
-                            <Form.Item label="年龄"
-                                       name={"年龄"}
-                                       rules={[
-                                           {
-                                               required: true,
-                                               message: '请输入年龄!',
-                                           },
-                                       ]}
-                            >
-                                <Input  placeholder={"请输入年龄"} />
-                            </Form.Item>
+                            {/*<Form.Item label="年龄"*/}
+                            {/*           name={"年龄"}*/}
+                            {/*           rules={[*/}
+                            {/*               {*/}
+                            {/*                   required: true,*/}
+                            {/*                   message: '请输入年龄!',*/}
+                            {/*               },*/}
+                            {/*           ]}*/}
+                            {/*>*/}
+                            {/*    <Input  placeholder={"请输入年龄"} />*/}
+                            {/*</Form.Item>*/}
                             <Form.Item
                                 label="上传文件路径"
                                 name={"uploadPicture"}
@@ -683,64 +687,64 @@ class Modal1 extends Component{
                                 ]}>
                                 <Avatar></Avatar>
                             </Form.Item>
-                            <Form.Item
-                                label={"预览"}
-                                name={"showPicture"}>
+                            {/*<Form.Item*/}
+                            {/*    label={"预览"}*/}
+                            {/*    name={"showPicture"}>*/}
 
-                            </Form.Item>
-                            <Form.Item
-                                label="手机号"
-                                name="patientNumber"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: '请输入手机号!',
-                                    },
-                                ]}
-                            >
-                                <Input onChange={(e)=>{this.inputChange(e,"patientNumber")}}
-                                       value={this.state.input.patientNumber}
-                                />
-                            </Form.Item>
-                            <Form.Item
-                                label="医生"
-                                name="loginAccount"
-                                rules={[{ required: true ,message:"请输入医生用户"}]}//设置验证规则
-                            >
-                                <Input    onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>
-                            </Form.Item>
-                            <Form.Item label="性别"
-                                       name="patientSex"
-                                       rules={[
-                                           {required:true,message:'请输入性别！',},
-                                       ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientSex")}} value={this.state.input.patientSex}/>
-                            </Form.Item>
-                            <Form.Item label="年龄"
-                                       name="patientAge"
-                                       rules={[
-                                           {required:true,message:'请输入年龄！',},
-                                       ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientAge")}} value={this.state.input.patientAge}/>
-                            </Form.Item>
-                            <Form.Item label="地址"
-                                       name="patientAddress"
-                                       rules={[
-                                           {required:true,message:'请输入地址！',},
-                                       ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientAddress")}} value={this.state.input.patientAddress}/>
-                            </Form.Item>
-                            <Form.Item label="测试状态"
-                                       name="patientTestStatus"
-                                       rules={[
-                                           {required:true,message:'测试状态！',},
-                                       ]}>
-                                <Input onChange={(e)=>{this.inputChange(e,"patientTestStatus")}} value={this.state.input.patientTestStatus}/>
-                            </Form.Item>
-                            <Form.Item label="备注"
-                                       name="remarks">
-                                <TextArea rows={4} onChange={(e)=>{this.inputChange(e,"remarks")}} value={this.state.input.remarks}/>
-                            </Form.Item>
+                            {/*</Form.Item>*/}
+                            {/*<Form.Item*/}
+                            {/*    label="手机号"*/}
+                            {/*    name="patientNumber"*/}
+                            {/*    rules={[*/}
+                            {/*        {*/}
+                            {/*            required: true,*/}
+                            {/*            message: '请输入手机号!',*/}
+                            {/*        },*/}
+                            {/*    ]}*/}
+                            {/*>*/}
+                            {/*    <Input onChange={(e)=>{this.inputChange(e,"patientNumber")}}*/}
+                            {/*           value={this.state.input.patientNumber}*/}
+                            {/*    />*/}
+                            {/*</Form.Item>*/}
+                            {/*<Form.Item*/}
+                            {/*    label="医生"*/}
+                            {/*    name="loginAccount"*/}
+                            {/*    rules={[{ required: true ,message:"请输入医生用户"}]}//设置验证规则*/}
+                            {/*>*/}
+                            {/*    <Input    onChange={(e)=>{this.inputChange(e,"loginAccount")}} value={this.state.input.loginAccount}/>*/}
+                            {/*</Form.Item>*/}
+                            {/*<Form.Item label="性别"*/}
+                            {/*           name="patientSex"*/}
+                            {/*           rules={[*/}
+                            {/*               {required:true,message:'请输入性别！',},*/}
+                            {/*           ]}>*/}
+                            {/*    <Input onChange={(e)=>{this.inputChange(e,"patientSex")}} value={this.state.input.patientSex}/>*/}
+                            {/*</Form.Item>*/}
+                            {/*<Form.Item label="年龄"*/}
+                            {/*           name="patientAge"*/}
+                            {/*           rules={[*/}
+                            {/*               {required:true,message:'请输入年龄！',},*/}
+                            {/*           ]}>*/}
+                            {/*    <Input onChange={(e)=>{this.inputChange(e,"patientAge")}} value={this.state.input.patientAge}/>*/}
+                            {/*</Form.Item>*/}
+                            {/*<Form.Item label="地址"*/}
+                            {/*           name="patientAddress"*/}
+                            {/*           rules={[*/}
+                            {/*               {required:true,message:'请输入地址！',},*/}
+                            {/*           ]}>*/}
+                            {/*    <Input onChange={(e)=>{this.inputChange(e,"patientAddress")}} value={this.state.input.patientAddress}/>*/}
+                            {/*</Form.Item>*/}
+                            {/*<Form.Item label="测试状态"*/}
+                            {/*           name="patientTestStatus"*/}
+                            {/*           rules={[*/}
+                            {/*               {required:true,message:'测试状态！',},*/}
+                            {/*           ]}>*/}
+                            {/*    <Input onChange={(e)=>{this.inputChange(e,"patientTestStatus")}} value={this.state.input.patientTestStatus}/>*/}
+                            {/*</Form.Item>*/}
+                            {/*<Form.Item label="备注"*/}
+                            {/*           name="remarks">*/}
+                            {/*    <TextArea rows={4} onChange={(e)=>{this.inputChange(e,"remarks")}} value={this.state.input.remarks}/>*/}
+                            {/*</Form.Item>*/}
                         </Form>
                     </div>
                 </Modal>
@@ -760,13 +764,13 @@ class Modal3 extends Component{
     //常量数据部分
     columns = [
         {
-            title: '用户名',
-            dataIndex: 'userName',
+            title: '服务内容',
+            dataIndex: 'serviceRecord',
             width:150,
         },
         {
-            title: '手机号',
-            dataIndex: 'phone',
+            title: '服务人员',
+            dataIndex: 'serviceStaff',
             width:150,
         },
         {
@@ -775,16 +779,14 @@ class Modal3 extends Component{
             width: 150,
         },
         {
-            title:'服务人员',
-            dataIndex:'serviceStaff',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'服务内容',
-            dataIndex:'serviceRecord',
-            width:150,
-            align:'center',
+            title:'问题图片',
+            dataIndex: 'recordPicPathAli',
+            render:(text)=>{
+                if(text!==undefined)
+                return(
+                <Image src={baseUrl+'/customer/management/chat/pic/'+text} alt={''}/>
+              )
+            }
         },
     ];
     //函数部分
@@ -850,11 +852,11 @@ class Modal3 extends Component{
     //请求表格数据
     requestData=(page)=>{
         let data={};
-        data.userName=this.props.record.userName;
-        data.phone=this.props.record.phone;
-        let url="/customer/managment/chat";
+        data.clientId=this.props.record.clientId;
+        //data.phone=this.props.record.phone;
+        let url='/customer/management/chat/list/'+data.clientId+'/'+page.page+'/'+page.pageSize;
         //console.log("request:",data);
-        ajax(url,data,'POST')
+        ajax(url,data,'GET')
             .then((response)=>{
                 console.log("response:",response);
                 if(response.data.data==null)
@@ -898,8 +900,8 @@ class Modal3 extends Component{
         // });
     }
     //添加弹窗
-    add=(record)=>{
-        this.lookModal(record);
+    add=()=>{
+        this.lookModal(this.props.record);
     }
 
     //表格2数据以及函数
@@ -974,14 +976,14 @@ class Modal3 extends Component{
                     width={1000}
                 >
                     <div style={{height:'100%',margin:'3px'}}>
-                        {/*<Button*/}
-                        {/*    type="primary"*/}
-                        {/*    icon={<PlusOutlined  className="icon1" />}*/}
-                        {/*    onClick={this.add}*/}
-                        {/*    className="button1"*/}
-                        {/*>*/}
-                        {/*    添加*/}
-                        {/*</Button>*/}
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined  className="icon1" />}
+                            onClick={this.add}
+                            className="button1"
+                        >
+                            添加
+                        </Button>
                         <div style={{heigh:"100%"}}>
                             <Table
                                 columns={this.columns}
@@ -1006,6 +1008,7 @@ export default class ServiceManagement extends Component {
     constructor(props) {
         super(props);
         this.search();
+        //console.log(baseUrl)
     }
 
     //表格1数据以及函数
@@ -1013,7 +1016,7 @@ export default class ServiceManagement extends Component {
     columns = [
         {
             title:'用户名',
-            dataIndex:'userName',
+            dataIndex:'nickName',
             width:150,
             align:'center',
 
@@ -1100,7 +1103,7 @@ export default class ServiceManagement extends Component {
     //请求表格数据
     requestData=(page)=>{
         let data={
-            //...page,
+            ...page,
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
@@ -1109,8 +1112,9 @@ export default class ServiceManagement extends Component {
             }
         }
         //console.log("request:",data);
-        ajax("/customer/managment/list",data,'POST')
+        ajax("/customer/management/list",data,'POST')
             .then((response)=>{
+                //console.log(response)
                 if(response.data.data!==null&&response.data.data!==undefined){
                     let data=response.data.data.info;
                     let paginationProps={...this.state.paginationProps};
@@ -1179,7 +1183,7 @@ export default class ServiceManagement extends Component {
         },
         //表格1数据
         input:{
-            userName:"",
+            nickName:"",
             phone:"",
         },
         paginationProps:{
@@ -1242,7 +1246,7 @@ export default class ServiceManagement extends Component {
             <div style={{height:"100%"}}>
                 <div style={{'margin':'0 0 15px 0'}}>
                     <div justify="space-between" gutter="15" style={{display:"flex"}}>
-                        <Input placeholder={'用户名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"userName")}} value={this.state.input.userName}/>
+                        <Input placeholder={'用户名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"nickName")}} value={this.state.input.nickName}/>
                         <Input placeholder={'手机号'} className={'input1'} onChange={(e)=>{this.inputChange(e,"phone")}} value={this.state.input.phone}/>
                         <Button
                             type={"primary"}
