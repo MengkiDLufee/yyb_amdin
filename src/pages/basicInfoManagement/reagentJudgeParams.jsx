@@ -132,7 +132,8 @@ export default class ReagentJudgeParams extends Component {
             dataIndex: 'revisions',
             render: (text, record) => (
                 <Space size="middle">
-                    <Button type="link" style={{color:'#000000'}} onClick={()=>{this.handleRevisions(record)}}>历史版本</Button>
+                    <Button type="link" style={{color:'#000000'}} block
+                            onClick={()=>{this.handleRevisions(record)}}>历史版本</Button>
                 </Space>
             ),
         },
@@ -2565,6 +2566,7 @@ export default class ReagentJudgeParams extends Component {
                 <ImportFile
                     url="http://123.57.33.240:8080/paper/param/pro/import"
                     visible={this.state.visible_import}
+                    upTitle="上传"
                     onCancel={this.handleCancel_import}
                 />
             </div>
