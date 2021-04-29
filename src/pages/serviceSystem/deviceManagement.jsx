@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Space, Modal, Form} from 'antd';
+import {Table, Button, Input, Space, Modal, Form, message} from 'antd';
 //import { DatePicker} from 'antd';
 import { Radio } from 'antd';
 //import { Switch } from 'antd';
@@ -727,8 +727,8 @@ class Modal1 extends Component{
     }
     //点击完成
     handleOk = () => {
-        console.log('添加完成')
-        console.log(this.form)
+        // console.log('添加完成')
+        // console.log(this.form)
         let form = this.form.current;
         form.validateFields()//表单输入校验
             .then((values) => {
@@ -746,12 +746,14 @@ class Modal1 extends Component{
                 ajax(url,data,'POST')
                     .then((response)=>{
                         if(response.data.code!==1000){
-                            console.log("请求错误！",response);
+                            //console.log("请求错误！",response);
+                            message.error("添加失败！")
                         }else{
                             form.resetFields();
-                            console.log("修改成功：",response);
+                            //console.log("修改成功：",response);
                             Object.assign(this.props.record,this.state.input);
                             this.props.setVisible(false);
+                            message.success("添加成功")
                         }
                     });
             })
@@ -1020,8 +1022,9 @@ export default class DeviceManagement_Serve extends Component {
                         paginationProps:paginationProps,
                     });
                 }else{
-                    console.log("/device/managment/list error!")
-                    console.log(response);
+                    // console.log("/device/managment/list error!")
+                    // console.log(response);
+                    message.error("请求错误！")
                 }
             });
     }

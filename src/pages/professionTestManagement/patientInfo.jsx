@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Select, Space, Modal, Form} from 'antd';
+import {Table, Button, Input, Select, Space, Modal, Form, message} from 'antd';
 
 import {ReloadOutlined,
     SearchOutlined ,
@@ -744,8 +744,10 @@ class Modal3 extends Component{
         ajax(url,data,'POST')
             .then((response)=>{
                 //console.log("response:",response);
-                if(response.data.data==null){}
+                if(response.data.data==null){
                     //console.log("查询失败");
+                    message.error("请求错误")
+                }
                 else{
                     let data=[response.data.data.info];
                     let paginationProps={...this.state.paginationProps};
@@ -892,6 +894,7 @@ class Modal2 extends Component{
               //console.log("response:",response);
               if(response.data.data==null){
                   //console.log("请求错误！");
+                  message.error("请求错误！")
               }
               else{
                   let mydata=response.data.data;
@@ -937,11 +940,18 @@ class Modal2 extends Component{
                     .then((response)=>{
                         if(response.data.code!==1004){
                             //console.log("请求错误！",response);
+                            message.error("修改失败！")
                         }else{
                             form.resetFields();
-                            //console.log("修改成功：",response);
+                            console.log("修改成功：",response);
                             Object.assign(this.props.record,this.state.input);
+                            let tmpArray = {};
+                            tmpArray['patient_no_test'] = '未测试';
+                            tmpArray['patient_testing'] = '正在测试';
+                            tmpArray['patient_finish'] = '完成测试';
+                            this.props.record['patientTestStatus'] = tmpArray[this.props.record['patientTestStatus']];
                             this.props.setVisible(false);
+                            message.success("修改成功")
                         }
                     });
             })
@@ -1151,6 +1161,7 @@ class Modal1 extends Component{
               //console.log("response:",response);
               if(response.data.data==null){
                   //console.log("请求错误！");
+                  message.error("请求错误！")
               }
               else{
                   let mydata=response.data.data;
@@ -1188,11 +1199,13 @@ class Modal1 extends Component{
                     .then((response)=>{
                         if(response.data.code!==1002){
                             //console.log("请求错误！",response);
+                            message.error("添加失败！")
                         }else{
                             form.resetFields();
                             //console.log("修改成功：",response);
                             //Object.assign(this.props.record,this.state.input);
                             this.props.setVisible(false);
+                            message.success("添加成功")
                         }
                     });
             })
@@ -1463,6 +1476,7 @@ export default class PatientInfo extends Component {
         for(let ii=0;ii<myInput.length;ii++){
             data[myInput[ii]]='';
         }
+        data.patientSex = undefined;
         //this.state.input=data;
         this.setState(
             {
@@ -1504,7 +1518,8 @@ export default class PatientInfo extends Component {
                     });
                 }else{
                     //console.log("/exam/patient/list error!");
-                    //console.log(response)
+                    console.log(response)
+                    message.error("请求错误！")
                 }
             });
     }
@@ -1542,8 +1557,10 @@ export default class PatientInfo extends Component {
             .then((response)=>{
                 if(response.data.code!==1000){
                     //console.log("请求错误！",response);
+                    message.error("重置失败！")
                 }else{
                     //console.log("重置成功：",response);
+                    message.success("重置成功")
                 }
             });
     }
@@ -1560,11 +1577,24 @@ export default class PatientInfo extends Component {
             .then((response)=>{
                 if(response.data.code!==1006){
                     //console.log("请求错误！",response);
+                    message.error("删除失败！")
                 }else{
                     //console.log("请求成功：",response);
                     this.handleTableChange(this.state.paginationProps);
+                    message.success("删除成功")
                 }
             });
+    }
+    //Select回调
+    handleChange=(e,Option) =>{
+        ////console.log(e)
+        ////console.log(Option)
+        let source = {};
+        source[Option.title] = Option.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+
+        })
     }
     //查看详情
     detailInfo=(record)=>{
@@ -1703,8 +1733,17 @@ export default class PatientInfo extends Component {
             <div style={{height:"100%"}}>
                 <div style={{'margin':'0 0 15px 0'}}>
                     <div justify="space-between" gutter="15" style={{display:"flex"}}>
-                        <Input placeholder={'医生电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"patientNumber")}} value={this.state.input.patientNumber}/>
-                        <Input placeholder={'医生姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"patientName")}} value={this.state.input.patientName}/>
+                        <Input placeholder={'手机号'} className={'input1'} onChange={(e)=>{this.inputChange(e,"patientNumber")}} value={this.state.input.patientNumber}/>
+                        <Input placeholder={'病人姓名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"patientName")}} value={this.state.input.patientName}/>
+                        <Select
+                          placeholder="请选择性别"
+                          className={'input1'}
+                          value={this.state.input.patientSex}
+                          onChange={this.handleChange}>
+                            <Option title="patientSex" value={''}>不限</Option>
+                            <Option title="patientSex" value={'M'}>男</Option>
+                            <Option title="patientSex" value={'F'}>女</Option>
+                        </Select>
                         <Button
                             type={"primary"}
                             icon={<SearchOutlined className={"icon1"}/> }

@@ -91,8 +91,8 @@ class Modal3 extends Component{
 
     //得到输入
     inputChange = (e,name) => {
-        //console.log(name);
-        //console.log(e.target.value);
+        ////console.log(name);
+        ////console.log(e.target.value);
         let source={};
         source[name]=e.target.value;
         this.setState({
@@ -101,7 +101,7 @@ class Modal3 extends Component{
     }
     //表格行选择
     onSelectChange = row => {
-        console.log('所选择行',row)
+        //console.log('所选择行',row)
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
 
         this.setState(
@@ -110,14 +110,14 @@ class Modal3 extends Component{
     };
     //翻页
     handleTableChange = (pagination) =>{
-        //console.log(this.props.data.total);
+        ////console.log(this.props.data.total);
         let page={
             page:pagination.current,
             pageSize: pagination.pageSize,
         };
         this.requestData(page);
         //this.setState({paginationProps:pagination});
-        //console.log(pagination)
+        ////console.log(pagination)
     };
     //搜索
     search= ()=> {
@@ -129,7 +129,7 @@ class Modal3 extends Component{
     }
     //重置
     reset = () => {
-        console.log('重置',this.state.input);
+        //console.log('重置',this.state.input);
         let myInput=Object.keys(this.state.input);
         let data = {};
         for(let ii=0;ii<myInput.length;ii++){
@@ -156,16 +156,17 @@ class Modal3 extends Component{
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        console.log("record",this.props.record);
+        //console.log("record",this.props.record);
         data.uloginId=this.props.record.uloginId;
         let url="/exam/login/history/device";
-        //console.log("request:",data);
+        ////console.log("request:",data);
         url = url+"/"+data.uloginId+"/"+data.page+"/"+data.pageSize;
         ajax(url,{},'GET')
             .then((response)=>{
-                console.log("response:",response);
-                if(response.data.data==null)
-                    console.log("查询失败");
+                //console.log("response:",response);
+                if(response.data.data==null) {
+                    //console.log("查询失败");
+                }
                 else{
                     let data=response.data.data.info;
                     let paginationProps={...this.state.paginationProps};
@@ -173,7 +174,7 @@ class Modal3 extends Component{
                     paginationProps.total=response.data.data.total;
                     paginationProps.current=page.page;
                     paginationProps.pageSize=page.pageSize;
-                    console.log("data:",response);
+                    //console.log("data:",response);
                     this.setState({
                         data:data,
                         paginationProps:paginationProps,
@@ -193,15 +194,15 @@ class Modal3 extends Component{
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        console.log("exportFile input:",data);
+        //console.log("exportFile input:",data);
         //exportFile("/exam/data/export/login/condition",data);
         exportFile('/user/base/info/export/condition',{});
-        //console.log("request:",data);
+        ////console.log("request:",data);
         // ajax("/exam/data/export/login/condition",data,'POST')
         //     .then((response)=>{
-        //         console.log(response);
+        //         //console.log(response);
         //     }).catch(e=>{
-        //     console.log("search error!",e);
+        //     //console.log("search error!",e);
         // });
     }
 
@@ -285,7 +286,7 @@ class Modal2 extends Component{
         //参数设置
         let input={};
         Object.assign(input,this.props.record);
-        console.log("init record:",input);
+        //console.log("init record:",input);
         this.state= {
             //testTime: '',
             input: input,
@@ -302,8 +303,8 @@ class Modal2 extends Component{
     }
     //点击完成
     handleOk = () => {
-        console.log('修改')
-        console.log(this.form)
+        //console.log('修改')
+        //console.log(this.form)
         let form = this.form.current;
         form.validateFields()//表单输入校验
             .then((values) => {
@@ -317,21 +318,24 @@ class Modal2 extends Component{
                 //data.patientId=this.props.record.patientId;
                 //data.loginId=this.props.record.loginId;
                 let url="/exam/login/modify";
-                //console.log("request:",data);
+                ////console.log("request:",data);
                 ajax(url,data,'POST')
                     .then((response)=>{
                         if(response.data.code!==1004){
-                            console.log("请求错误！",response);
+                            //console.log("请求错误！",response);
+                            message.error("修改失败!")
                         }else{
                             form.resetFields();
-                            console.log("修改成功：",response);
+                            //console.log("修改成功：",response);
                             Object.assign(this.props.record,this.state.input);
                             this.props.setVisible(false);
+                            message.success("修改成功")
                         }
                     });
             })
             .catch((info) => {
-                console.log('Validate Failed:', info);
+                //console.log('Validate Failed:', info);
+                message.error('表单验证失败')
             });
 
 
@@ -339,8 +343,8 @@ class Modal2 extends Component{
 
     //时间选择函数
     rangePickerOnChange=(value, dateString)=>{
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
+        //console.log('Selected Time: ', value);
+        //console.log('Formatted Selected Time: ', dateString);
         let input = {};
         Object.assign(input,this.state.input);
         input.testTime=dateString;
@@ -352,21 +356,21 @@ class Modal2 extends Component{
         })
     }
     rangePickerOnOk=(value)=> {
-        console.log('onOk: ', value);
+        //console.log('onOk: ', value);
     }
     // //得到文本框输入
-    // inputChange = (e,name) => {
-    //     //console.log(name);
-    //     let themename = e.target.name;
-    //     console.log(themename)
-    //     //console.log(e.target.name);
-    //     let source={};
-    //     source[name]=e.target.value;
-    //     this.setState({
-    //         input:Object.assign(this.state.input,source),
-    //     });
-    //     console.log(this.state);
-    // }
+    inputChange = (e,name) => {
+        ////console.log(name);
+        //let themename = e.target.name;
+        //console.log(themename)
+        ////console.log(e.target.name);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        });
+        //console.log(this.state);
+    }
     //参数设置
     // state={
     //     //表格1数据
@@ -442,7 +446,7 @@ class Modal1 extends Component{
         //参数设置
         let input={};
         Object.assign(input,this.props.record);
-        console.log("init record:",input);
+        //console.log("init record:",input);
         this.state= {
             testTime: '',
             input: input,
@@ -459,8 +463,8 @@ class Modal1 extends Component{
     }
     //点击完成
     handleOk = () => {
-        console.log('添加完成')
-        console.log(this.form)
+        // //console.log('添加完成')
+        // //console.log(this.form)
         let form = this.form.current;
         form.validateFields()//表单输入校验
             .then((values) => {
@@ -474,21 +478,23 @@ class Modal1 extends Component{
                 //data.patientId=this.props.record.patientId;
                 //data.loginId=this.props.record.loginId;
                 let url="/exam/login/add";
-                //console.log("request:",data);
+                ////console.log("request:",data);
                 ajax(url,data,'POST')
                     .then((response)=>{
                         if(response.data.code!==1002){
-                            console.log("请求错误！",response);
+                            ////console.log("请求错误！",response);
+                            message.error("添加失败！")
                         }else{
                             form.resetFields();
-                            console.log("添加成功：",response);
+                            ////console.log("添加成功：",response);
                             //Object.assign(this.props.record,this.state.input);
                             this.props.setVisible(false);
                         }
                     });
             })
             .catch((info) => {
-                console.log('Validate Failed:', info);
+                ////console.log('Validate Failed:', info);
+                message.error("表单验证出错！");
             });
 
 
@@ -496,8 +502,8 @@ class Modal1 extends Component{
 
     //时间选择函数
     rangePickerOnChange=(value, dateString)=>{
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
+        //console.log('Selected Time: ', value);
+        //console.log('Formatted Selected Time: ', dateString);
         let input = {};
         Object.assign(input, this.state.input)
         //this.state.input.testTime=dateString;
@@ -507,20 +513,20 @@ class Modal1 extends Component{
         })
     }
     rangePickerOnOk=(value)=> {
-        console.log('onOk: ', value);
+        //console.log('onOk: ', value);
     }
     //得到文本框输入
     inputChange = (e,name) => {
-        //console.log(name);
-        let themename = e.target.name;
-        console.log(themename)
-        //console.log(e.target.name);
+        ////console.log(name);
+        //let themename = e.target.name;
+        //console.log(themename)
+        ////console.log(e.target.name);
         let source={};
         source[name]=e.target.value;
         this.setState({
             input:Object.assign(this.state.input,source),
         });
-        console.log(this.state);
+        //console.log(this.state);
     }
     //参数设置
     // state={
@@ -672,8 +678,8 @@ export default class AccountInfo extends Component {
     //函数部分
     //得到输入
     inputChange = (e,name) => {
-        //console.log(name);
-        //console.log(e.target.value);
+        ////console.log(name);
+        ////console.log(e.target.value);
         let source={};
         source[name]=e.target.value;
         this.setState({
@@ -682,29 +688,37 @@ export default class AccountInfo extends Component {
     }
     //表格行选择
     onSelectChange = row => {
-
-        let IDs = [];
+        let tmpIdMap = {}
+        Object.assign(tmpIdMap,this.state.tmpIdMap)
+        //清空当前map中表格对应的IDs
+        for(let ii = 0;ii<this.state.data.length;ii++){
+            if(tmpIdMap[this.state.data[ii]["uloginId"]]!==undefined){
+                delete tmpIdMap[this.state.data[ii]["uloginId"]];
+            }
+        }
+        //添加当前选中的IDs
         //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
         for( let ii =0; ii<row.length;ii++){
-            IDs.push(this.state.data[row[ii]]["uloginId"])
+            tmpIdMap[this.state.data[row[ii]]["uloginId"]] = 0;
         }
         this.setState(
-          {selectedRowKeys:row,
-              selectedIDs:IDs,
+          {
+              selectedRowKeys:row,
+              tmpIdMap:tmpIdMap
           }
         ) ;
-        //console.log('所选择行',this.state)
+        ////console.log('所选择行',this.state)
     };
     //翻页
     handleTableChange = (pagination) =>{
-        //console.log(this.props.data.total);
+        ////console.log(this.props.data.total);
         let page={
             page:pagination.current,
             pageSize: pagination.pageSize,
         };
         this.requestData(page);
         //this.setState({paginationProps:pagination});
-        //console.log(pagination)
+        ////console.log(pagination)
     };
     //搜索
     search= ()=> {
@@ -716,7 +730,7 @@ export default class AccountInfo extends Component {
     }
     //重置
     reset = () => {
-        console.log('重置',this.state.input);
+        //console.log('重置',this.state.input);
         let myInput=Object.keys(this.state.input);
         let data = {};
         for(let ii=0;ii<myInput.length;ii++){
@@ -726,7 +740,7 @@ export default class AccountInfo extends Component {
         this.setState(
             {
                 selectedRowKeys:[],
-                selectedIDs:[],
+                tmpIdMap:[],
                 input:data,
             },this.search
         )
@@ -747,10 +761,10 @@ export default class AccountInfo extends Component {
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        //console.log("request:",data);
+        ////console.log("request:",data);
         ajax("/exam/login/list",data,'POST')
             .then((response)=>{
-                console.log("data:",response);
+                //console.log("data:",response);
                 if(response.data.data==null){
                     message.error("请求出错！code:"+response.data.code);
                 }else{
@@ -760,13 +774,19 @@ export default class AccountInfo extends Component {
                     paginationProps.total=response.data.data.total;
                     paginationProps.current=page.page;
                     paginationProps.pageSize=page.pageSize;
-                    //console.log("!");
-                    //console.log(data);
-                    //console.log(paginationProps);
+                    let selectedRowKeys = [];
+                    for(let ii = 0;ii<data.length;ii++){
+                        if(this.state.tmpIdMap[data[ii]["uloginId"]]!==undefined){
+                            selectedRowKeys.push(ii)
+                        }
+                    }
+                    ////console.log("!");
+                    ////console.log(data);
+                    ////console.log(paginationProps);
                     this.setState({
                         data:data,
                         paginationProps:paginationProps,
-                        selectedRowKeys:[],
+                        selectedRowKeys:selectedRowKeys,
                     });
                 }
             });
@@ -783,32 +803,37 @@ export default class AccountInfo extends Component {
                 data[myInput[ii]]=this.state.input[myInput[ii]];
             }
         }
-        console.log("exportFile input:",data);
+        //console.log("exportFile input:",data);
         //exportFile("/exam/data/export/login/condition",data);
         exportFile('/exam/login/export/condition',data);
-        //console.log("request:",data);
+        ////console.log("request:",data);
         // ajax("/exam/data/export/login/condition",data,'POST')
         //     .then((response)=>{
-        //         console.log(response);
+        //         //console.log(response);
         //     }).catch(e=>{
-        //     console.log("search error!",e);
+        //     //console.log("search error!",e);
         // });
     }
     //导出选择数据
     exportChoose =()=> {
-        exportFile('/exam/login/export/choose',this.state.selectedIDs);
+        let selectedIDs = [];
+        for(let ids in this.state.tmpIdMap){
+            selectedIDs.push(ids)
+        }
+        exportFile('/exam/login/export/choose',selectedIDs);
     }
 
     //重置密码
     resetPassword=(record)=>{
-        console.log("record:",record);
+        //console.log("record:",record);
         ajax("/exam/login/resetpwd/"+record.uloginId,{},'GET')
             .then((response)=>{
                 if(response.data.code!==3002){
-                    console.log("请求错误！",response);
+                    //console.log("请求错误！",response);
+                    message.error("重置失败！")
                 }else{
-                    console.log("重置成功：",response);
-                    message.info("重置成功！");
+                    //console.log("重置成功：",response);
+                    message.success("重置成功");
                 }
             });
     }
@@ -824,9 +849,9 @@ export default class AccountInfo extends Component {
         ajax(url,data,'GET')
             .then((response)=>{
                 if(response.data.code!==1006){
-                    console.log("请求错误！",response);
+                    //console.log("请求错误！",response);
                 }else{
-                    console.log("请求成功：",response);
+                    //console.log("请求成功：",response);
                     this.requestData({
                         page:this.state.paginationProps.current,
                         pageSize:this.state.paginationProps.pageSize,
@@ -868,7 +893,7 @@ export default class AccountInfo extends Component {
             showSizeChanger:true,
         },
         selectedRowKeys:[],
-        selectedIDs: [],
+        tmpIdMap:{},
         data:[
             // {
             //     key:1,
