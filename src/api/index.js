@@ -135,3 +135,56 @@ export function expDelete(data) {
 export function checkPassword(data) {
   return ajax('/experimenter/pwd',data,'POST')
 }
+
+
+/**
+ * 家庭版统计模块
+ */
+//6.1测试数据
+export function testDataHome(data) {
+  return ajax('/testDataStatis/list',data,'POST')
+}
+//6.1.1 所有试剂类型和测试阶段 及对应id
+export function testDataTypeIDHome(data) {
+  return ajax('/allNameAndId',{},'GET')
+}
+//6.2 实际在测
+export function actualTestHome(data) {
+  return ajax('/realTest/list',data,'POST')
+}
+//6.3本周期漏测
+export function missTestPeriodHome(data) {
+  return ajax('/cyclePaperLeave/list',data,'POST')
+}
+//6.4在测用户
+export function userInTestHome(data) {
+  return ajax('/inTestUser/list',data,'POST')
+}
+//6.5新注册用户
+export function newUserHome(data) {
+  return ajax('/newRegUser/list',data,'POST')
+}
+//6.6新注册使用用户
+export function newUseUsertHome(data) {
+  return ajax('/newRegUseUser/list',data,'POST')
+}
+//6.7用户用药
+export function userDrugHome(data) {
+  return ajax('/userDrug/list',data,'POST')
+}
+//6.8所有用户
+export function allUserHome(data) {
+  return ajax('/realTest/list',data,'POST')
+}
+//6.9有效用户
+export function effectUserHome(data) {
+  return ajax('/allUser/allUserAndEffList',data,'POST')
+}
+//6.10 漏测用户
+export function missTestHome(data) {
+  return ajax('/paperLeaveNum/list',data,'POST')
+}
+// 6.11当前周期测试用户
+export function testUserPeriodHome(data) {
+  return ajax('/allUser/curCycTestUserList',data,'POST')
+}

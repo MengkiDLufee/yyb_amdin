@@ -1,9 +1,13 @@
 import React, { Component } from 'react'
-import { Table ,Button , Input , Row, Col} from 'antd';
-import {ReloadOutlined,
-        SearchOutlined ,
-    } from '@ant-design/icons'
+import { Table ,Button , Input , Row, Col, DatePicker} from 'antd';
+import {
+  ReloadOutlined,
+  SearchOutlined ,
+} from '@ant-design/icons'
+// import locale from 'antd/lib/date-picker/locale/zh_CN'
+import { actualTestHome } from "../../api/index";
 
+const { RangePicker } = DatePicker
 
 const columns = [
     {
@@ -23,17 +27,23 @@ const columns = [
       dataIndex: 'remarks',
     },
   ];
-  
-  const data = [];
-  for (let i = 0; i < 46; i++) {
-    data.push({
-      key: i,
-      name: `测试${i}号`,
-      dev_code: `dev ${i}`,
-      phone_num: `13221312 ${i}`,
-      remarks:`${i}周期`,
-    });
+
+  function transformData(data){
+    let newData = [];
+    for (let i = 0; i < data.length; i++) {
+      let newItem = {};
+      newItem.key = data[i].clientId;
+      newItem.name = data[i].nickName;
+      newItem.dev_code = data[i].deviceNo;
+      newItem.phone_num = data[i].phone;
+      newItem.remarks = data[i].zhouqi;
+      newData.push(newItem);
+    }
+    console.log(newData)
+    return newData;
   }
+  
+
 
 
 
@@ -41,27 +51,58 @@ const columns = [
 
 export default class ActualTest extends Component {
     state = {
-        current:1,
-        pageSize:10,
+        data:[],
+        total: '',//数据总条数
+        current: 1,//当前页数
+        pageSize: 10,//当前页面条数
+    }
+    loadData = (params) =>{
+      actualTestHome(params).then(res=>{
+        console.log(res);
+        let data = transformData(res.data.data.info)
+        this.setState({
+          data,
+          current:params.page,
+          pageSize:params.pageSize,
+          total:res.data.data.total
+        })
+      })
+    }
+
+    componentDidMount(){
+      this.loadData({
+        page:1,
+        pageSize:10
+      })
     }
 
     handTablechange = (pagination) =>{
       console.log(pagination)
       console.log(pagination.pageSize)
+      const {current,pageSize} = pagination
+      this.loadData({
+        page:current,
+        pageSize,
+      })      
+    }
+
+    timeChange = (value,dateString) => {
+      console.log(value);
+      let time = [];
+      time.push(dateString[0] +' 00:00:00')
+      time.push(dateString[1] + ' 23:59:59')
+      console.log(time)
       this.setState({
-        current:pagination.current,
-        pageSize:pagination.pageSize,
-      },
-      ()=>{console.log('表格参数',this.state.current,this.state.pageSize)}
-      )
-      
+        input:Object.assign(this.state.input,{time:time})
+      })
     }
 
 
     render() {
+      const { data, current, pageSize, total} = this.state
      return (
       <div>
-        <div style={{fontWeight:'bold'}} >在测人数：{data.length}</div>
+        <div style={{fontWeight:'bold'}} >在测人数：{total}</div>
         <div style={{'margin':'10px 0'}} >
         <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
             <Col span={3}>
@@ -73,20 +114,29 @@ export default class ActualTest extends Component {
             <Col span={3}>
                 <Input  placeholder="手机号"  />
             </Col>
-            <Col span={4} offset={1} style={{display:'flex'}}>
-                <Button type="primary" 
-                        icon={<SearchOutlined /> }
-                        style={{marginRight:'10px'}}
+            <Col span={6}>
+                <RangePicker 
+                  
+                  format="YYYY-MM-DD"
+                  onChange={this.timeChange}
+                />
+            </Col>
+            <Col span={8} offset={1} style={{display:'flex'}}>
+                <Button 
+                  type="primary" 
+                  icon={<SearchOutlined /> }
+                  style={{marginRight:'10px'}}
                 >   
                     搜索
                 </Button>
-                <Button type="primary"
-                    icon={<ReloadOutlined /> }  
+                <Button
+                   type="primary"
+                   icon={<ReloadOutlined /> }  
                 >
                     重置
                 </Button>
             </Col>
-            <Col span={10}></Col>
+            {/* <Col span={10}></Col> */}
 
         </Row>
         </div>
@@ -98,10 +148,12 @@ export default class ActualTest extends Component {
           style={{margin:'20px 0'}}
           pagination={{ 
             position: ['bottomLeft'] ,
-            total:'data.length',
+            total,
             showTotal:total => `共 ${total} 条`,
             showQuickJumper:true,
-            showSizeChanger:true
+            showSizeChanger:true,
+            current,
+            pageSize
           }}
           onChange={this.handTablechange}
           />
