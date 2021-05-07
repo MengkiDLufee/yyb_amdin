@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Space, Modal, Form, Image} from 'antd';
+import {Table, Button, Input, Space, Modal, Form, Image, DatePicker} from 'antd';
 //import { DatePicker} from 'antd';
 import { Upload, message } from 'antd';
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import {LoadingOutlined, PlusOutlined, UploadOutlined} from '@ant-design/icons';
 //import { InboxOutlined } from '@ant-design/icons';
 import {ReloadOutlined,
     SearchOutlined ,
@@ -18,6 +18,7 @@ import addKey from "../../api/addKey";
 import {exportFile} from "../../api";
 //const { Dragger } = Upload;
 import {baseUrl} from "../../api/ajax";
+import axios from "axios";
 const { TextArea } = Input;
 
 class Avatar extends React.Component {
@@ -543,13 +544,14 @@ class Modal1 extends Component{
                         data[myInput[ii]]=this.state.input[myInput[ii]];
                     }
                 }
+                data.clientId = this.props.record.clientId;
                 //data.patientId=this.props.record.patientId;
                 //data.loginId=this.props.record.loginId;
-                let url="/exam/patient/add";
+                let url="/customer/management/chat/save/record";
                 //console.log("request:",data);
                 ajax(url,data,'POST')
                     .then((response)=>{
-                        if(response.data.code!==1000){
+                        if(response.data.code!==1002){
                             console.log("请求错误！",response);
                         }else{
                             form.resetFields();
@@ -571,11 +573,12 @@ class Modal1 extends Component{
         console.log('Selected Time: ', value);
         console.log('Formatted Selected Time: ', dateString);
         let input = {}
-        input.testTime=dateString;
+        Object.assign(input, this.state.input);
+        input.serviceTime=dateString;
         this.setState({
         input:input,
-        testTime:value,
         })
+        console.log(this.state.input)
     }
     rangePickerOnOk=(value)=> {
         console.log('onOk: ', value);
@@ -593,6 +596,40 @@ class Modal1 extends Component{
         });
         //console.log(this.state);
     }
+    //上传图片后的回调
+    uploadPicture=(e)=>{
+        console.log("上传回调",e)
+        if(e.file.response!==undefined){
+            console.log(e.file.response)
+            if(e.file.response.data!==undefined){
+                let input = {}
+                Object.assign(input,this.state.input)
+                input.csServiceRecordId = e.file.response.data;
+                this.setState({
+                    input:input
+                })
+            }
+            else{
+                    message.error("上传失败！")
+            }
+        }
+        // if(e.file.status==='done'){
+        //     let _this=this;
+        //     ajax(baseUrl+'/customer/management/chat/upload/pic',{},'POST')
+        //       .then(function (response) {
+        //           //console.log(response)
+        //         // _this.setState({
+        //         //     pictureSource:response.data.data,
+        //         // })
+        //         // e.fileList=[];
+        //     })
+        //       .catch(function (error) {
+        //           console.log('hei!');
+        //           console.log(error);
+        //       });
+        // }
+    }
+
     //参数设置
     state={
         //表格1数据
@@ -609,7 +646,7 @@ class Modal1 extends Component{
             <div>
                 {/* 弹窗 */}
                 <Modal
-                    title="添加病人"
+                    title="添加聊天记录"
                     centered
                     visible={this.props.visible}
                     onOk={this.handleOk}
@@ -639,7 +676,7 @@ class Modal1 extends Component{
                                     },
                                 ]}
                             >
-                                <TextArea rows={4} placeholder={"请输入服务记录"} onChange={(e)=>{this.inputChange(e,"patientNumber")}}
+                                <TextArea rows={4} placeholder={"请输入服务记录"} onChange={(e)=>{this.inputChange(e,"serviceRecord")}}
                                           value={this.state.input.serviceRecord}/>
                             </Form.Item>
                             <Form.Item label="服务时间"
@@ -651,7 +688,10 @@ class Modal1 extends Component{
                                            },
                                        ]}
                             >
-                                <Input placeholder={"请输入服务时间"} value={this.state.input.serviceTime}/>
+                                <DatePicker onChange={this.rangePickerOnChange}
+                                            showTime
+                                            placeholder="请选择服务时间 "
+                                            disabled={false}/>
                             </Form.Item>
                             <Form.Item label="服务人员"
                                        name={"服务人员"}
@@ -662,7 +702,7 @@ class Modal1 extends Component{
                                            },
                                        ]}
                             >
-                                <Input placeholder={"请输入服务人员"} value={this.state.input.serviceStaff}/>
+                                <Input placeholder={"请输入服务人员"} value={this.state.input.serviceStaff} onChange={(e)=>{this.inputChange(e,"serviceStaff")}}/>
                             </Form.Item>
 
                             {/*<Form.Item label="年龄"*/}
@@ -685,7 +725,17 @@ class Modal1 extends Component{
                                         message: '请上传图片!',
                                     },
                                 ]}>
-                                <Avatar></Avatar>
+                                <Upload
+                                  name="file"//发到后台的文件参数名
+                                  action={baseUrl+'/customer/management/chat/upload/pic'} //上传的地址
+                                  //listType="picture"
+                                  maxCount={1}
+                                  //data={{'judgeTipsId':this.state.judgeTipsId}}//上传所需额外参数或返回上传额外参数的方法
+                                  fileList={this.state.fileList}
+                                  onChange={this.uploadPicture}
+                                >
+                                    <Button icon={<UploadOutlined />}>选择提示语图片</Button>
+                                </Upload>
                             </Form.Item>
                             {/*<Form.Item*/}
                             {/*    label={"预览"}*/}
