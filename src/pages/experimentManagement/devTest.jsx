@@ -158,7 +158,7 @@ export default class DevTest extends Component {
 
   render() {
     return (
-      <div style={{height:'100%'}}>
+      <div className='sub-content'>
         {/* 搜索栏 */}
         <div style={{'margin':'0 0 15px  0'}}>
           <div justify="space-between" style={{display:"flex" }} >
@@ -205,7 +205,7 @@ export default class DevTest extends Component {
           style={{margin:'20px 0',borderBottom:'1px,soild'}}
           pagination={ this.state.paginationProps}
           onChange={this.handTablechange}
-          scroll={{y:600}}
+          // scroll={{y:700}}
         />
       </div>
     )

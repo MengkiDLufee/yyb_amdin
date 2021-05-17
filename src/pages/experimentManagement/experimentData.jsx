@@ -13,7 +13,9 @@ import {
 import './index.less'
 import {
     expList,
-    getPaper
+    getPaper,//试剂种类
+    getBathNum,//根据试剂类型获取批号
+    getExpRes
   } from '../../api/index'//接口
 
 
@@ -23,32 +25,7 @@ const { Option } = Select;
 
 
 
- //主页面表格数据
-  // const data = [];
-  // for (let i = 0; i < 46; i++) {
-  //   if(i%2 !== 0)
-  //   {data.push({
-  //     key: i,
-  //     batch_num: `${i}`,
-  //     type: `类型 ${i}`,
-  //     r_time:`33`,
-  //     time: `2020-00-00 11.11.11`,
-  //     exper:`test${i}`,
-  //     state:`正常`,
-  //     result :`测试通过 `,
-  //   });} else {
-  //     data.push({
-  //       key: i,
-  //       batch_num: `${i}`,
-  //       type: `类型 ${i}`,
-  //       r_time:`66`,
-  //       time: `2020-00-00 11.11.11`,
-  //       exper:`test${i}`,
-  //       state:`异常`,
-  //       result :`测试不通过 `,
-  //     });
-  //   }
-  // }
+
 //使用人员弹窗表格数据
   const data_modify = [];
   for (let i = 0; i < 77 ; i++) {
@@ -73,6 +50,7 @@ const { Option } = Select;
       newItem.end_time = (data[i].endDate||"").split('T')[0];
       newItem.exper = data[i].personId;
       newItem.state = data[i].testStatus;
+      newItem.paperTestPlanId = data[i].paperTestPlanId;
       newItem.result = "缺少相应数据";
       newData.push(newItem);
     }
@@ -136,7 +114,7 @@ export default class ExperimentData extends Component {
           align:'center',
           render: type=>{
             return this.state.paperType.map(paper=>{
-              if(paper.id===type)return paper.name
+              if(paper.paperTypeId===type)return paper.paperTypeName
               else return null
             })
           }
@@ -209,6 +187,10 @@ export default class ExperimentData extends Component {
           fixed:'right',
           render:(text,record) => (
             <Space >
+                <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}}>查看实验计划</Button>
+                <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{}} disabled={record.state === 'plan_finish'? false :true}>
+                  {record.state === 'plan_finish'? '查看实验结果':'暂无结果'}
+                  </Button>
                 <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.modify(record)}}>修改</Button>
                 <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{this.delete(record)}}>删除</Button>
             </Space>
@@ -247,24 +229,32 @@ export default class ExperimentData extends Component {
       ]
     //组件挂载时请求数据
     componentDidMount(){
+      //请求实际类型
+      getPaper().then(res=>{
+        console.log(res)
+        this.setState({
+          paperType:res.data.data ||[]
+        })
+      })
       //请求表格数据
       expList({
         page:1,
         pageSize:10
       }).then(res=>{
         console.log(res)
-        let data = transformData(res.data.data.info)
+        let data = transformData(res? res.data.data.info : [])
         this.setState({
-          tableData:data,
-          total:res.data.data.total,
+          tableData:data ,
+          total:res.data.data.total || 0,
         })
       })
-      //请求实际类型
-      getPaper().then(res=>{
-        console.log(res)
-        this.setState({
-          paperType:res.data.data
-        })
+      
+      getBathNum({paperTypeId:9}).then(res => {
+        console.log(res);
+      })
+
+      getExpRes({paperTestPlanId:1267626889971765249}).then(res=>{
+        console.log(res);
       })
     }
 
@@ -428,7 +418,7 @@ export default class ExperimentData extends Component {
     };
     //修改弹窗中修改按钮
     modify_plan = (record) => {
-      console.log('弹窗修改',record)
+      // console.log('弹窗修改',record)
       let data = Object.assign(this.state.static,{
         concentration:record.concentration,
         exp_num:record.exp_num,
@@ -520,8 +510,8 @@ export default class ExperimentData extends Component {
                           allowClear 
                         >
                             {
-                              paperType.map(paper=>{
-                                return <Option key={paper.id} value={paper.paperTypeId} >{paper.paperTypeName}</Option>
+                              paperType.map((paper,index)=>{
+                                return <Option key={index} value={paper.paperTypeId} >{paper.paperTypeName}</Option>
                               })
                             }
                         </Select>

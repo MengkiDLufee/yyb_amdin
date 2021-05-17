@@ -8,7 +8,7 @@ import {
 import './index.less'
 import menuList from '../../config/menuConfig'
 const { SubMenu } = Menu;
-const {Sider } = Layout;
+const { Sider } = Layout;
 
 export default class Leftnav extends Component {
 
@@ -34,28 +34,25 @@ export default class Leftnav extends Component {
     })
   }
   render() {
-    const {collapsed} = this.props
+    const { collapsed } = this.props
     return (
       <div>
         <Sider trigger={null} collapsible collapsed={collapsed} className="left-nav">
           <div className="logo" >
             <h1 style={{ color: 'white', paddingTop: '5px' }}>logo</h1>
           </div>
-          <div className="outer">
-            <div className="inner">
-              <Menu
-                defaultSelectedKeys={['1']}
-                mode="inline"
-                theme="dark"
-                style={{ background: ' #f05d73' }}
-                // openKeys={openKeys}
-                // onOpenChange={this.onOpenChange}
-              >
-                {/* 调用生成导航栏函数 */}
-                {this.getMenuNodes(menuList)}
-
-              </Menu>
-            </div>
+          <div className="inner">
+            <Menu
+              defaultSelectedKeys={['1']}
+              mode="inline"
+              theme="dark"
+              style={{ background: ' #f05d73' }}
+            // openKeys={openKeys}
+            // onOpenChange={this.onOpenChange}
+            >
+              {/* 调用生成导航栏函数 */}
+              {this.getMenuNodes(menuList)}
+            </Menu>
           </div>
         </Sider>
       </div>

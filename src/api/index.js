@@ -103,7 +103,14 @@ export function getExpPerson(){
 export function getPaper(){
   return ajax('/experiment/data/getPaperType',{},'GET')
 }
-
+//5.1.2.3 根据试剂类型获取批号
+export function getBathNum(data){
+  return ajax('/experiment/data/getBathNumber',data,'POST')
+}
+//5.4.3 查看实验结果（根据id）
+export function getExpRes(data){
+  return ajax('/experiment/data/queryExpDataResult',data,'POST')
+}
 
 //5.1.2.3 根据试剂种类选择批号
 
@@ -145,7 +152,7 @@ export function testDataHome(data) {
   return ajax('/testDataStatis/list',data,'POST')
 }
 //6.1.1 所有试剂类型和测试阶段 及对应id
-export function testDataTypeIDHome(data) {
+export function testDataTypeIDHome() {
   return ajax('/allNameAndId',{},'GET')
 }
 //6.2 实际在测
@@ -174,7 +181,7 @@ export function userDrugHome(data) {
 }
 //6.8所有用户
 export function allUserHome(data) {
-  return ajax('/realTest/list',data,'POST')
+  return ajax('/allUser/allUserAndEffList',data,'POST')
 }
 //6.9有效用户
 export function effectUserHome(data) {
