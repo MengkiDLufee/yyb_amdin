@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Row, Col , Space, Modal, Form,} from 'antd';
+import {Table, Button, Input, Row, Col , Space, Modal, Form,Popconfirm} from 'antd';
 import {SearchOutlined,PlusSquareOutlined,ReloadOutlined} from '@ant-design/icons';
 import httpRequest from "../../http";
+
 
 const { TextArea } = Input;
 
@@ -71,8 +72,19 @@ export default class TestSet extends Component {
                             onClick={()=>{this.handleModify(record)}}
 
                     >修改</Button>
-                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
-                            onClick={()=>{this.handleDelete(record)}}>删除</Button>
+                    <Popconfirm title="确定删除？"
+                                onConfirm={()=>{this.handleDelete(record)}}
+                                onCancel={()=>{}}
+                                okText="确定"
+                                cancelText="取消"
+                                // okButtonProps={{
+                                //     style:{backgroundColor:'#ec7259', color:'#FFFAFA'}}}
+                    >
+                        <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                                //onClick={()=>{this.handleDelete(record)}}
+                        >删除</Button>
+                    </Popconfirm>
+
                 </Space>
             ),
         },
@@ -221,6 +233,7 @@ export default class TestSet extends Component {
     //删除某一行
     handleDelete=(record)=>{
         console.log('删除',record)
+
         let params={
             testSetId:record.testSetId
         }

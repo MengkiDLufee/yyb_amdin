@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {DatePicker,Table, Button, Input, Row, Col, Select, Space, Modal, Form,Checkbox} from 'antd';
+import {DatePicker, Table, Button, Input, Row, Col, Select, Space, Modal, Form, Checkbox, Popconfirm} from 'antd';
 import {
     PlusSquareOutlined,
     ReloadOutlined,
@@ -144,9 +144,18 @@ export default class ReagentJudgeParams extends Component {
             render: (text, record) => (
                 <Space size="middle">
                     <Button style={{color:'black',background:'white'}} onClick={()=>{this.handleModify(record)}}>修改</Button>
-                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
-                            onClick={()=>{this.handleDelete(record)}}>删除</Button>
-                </Space>
+                    <Popconfirm title="确定删除？"
+                                onConfirm={()=>{this.handleDelete(record)}}
+                                onCancel={()=>{}}
+                                okText="确定"
+                                cancelText="取消"
+                    >
+                        <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                                //onClick={()=>{this.handleDelete(record)}}
+                        >删除</Button>
+
+                    </Popconfirm>
+                    </Space>
             ),
         },
     ];
@@ -1432,10 +1441,11 @@ export default class ReagentJudgeParams extends Component {
                                     </Form.Item>
                                 </Col>
                                 <Col span={8}>
-                                    <Form.Item label="反应时间"
+                                    <Form.Item label="反应时间(秒）"
                                                name="reactiveTime"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input placeholder="请输入反应时间 "/>
+                                        <Input placeholder="请输入反应时间"
+                                               defaultValue={600}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={8}>
@@ -1558,25 +1568,25 @@ export default class ReagentJudgeParams extends Component {
                                 <Col span={6}>
                                     <Form.Item label="LINE_N0"
                                                name="lineN0">
-                                        <Input/>
+                                        <Input  defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_N1"
                                                name="lineN1">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_N2"
                                                name="lineN2">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_N3"
                                                name="lineN3">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -1584,25 +1594,25 @@ export default class ReagentJudgeParams extends Component {
                                 <Col span={6}>
                                     <Form.Item label="LINE_N4"
                                                name="lineN4">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_N5"
                                                name="lineN5">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_N6"
                                                name="lineN6">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_N7"
                                                name="lineN7">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -1610,7 +1620,7 @@ export default class ReagentJudgeParams extends Component {
                                 <Col span={6}>
                                     <Form.Item label="LINE_N8"
                                                name="lineN8">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={18}>
@@ -1620,25 +1630,25 @@ export default class ReagentJudgeParams extends Component {
                                 <Col span={6}>
                                     <Form.Item label="LINE_GOD0"
                                                name="lineGod0">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_GOD1"
                                                name="lineGod1">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_GOD2"
                                                name="lineGod2">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_GOD3"
                                                name="lineGod3">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -1646,25 +1656,25 @@ export default class ReagentJudgeParams extends Component {
                                 <Col span={6}>
                                     <Form.Item label="LINE_GOD4"
                                                name="lineGod4">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_GOD5"
                                                name="lineGod5">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_GOD6"
                                                name="lineGod6">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_GOD7"
                                                name="lineGod7">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -1672,7 +1682,7 @@ export default class ReagentJudgeParams extends Component {
                                 <Col span={6}>
                                     <Form.Item label="LINE_GOD8"
                                                name="lineGod8">
-                                        <Input/>
+                                        <Input defaultValue={0.0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={18}>
@@ -1685,27 +1695,27 @@ export default class ReagentJudgeParams extends Component {
                             </Form.Item>
                             <Form.Item label="TOP_GOD"
                                        name="topGod">
-                                <Input />
+                                <Input defaultValue={99}/>
                             </Form.Item>
                             <Form.Item label="LOWER_GOD"
                                        name="lowerGod">
-                                <Input />
+                                <Input  defaultValue={0}/>
                             </Form.Item>
                             <Form.Item label="LINE_WEI"
                                        name="lineWei">
-                                <Input />
+                                <Input  defaultValue={2}/>
                             </Form.Item>
                             <Form.Item label="LINE_SHOWTYPE"
                                        name="lineShowtype">
-                                <Input />
+                                <Input  defaultValue={0}/>
                             </Form.Item>
                             <Form.Item label="LINE_METHOD"
                                        name="lineMethod">
-                                <Input />
+                                <Input  defaultValue={1}/>
                             </Form.Item>
                             <Form.Item label="LINE_JUDGE_METHOD"
                                        name="lineJudgeMethod">
-                                <Input />
+                                <Input defaultValue={0}/>
                             </Form.Item>
                             <Form.Item name="doCrop">
                                 <Checkbox onChange={this.checkboxOnChangedocrop}
@@ -1717,13 +1727,13 @@ export default class ReagentJudgeParams extends Component {
                                 <Col span={6}>
                                     <Form.Item label="CROP1_PX"
                                                name="CROP1_PX">
-                                        <Input/>
+                                        <Input defaultValue={0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="CROP1_PY"
                                                name="CROP1_PY">
-                                        <Input/>
+                                        <Input defaultValue={0}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
@@ -1741,19 +1751,19 @@ export default class ReagentJudgeParams extends Component {
                             </Row>
                             <Form.Item label="定性阳性GOD值++"
                                        name="qualitativeGod2">
-                                <Input />
+                                <Input defaultValue={-1}/>
                             </Form.Item>
                             <Form.Item label="定性阳性GOD值+++"
                                        name="qualitativeGod3">
-                                <Input />
+                                <Input defaultValue={-1}/>
                             </Form.Item>
                             <Form.Item label="定性阳性GOD值++++"
                                        name="qualitativeGod4">
-                                <Input />
+                                <Input defaultValue={-1}/>
                             </Form.Item>
                             <Form.Item label="定性阳性GOD值+++++"
                                        name="qualitativeGod5">
-                                <Input />
+                                <Input defaultValue={-1}/>
                             </Form.Item>
                         </Form>
                     </div>

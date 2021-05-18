@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Row, Col, Select, Space, Modal, Form, Image, Upload, Spin,} from 'antd';
+import {Table, Button, Input, Row, Col, Select, Space, Modal, Form, Image, Upload, Spin, Popconfirm,message} from 'antd';
 import {SearchOutlined,PlusSquareOutlined,ReloadOutlined,UploadOutlined} from '@ant-design/icons';
 import httpRequest from "../../http";
 import ImportFile from "../../compenents/importfile";
 import axios from "axios";
 
 const { Option } = Select;
+function findKey (obj,value, compare = (a, b) => a === b) {  return Object.keys(obj).find(k => compare(obj[k], value))
+}
 
 export default class TestType extends Component {
     //初始化
@@ -159,8 +161,17 @@ export default class TestType extends Component {
                             onClick={()=>{this.viewHistory(record)}}>查看历史</Button>
                     <Button style={{color:'black',background:'white'}}
                             onClick={()=>{this.handleModify(record)}}>修改</Button>
-                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
-                            onClick={()=>{this.handleDelete(record)}}>删除</Button>
+                    <Popconfirm title="确定删除？"
+                                onConfirm={()=>{this.handleDelete(record)}}
+                                onCancel={()=>{}}
+                                okText="确定"
+                                cancelText="取消"
+                    >
+                        <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                                //onClick={()=>{this.handleDelete(record)}}
+                        >删除</Button>
+                    </Popconfirm>
+
                 </Space>
             ),
         },
@@ -200,8 +211,10 @@ export default class TestType extends Component {
         {
             title: '试剂名称',
             dataIndex: 'paperTypeName',
-            sorter: (a,b) => a.paperTypeName.length - b.paperTypeName.length,
+            //sorter: (a,b) => a.paperTypeName.length - b.paperTypeName.length,
+            sorter: (a,b) => Number(a.associated) - Number(b.associated),
             sortDirections: ['descend','ascend'],
+            defaultSortOrder: 'descend',
         },
         {
             title: '结果单位',
@@ -223,8 +236,8 @@ export default class TestType extends Component {
         },
         {
             title: '所属单位',
-            dataIndex: 'organization',
-            sorter: (a,b) => a.organization.length - b.organization.length,
+            dataIndex: 'organizationName',
+            sorter: (a,b) => a.organizationName.length - b.organizationName.length,
             sortDirections: ['descend','ascend'],
         },
 
@@ -292,8 +305,17 @@ export default class TestType extends Component {
                             disabled={record.production==="历史"?false:true}>修改</Button>
                     <Button style={record.production==="历史"?{backgroundColor:'#ec7259', color:'#FFFAFA'}:{display:'none'}}
                             onClick={()=>{this.handleProduct(record)}}>设置为生产</Button>
-                    <Button style={record.production==="历史"?{color:'black',background:'white'}:{display:'none'}}
-                            onClick={()=>{this.handleDeleteHistory(record)}}>删除</Button>
+                    <Popconfirm title="确定删除？"
+                                onConfirm={()=>{this.handleDeleteHistory(record)}}
+                                onCancel={()=>{}}
+                                okText="确定"
+                                cancelText="取消"
+                    >
+                        <Button style={record.production==="历史"?{color:'black',background:'white'}:{display:'none'}}
+                                //onClick={()=>{this.handleDeleteHistory(record)}}
+                        >删除</Button>
+                    </Popconfirm>
+
                 </Space>
             ),
         },
@@ -311,7 +333,7 @@ export default class TestType extends Component {
             width:100,
             render: (text, record) => (
                 <Space size="middle">
-                    <Button style={{backgroundColor:'#f05d73', color:'#FFFAFA',position:'absolute',width: '80%',left:'10%',top:'20%'}}
+                    <Button style={record.functionMethod!==null?{backgroundColor:'#f05d73', color:'#FFFAFA',position:'absolute',width: '80%',left:'10%',top:'20%'}:{display:'none'}}
                             onClick={()=>{this.onModifyPrompt(record)}}><p style={{display:'inline-block',whiteSpace:'nowrap'}}>修改</p></Button>
                 </Space>
             ),
@@ -407,7 +429,7 @@ export default class TestType extends Component {
             dataIndex: 'option',
             width:100,
             render: (text, record) => (
-                <Space size="middle">
+                <Space size="middle" record>
                     <Button style={{backgroundColor:'#f05d73',color:'#FFFAFA',position:'absolute',width: '80%',left:'10%',top:'20%'}}
                             onClick={()=>{this.onModifyPrompt(record)}}><p style={{display:'inline-block',whiteSpace:'nowrap'}}>修改</p></Button>
                 </Space>
@@ -420,7 +442,10 @@ export default class TestType extends Component {
 
     //提示语字典
     hintDic=[];
-    resultDic=[]
+    resultDic=[];
+
+    //样本类型字典
+    sampleDic=[];
     start = () => {
         this.setState({ loading: true });
         // ajax request after empty completing
@@ -542,6 +567,19 @@ export default class TestType extends Component {
             }).catch(err => {
             console.log(err);
         })
+
+        //请求样本类型字典
+        httpRequest('post','paper/sample/list',{})
+            .then(response=>{
+                console.log("请求样本类型字典",response)
+                let obj=response.data.data;
+                obj.forEach(item=>{
+                    this.sampleDic[item.code]=item.name
+                })
+                console.log("样本类型",this.sampleDic);
+            }).catch(err => {
+            console.log(err);
+        })
     }
 
     //行选择
@@ -552,11 +590,12 @@ export default class TestType extends Component {
     };
 
     associatedOnSelectChange = (associtedSelectedRowKeys,associtedSelectedRows) => {
-        this.selectedStorage.push(associtedSelectedRows[associtedSelectedRows.length-1].paperTypeId);
+        if(associtedSelectedRows[associtedSelectedRows.length-1]){
+            this.selectedStorage.push(associtedSelectedRows[associtedSelectedRows.length-1].paperTypeId);
+        }
         this.setState({
             associtedSelectedRowKeys,
             associtedSelectedRows},()=>{console.log('selectedRowKeys changed: ', associtedSelectedRowKeys);});
-
     };
 
     //添加展开modal
@@ -672,21 +711,19 @@ export default class TestType extends Component {
     }
 
     //挑选可关联的试剂类型
-    Modify(e){
-        console.log('修改button，所有可关联的试剂类型',e)
+    Modify(){
         this.setState({
                 associatedModifyVisible:true,
-                testTypeId:e.testTypeId,
             },
             ()=> {
                 let params={
-                    page:1,
-                    pageSize:this.state.pageSize,
+                    // page:1,
+                    // pageSize:this.state.pageSize,
+                    testTypeId:this.state.testTypeId,
                 }
                 httpRequest('post','/paper/list',params)
                     .then(response=>{
-                        console.log(response)
-                        console.log(response.data.data)
+                        console.log("paper",response.data.data)
                         if(response.data!==[]) {
                             this.setState({
                                 reagentData: response.data.data.info,
@@ -695,17 +732,18 @@ export default class TestType extends Component {
                             const tempData=[...this.state.reagentData];
                             for(let i=0;i<tempData.length;i++){
                                 tempData[i].key=i+(this.state.reagentCurrentPage-1)*this.state.reagentPageSize;
+                                tempData[i]["sampleType"]=this.sampleDic[tempData[i].sampleType];
                             }
                             let defaultSelected=[];
                             let defaultRows=[];
-                            this.state.associatedData.forEach((item)=>{
+                           // this.state.associatedData.forEach((item)=>{
                                 tempData.forEach((it,index)=>{
-                                    if(it.paperTypeId===item.paperTypeId){
+                                    if(it.associated===true){
                                         defaultSelected.push(index);
                                         defaultRows.push(it);
                                     }
                                 })
-                            })
+                           // })
                             this.setState({
                                 associtedSelectedRowKeys:defaultSelected,
                                 reagentData:tempData,
@@ -751,7 +789,7 @@ export default class TestType extends Component {
                 }
             })
         }
-        else{
+        else if(record.judgeTipsId){
             //判读提示语
             this.setState({
                 modifyPromptVisible:true,
@@ -799,6 +837,7 @@ export default class TestType extends Component {
         this.setState({
                 associateVisible:true,
                 currentId:record.testTypeId,
+                testTypeId:record.testTypeId,
                 currentItem:{
                     reagent:record.reagent,
                     reagentNameEN:record.reagentNameEN,
@@ -906,7 +945,6 @@ export default class TestType extends Component {
             pageSize:10,
             testTypeId:record.testTypeId
         };
-
         this.setState({
                 historyVisible:true,
                 testTypeId:record.testTypeId,
@@ -930,8 +968,6 @@ export default class TestType extends Component {
                             }
                             this.setState({
                                 historyData:tempData
-                            },()=>{
-                                console.log("lalala",this.state.historyData)
                             })
                         }
                     }).catch(err => {
@@ -959,10 +995,15 @@ export default class TestType extends Component {
                     let res=response.data;
                     if(res.code===1000){
                         console.log(res.data)
+                        let promptData=res.data.judgeTips;
+                        promptData.forEach(item=>{
+                            item.judgeTipsType=this.hintDic[item.judgeTipsType];
+                            item.resultType=this.resultDic[item.resultType];
+                        })
                         this.setState({
                             logicData:[{functionMethod:res.data.functionMethod}],
                             parametersData:res.data.judgeParam,
-                            promptData:res.data.judgeTips,
+                            promptData,
                         },()=>{
                             console.log(this.state.logicData)
                         })
@@ -1097,6 +1138,9 @@ export default class TestType extends Component {
                         }).catch(err => {
                         console.log(err);
                     })
+                }
+                else if(response.data.code===1007){
+                    message.error(`${response.data.msg}`);
                 }
                 else{
                     alert("删除失败，请稍后再试")
@@ -1290,12 +1334,12 @@ export default class TestType extends Component {
         else if(promptForm){
             promptForm.validateFields()//表单输入校验
                 .then((values) => {
-                    //console.log("判读提示语",values);
+                    console.log("判读提示语",values.resultType);
                     let params={
                         judgeTipsId:this.state.judgeTipsId,
                         judgeTipsCode:values.judgeTipsCode,
-                        judgeTipsType:values.judgeTipsType,
-                        resultType:values.resultType,
+                        judgeTipsType:values.judgeTipsType.charCodeAt(0)>255?findKey(this.hintDic,values.judgeTipsType):values.judgeTipsType,
+                        resultType:values.resultType.charCodeAt(0)>255?findKey(this.resultDic,values.resultType):values.resultType,
                         judgeTipsValue:values.judgeTipsValue,
                         resultDataTips:values.resultDataTips,
                         shortTips:values.shortTips,
@@ -1315,12 +1359,18 @@ export default class TestType extends Component {
                                         let res=response.data;
                                         if(res.code===1000){
                                             console.log(res.data)
+                                            let promptData=[...res.data.judgeTips];
+                                            promptData.forEach(value=>{
+                                                value.judgeTipsType=this.hintDic[value.judgeTipsType];
+                                                value.resultType=this.resultDic[value.resultType];
+                                            })
                                             this.setState({
                                                 logicData:[{functionMethod:res.data.functionMethod}],
                                                 parametersData:res.data.judgeParam,
-                                                promptData:res.data.judgeTips,
+                                               // promptData:res.data.judgeTips,
+                                                promptData:promptData,
                                             },()=>{
-                                                console.log(this.state.logicData)
+                                                console.log(this.state.promptData)
                                             })
                                         }
                                     }).catch(err => {
@@ -1359,10 +1409,9 @@ export default class TestType extends Component {
                                 }
                                 httpRequest('post','/test/type/judge/list',params)
                                     .then(response=>{
-                                        console.log("发送的参数",params)
                                         let res=response.data;
                                         if(res.code===1000){
-                                            console.log(res.data)
+                                            console.log("判读提示",res.data)
                                             this.setState({
                                                 logicData:[{functionMethod:res.data.functionMethod}],
                                                 parametersData:res.data.judgeParam,
@@ -1429,9 +1478,6 @@ export default class TestType extends Component {
                 reagentNameEN:'',
                 insertDate:'',
             },
-
-
-
         });
     };
 
@@ -1637,6 +1683,7 @@ export default class TestType extends Component {
                     const tempData=[...this.state.reagentData];
                     for(let i=0;i<tempData.length;i++){
                         tempData[i].key=i+(this.state.reagentCurrentPage-1)*this.state.reagentPageSize;
+                        tempData[i]["sampleType"]=this.sampleDic[tempData[i].sampleType];
                     }
                     let defaultSelected=[];
                     let defaultRows=[];
@@ -1752,8 +1799,6 @@ export default class TestType extends Component {
                     let blob = new Blob([response.data], {type:'image/png'})
                     link.style.display = 'none'
                     link.href = URL.createObjectURL(blob)
-
-
                     link.download =`当前生产判读逻辑(${this.state.testTypeName})` //下载的文件名
                     document.body.appendChild(link)
                     link.click()
@@ -1792,6 +1837,7 @@ export default class TestType extends Component {
         console.log(e && e.fileList)
         return e && e.fileList;
     };
+
     form = React.createRef();
     promptForm=React.createRef();
     judgeParamForm=React.createRef();
@@ -1964,6 +2010,7 @@ export default class TestType extends Component {
                     title="已关联的试剂类型"
                     visible={this.state.associateVisible}
                     onCancel={this.handleCancel}
+                    width={1400}
                     footer={[
                         <div style={{textAlign:"center"}}>
                             <Button key="back" onClick={this.handleCancel}>
@@ -1992,7 +2039,7 @@ export default class TestType extends Component {
                         />
                     </div>
                     <Modal
-                        title="修改测试类型数据"
+                        title="所有可关联的试剂类型"
                         visible={this.state.associatedModifyVisible}
                         onOk={this.handleSubmit}
                         width={1400}
@@ -2015,15 +2062,17 @@ export default class TestType extends Component {
                                 rowKey={record => record.key}
                                 bordered={true}
                                 style={{margin:'20px 0'}}
-                                pagination={{
-                                    position: ['bottomLeft'] ,
-                                    total:this.state.reagentTotal,
-                                    showTotal:total => `共 ${total} 条`,
-                                    showQuickJumper:true,
-                                    showSizeChanger:true,
-                                    current:this.state.reagentCurrentPage,
-                                    onChange:this.onChangeReagent,
-                                }}
+                                pagination={false}
+                                scroll={{y:500}}
+                                // pagination={{
+                                //     position: ['bottomLeft'] ,
+                                //     total:this.state.reagentTotal,
+                                //     showTotal:total => `共 ${total} 条`,
+                                //     showQuickJumper:true,
+                                //     showSizeChanger:true,
+                                //     current:this.state.reagentCurrentPage,
+                                //     onChange:this.onChangeReagent,
+                                // }}
                             />
                         </div>
 
@@ -2104,43 +2153,43 @@ export default class TestType extends Component {
                         </Form>
 
                     </div>
-                    <Modal
-                        title="修改测试类型数据"
-                        visible={this.state.associatedModifyVisible}
-                        onOk={this.handleSubmit}
-                        width={1400}
-                        onCancel={this.handleReturn}
-                        footer={[
-                            <div style={{textAlign:"center"}}>
-                                <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmit}>
-                                    提交
-                                </Button>,
-                                <Button key="back" onClick={this.handleReturn}>
-                                    返回
-                                </Button>,
-                            </div>
-                        ]}>
-                        <div>
-                            <Table
-                                rowSelection={associatedRowSelection}
-                                columns={this.reagentcolumns}
-                                dataSource={this.state.reagentData}
-                                rowKey={record => record.key}
-                                bordered={true}
-                                style={{margin:'20px 0'}}
-                                pagination={{
-                                    position: ['bottomLeft'] ,
-                                    total:this.state.reagentTotal,
-                                    showTotal:total => `共 ${total} 条`,
-                                    showQuickJumper:true,
-                                    showSizeChanger:true,
-                                    current:this.state.reagentCurrentPage,
-                                    onChange:this.onChangeReagent,
-                                }}
-                            />
-                        </div>
+                    {/*<Modal*/}
+                    {/*    title="修改测试类型数据"*/}
+                    {/*    visible={this.state.associatedModifyVisible}*/}
+                    {/*    onOk={this.handleSubmit}*/}
+                    {/*    width={1400}*/}
+                    {/*    onCancel={this.handleReturn}*/}
+                    {/*    footer={[*/}
+                    {/*        <div style={{textAlign:"center"}}>*/}
+                    {/*            <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmit}>*/}
+                    {/*                提交*/}
+                    {/*            </Button>,*/}
+                    {/*            <Button key="back" onClick={this.handleReturn}>*/}
+                    {/*                返回*/}
+                    {/*            </Button>,*/}
+                    {/*        </div>*/}
+                    {/*    ]}>*/}
+                    {/*    <div>*/}
+                    {/*        <Table*/}
+                    {/*            rowSelection={associatedRowSelection}*/}
+                    {/*            columns={this.reagentcolumns}*/}
+                    {/*            dataSource={this.state.reagentData}*/}
+                    {/*            rowKey={record => record.key}*/}
+                    {/*            bordered={true}*/}
+                    {/*            style={{margin:'20px 0'}}*/}
+                    {/*            pagination={{*/}
+                    {/*                position: ['bottomLeft'] ,*/}
+                    {/*                total:this.state.reagentTotal,*/}
+                    {/*                showTotal:total => `共 ${total} 条`,*/}
+                    {/*                showQuickJumper:true,*/}
+                    {/*                showSizeChanger:true,*/}
+                    {/*                current:this.state.reagentCurrentPage,*/}
+                    {/*                onChange:this.onChangeReagent,*/}
+                    {/*            }}*/}
+                    {/*        />*/}
+                    {/*    </div>*/}
 
-                    </Modal>
+                    {/*</Modal>*/}
                 </Modal>
 
                 <Modal
@@ -2173,45 +2222,44 @@ export default class TestType extends Component {
                             }}
                         />
                     </div>
-                    <Modal
-                        title="修改测试类型数据"
-                        visible={this.state.associatedModifyVisible}
-                        onOk={this.handleSubmit}
-                        width={1400}
-                        onCancel={this.handleReturn}
-                        footer={[
-                            <div style={{textAlign:"center"}}>
-                                <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmit}>
-                                    提交
-                                </Button>,
-                                <Button key="back" onClick={this.handleReturn}>
-                                    返回
-                                </Button>,
-                            </div>
-                        ]}>
-                        <div>
-                            <Table
-                                rowSelection={associatedRowSelection}
-                                columns={this.reagentcolumns}
-                                dataSource={this.state.reagentData}
-                                rowKey={record => record.key}
-                                bordered={true}
-                                style={{margin:'20px 0'}}
-                                pagination={{
-                                    position: ['bottomLeft'] ,
-                                    total:this.state.reagentTotal,
-                                    showTotal:total => `共 ${total} 条`,
-                                    showQuickJumper:true,
-                                    showSizeChanger:true,
-                                    current:this.state.reagentCurrentPage,
-                                    onChange:this.onChangeReagent,
-                                }}
-                            />
-                        </div>
-
-                    </Modal>
                 </Modal>
 
+                {/*<Modal*/}
+                {/*    title="修改测试类型数据"*/}
+                {/*    visible={this.state.associatedModifyVisible}*/}
+                {/*    onOk={this.handleSubmit}*/}
+                {/*    width={1400}*/}
+                {/*    onCancel={this.handleReturn}*/}
+                {/*    footer={[*/}
+                {/*        <div style={{textAlign:"center"}}>*/}
+                {/*            <Button key="submit" type="primary" loading={loading} onClick={this.handleSubmit}>*/}
+                {/*                提交*/}
+                {/*            </Button>,*/}
+                {/*            <Button key="back" onClick={this.handleReturn}>*/}
+                {/*                返回*/}
+                {/*            </Button>,*/}
+                {/*        </div>*/}
+                {/*    ]}>*/}
+                {/*    <div>*/}
+                {/*        <Table*/}
+                {/*            rowSelection={associatedRowSelection}*/}
+                {/*            columns={this.reagentcolumns}*/}
+                {/*            dataSource={this.state.reagentData}*/}
+                {/*            rowKey={record => record.key}*/}
+                {/*            bordered={true}*/}
+                {/*            style={{margin:'20px 0'}}*/}
+                {/*            pagination={{*/}
+                {/*                position: ['bottomLeft'] ,*/}
+                {/*                total:this.state.reagentTotal,*/}
+                {/*                showTotal:total => `共 ${total} 条`,*/}
+                {/*                showQuickJumper:true,*/}
+                {/*                showSizeChanger:true,*/}
+                {/*                current:this.state.reagentCurrentPage,*/}
+                {/*                onChange:this.onChangeReagent,*/}
+                {/*            }}*/}
+                {/*        />*/}
+                {/*    </div>*/}
+                {/*</Modal>*/}
 
                 <Modal
                     title="查看图片"
@@ -2287,7 +2335,9 @@ export default class TestType extends Component {
                           ref={this.judgeParamForm}>
                         <Form.Item label="编码"
                                    name="judgeParamCode">
-                            <Input disabled={true}/>
+                            <Input disabled={true}
+                                   style={{color:'black'}}
+                            />
                         </Form.Item>
                         <Form.Item label="值"
                                    name="judgeParamValue"
@@ -2320,8 +2370,9 @@ export default class TestType extends Component {
                         <Form.Item label="编码"
                                    name="judgeTipsCode"
                                    rules={[{required:true,message:"必填项不能为空"}]}>
-                            <Input allowClear
-                                   placeholder="请输入编码"/>
+                            <Input disabled={true}
+                                   style={{color:'black'}}
+                            />
                         </Form.Item>
                         <Form.Item label="提示语类型"
                                    name="judgeTipsType"
