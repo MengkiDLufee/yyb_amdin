@@ -143,6 +143,11 @@ export function checkPassword(data) {
   return ajax('/experimenter/pwd',data,'POST')
 }
 
+//5.3.1 设备测试
+export function expDevTest(data) {
+  return ajax('experiment/device/list',data,'POST')
+}
+
 
 /**
  * 家庭版统计模块
@@ -181,7 +186,7 @@ export function userDrugHome(data) {
 }
 //6.8所有用户
 export function allUserHome(data) {
-  return ajax('/allUser/allUserAndEffList',data,'POST')
+  return ajax('/allUser/list',data,'POST')
 }
 //6.9有效用户
 export function effectUserHome(data) {
