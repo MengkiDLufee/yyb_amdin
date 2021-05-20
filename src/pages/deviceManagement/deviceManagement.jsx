@@ -79,6 +79,79 @@ function transformHistoryData(data) {
   return newData
 }
 
+const selectType = [
+  {
+    name:'正常',
+    value:'device_normal'
+  },
+  {
+    name:'测试',
+    value:'device_testing'
+  },
+  {
+    name:'优孕保',
+    value:'eupregna'
+  },
+  {
+    name:'优孕保测试',
+    value:'eupregna_testing'
+  },
+  {
+    name:'专业正常',
+    value:'professional_normal'
+  },
+  {
+    name:'专业测试',
+    value:'professional_testing'
+  },
+  {
+    name:'研究',
+    value:'research'
+  },
+  {
+    name:'其他',
+    value:'other'
+  },
+  {
+    name:'其他测试',
+    value:'other_test'
+  }
+]
+const stateType = [
+  {
+    name:'未测试',
+    value:'no_test'
+  },
+  {
+    name:'测试通过',
+    value:'pass'
+  },
+  {
+    name:'测试未通过',
+    value:'no_pass'
+  },
+  {
+    name:'返修',
+    value:'repair'
+  },
+  {
+    name:'存在故障,完全无法使用',
+    value:'use_no_testvalue'
+  },
+  {
+    name:'存在故障，可用但影响测试值',
+    value:'professional_testing'
+  },
+  {
+    name:'存在故障，可临时用',
+    value:'temporary_use'
+  },
+  {
+    name:'废弃',
+    value:'discard'
+  }
+]
+
 
 export default class DeviceManagement extends Component {
 
@@ -779,15 +852,11 @@ export default class DeviceManagement extends Component {
               className="input1"
               value={this.state.input.type}
             >
-              <Option name="type" value="device_normal">正常</Option>
-              <Option name="type" value="device_testing">测试</Option>
-              <Option name="type" value="eupregna">优孕保</Option>
-              <Option name="type" value="eupregna_testing">优孕保测试</Option>
-              <Option name="type" value="professional_normal">专业正常</Option>
-              <Option name="type" value="professional_testing">专业测试</Option>
-              <Option name="type" value="research">研究</Option>
-              <Option name="type" value="other">其他</Option>
-              <Option name="type" value="other_test">其他测试</Option>
+              {
+                selectType.map((item,index)=>{
+                  return <Option key={index} name="type" value={item.value}>{item.name}</Option>
+                })
+              }
             </Select>
             <Select
               placeholder="请选择状态 "
@@ -795,14 +864,11 @@ export default class DeviceManagement extends Component {
               className="input1"
               value={this.state.input.state}
             >
-              <Option name="state" value="no_test">未测试</Option>
-              <Option name="state" value="pass">测试通过</Option>
-              <Option name="state" value="no_pass">测试未通过</Option>
-              <Option name="state" value="repair">返修</Option>
-              <Option name="state" value="cannot_use">存在故障,完全无法使用</Option>
-              <Option name="state" value="use_no_testvalue">存在故障，可用但影响测试值</Option>
-              <Option name="state" value=" temporary_use">存在故障，可临时用</Option>
-              <Option name="state" value="discard">废弃</Option>
+              {
+                stateType.map((item,index)=>{
+                  return <Option key={index} name="state" value={item.value}>{item.name}</Option>
+                })
+              }
             </Select>
 
             <Button

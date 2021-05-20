@@ -10,110 +10,123 @@ import {
   SearchOutlined,
   ReloadOutlined,
 } from '@ant-design/icons'
-import moment from 'moment'
+import { expDevTest } from "../../api";
+
 import './index.less'
 
 const {Option} = Select;
+const { RangePicker } = DatePicker
 
- //主页面表格数据
- const data = [];
- for (let i = 0; i < 46; i++) {
-   if(i%2 !== 0)
-   {data.push({
-     key: i,
-     test_time: `2019-11-11`,
-     type: 0,
-     dev_num:`D_${i}`,
-     batch_num: `B_${i}`,
-     num:`${i}`,
-     GOD:`1.11`,
-     C_GOD :`0.33 `,
-     test_img:'https://gw.alipayobjects.com/zos/rmsportal/KDpgvguMpGfqaHPjicRK.svg'
-   });} else {
-     data.push({
-      key: i,
-      test_time: `2019-12-12`,
-      type: 1,
-      dev_num:`D_${i}`,
-      batch_num: `B_${i}`,
-      num:`${i}`,
-      GOD:`1.11`,
-      C_GOD :`0.33 `,
-      test_img:'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
-    });
-   }
- }
+const columns =[
+  {
+    title:'测试时间',
+    dataIndex:'testTime',
+    width:200,
+    align:'center'
+  },
+  {
+    title:'测试卡类型',
+    dataIndex:'paperType',
+    width:200,
+    align:'center',
+    render : type => {
+      return( type === 'standard_card' ? '标准卡' : '测试卡')
+    }
+  },
+  {
+    title:'设备号',
+    dataIndex:'deviceNo',
+    width:200,
+    align:'center'
+  },
+  {
+    title:'批号',
+    dataIndex:'bathNumber',
+    width:200,
+    align:'center'
+  },
+  {
+    title:'数值',
+    dataIndex:'value',
+    width:200,
+    align:'center'
+  },
+  {
+    title:'GOD',
+    dataIndex:'tgod',
+    width:200,
+    align:'center'
+  },
+  {
+    title:'C线GOD',
+    dataIndex:'cgod',
+    width:200,
+    align:'center'
+  },
+  {
+    title:'设备测试图片',
+    dataIndex:'devicePicPathAli',
+    width:200,
+    align:'center',
+    render: (text) => <Image src={text} height="50px " width="50px" />
+  }
+];
+
+function transformData(data) {
+  if (!data) {
+    return []
+  }
+  let newData = [];
+  for (let i = 0; i < data.length; i++) {
+    let newItem = {};
+    newItem.key = data[i].deviceTestDataId;
+    newItem.testTime = data[i].testTime;
+    newItem.paperType = data[i].paperType;
+    newItem.deviceNo = data[i].deviceNo;
+    newItem.bathNumber = data[i].bathNumber;
+    newItem.value = data[i].value;
+    newItem.tgod = data[i].tgod;
+    newItem.cgod = data[i].cgod;
+    newItem.devicePicPathAli = data[i].devicePicPathAli;
+    newData.push(newItem);
+  }
+  return newData;
+}
 
 export default class DevTest extends Component {
   // constructor(props){
   //   super(props);
   // }
   state = {
+    data: [],
+    total: '',
+    current: 1,
+    pageSize: 10,
     card_type:undefined,
     test_time:undefined,
-    paginationProps : {//分页栏参数
-      position: ['bottomLeft'] ,
-      total:'data.length',
-      showTotal:total => `共 ${total} 条`,
-      showQuickJumper:true,
-      showSizeChanger:true,
-    },
+    time:[]
+    
+  }
+  loadData = (params) => {
+    expDevTest(params).then(res => {
+      console.log(res);
+      let data = transformData(res.data.data?res.data.data.info:[])
+      this.setState({
+        data,
+        current: params.page,
+        pageSize: params.pageSize,
+        total: res.data.data.total
+      })
+    })
+  }
+  componentDidMount() {
+    this.loadData({
+      page: 1,
+      pageSize: 10
+    })
   }
 
-  columns =[
-    {
-      title:'测试时间',
-      dataIndex:'test_time',
-      width:200,
-      align:'center'
-    },
-    {
-      title:'测试卡类型',
-      dataIndex:'type',
-      width:200,
-      align:'center',
-      render : type => {
-        return( type === 0 ? '标准卡' : '测试卡')
-      }
-    },
-    {
-      title:'设备号',
-      dataIndex:'dev_num',
-      width:200,
-      align:'center'
-    },
-    {
-      title:'批号',
-      dataIndex:'batch_num',
-      width:200,
-      align:'center'
-    },
-    {
-      title:'数值',
-      dataIndex:'num',
-      width:200,
-      align:'center'
-    },
-    {
-      title:'GOD',
-      dataIndex:'GOD',
-      width:200,
-      align:'center'
-    },
-    {
-      title:'C线GOD',
-      dataIndex:'C_GOD',
-      width:200,
-      align:'center'
-    },
-    {
-      title:'设备测试图片',
-      dataIndex:'test_img',
-      width:200,
-      align:'center',
-      render: (text) => <Image src={text} height="50px " width="50px" />
-    }
-  ];
+  
 
   //选择试剂卡类型
   typeChange = (e) => {
@@ -123,40 +136,66 @@ export default class DevTest extends Component {
     })
   }
   //选择时间
-  tiemChange = (date,string) => {
-    console.log(date,string)
+  tiemChange = (value,dateString) => {
+    // console.log(date,string)
+    let time = [];
+    time.push(dateString[0] + ' 00:00:00')
+    time.push(dateString[1] + ' 23:59:59')
     this.setState({
-      test_time:date,
+      test_time:value,
+      time,
     })
   }
-  //sos
+  
   search = () => {
-    console.log('Search')
-    console.log(this.state.card_type,moment(this.state.test_time,'YYYY/MM/DD').format('YYYY/MM/DD'))
+    const { card_type, time } = this.state
+    let params = {
+      page: 1,
+      pageSize: 10
+    }
+    if (card_type) {
+      params.paperType = card_type
+    }
+    if (time[0]) {
+      params.testStartTime = time[0]
+      params.testEndTime = time[1]
+    }
+    // console.log(params);
+    this.loadData(params)
   }
   //重置
   reset = () => {
-    console.log('reset')
+    this.loadData({
+      page: 1,
+      pageSize: 10
+    })
     this.setState({
       card_type:undefined,
-      test_time:undefined
+      test_time:undefined,
+      time:[]
     })
   }
 
   //表格翻页
   handTablechange = (pagination) =>{
-    Object.assign(this.state.paginationProps,{
-     pageSize:pagination.pageSize,
-     current:pagination.current
-   })
-   console.log(this.state.paginationProps);
-   let params = {};
-   params.current = pagination.current;
-   params.pageSize = pagination.pageSize;
-   console.log(params)
+    const { current, pageSize } = pagination
+    const { card_type, time } = this.state
+    let params = {
+      page: current,
+      pageSize
+    }
+    if (card_type) {
+      params.paperType = card_type
+    }
+    if (time[0]) {
+      params.testStartTime = time[0]
+      params.testEndTime = time[1]
+    }
+    this.loadData(params)
  };
 
   render() {
+    const { data, current, pageSize, total } = this.state
     return (
       <div className='sub-content'>
         {/* 搜索栏 */}
@@ -172,9 +211,9 @@ export default class DevTest extends Component {
               <Option title="type" value="1">测试卡</Option>
             </Select>
 
-            <DatePicker 
+            <RangePicker 
               onChange={this.tiemChange}
-              format='MM/DD/YYYY'//指定日期显示样式
+              format='YYYY-MM-DD'//指定日期显示样式
               className="input2"
               placeholder="测试时间"
               value={this.state.test_time}
@@ -199,11 +238,19 @@ export default class DevTest extends Component {
         </div>
         {/* 表格 */}
         <Table 
-          columns={this.columns}
+          columns={columns}
           dataSource={data}
           bordered={true}
           style={{margin:'20px 0',borderBottom:'1px,soild'}}
-          pagination={ this.state.paginationProps}
+          pagination={{
+            position: ['bottomLeft'],
+            total,
+            showTotal: total => `共 ${total} 条`,
+            showQuickJumper: true,
+            showSizeChanger: true,
+            current,
+            pageSize
+          }}
           onChange={this.handTablechange}
           // scroll={{y:700}}
         />

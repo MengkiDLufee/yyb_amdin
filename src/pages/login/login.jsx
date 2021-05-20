@@ -4,7 +4,7 @@ import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
 import './login.less'//引入样式
-// import logo from './images/login_header_logo.png'
+import logo from '../../assets/images/logo.png'
 import { reqLogin } from '../../api/index'
 
 class Login extends Component {
@@ -42,8 +42,7 @@ class Login extends Component {
         return (
             <div className="login">
                 <header className="login-header">
-                    <h1>优孕宝登陆</h1>
-                    {/* <img src={logo} alt="logo"/> */}
+                    <img src={logo} alt="logo"/>
                 </header>
                 <section className="login-content">
                     <div style={{ height: '60px' }}>

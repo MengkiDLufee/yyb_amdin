@@ -33,6 +33,7 @@ const DeviceManagement = lazy(() => import('../../pages/deviceManagement/deviceM
 // 实验管理
 const ExperimentData = lazy(() => import('../../pages/experimentManagement/experimentData'));
 const Experimenter = lazy(() => import('../../pages/experimentManagement/experimenter'));
+const RegTest = lazy(() => import('../../pages/experimentManagement/regTest'));
 const DevTest = lazy(() => import('../../pages/experimentManagement/devTest'))
 // 优孕宝家庭版统计
 const TestData = lazy(() => import('../../pages/yybHomeEditionStatistics/testData'));
@@ -91,6 +92,7 @@ export default class Midcontent extends Component {
 
               <Route path="/exp/data" component={ExperimentData} />
               <Route path="/exp/member" component={Experimenter} />
+              <Route path="/exp/reg_test" component={RegTest} />
               <Route path="/exp/dev_test" component={DevTest} />
 
               <Route path="/home_e/test" component={TestData} />

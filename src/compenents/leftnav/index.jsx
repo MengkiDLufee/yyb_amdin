@@ -7,6 +7,7 @@ import {
 } from '@ant-design/icons';
 import './index.less'
 import menuList from '../../config/menuConfig'
+import logo from '../../assets/images/logo_1.png'
 const { SubMenu } = Menu;
 const { Sider } = Layout;
 
@@ -37,9 +38,10 @@ export default class Leftnav extends Component {
     const { collapsed } = this.props
     return (
       <div>
-        <Sider trigger={null} collapsible collapsed={collapsed} className="left-nav">
+        <Sider trigger={null} collapsible collapsed={collapsed} className="left-nav" width={220} >
           <div className="logo" >
-            <h1 style={{ color: 'white', paddingTop: '5px' }}>logo</h1>
+            <img src={logo} alt="logo" style={{marginLeft:collapsed? '20px':'10px'}} />
+            <div style={{display:collapsed? 'none' : 'block'}} >优孕宝服务平台</div>
           </div>
           <div className="inner">
             <Menu
