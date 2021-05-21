@@ -8,7 +8,8 @@
 import axios from 'axios'
 import {message} from 'antd'
 
-export const baseUrl = 'http://java.xixibackup.me:8080';
+// export const baseUrl = 'http://java.xixibackup.me:8080';
+export const baseUrl = 'http://192.168.1.105:8080';
 
 export default function ajax(url, data={},type='GET',config) {//默认空对象，get请求方式
     return new Promise((resolve , reject) => {

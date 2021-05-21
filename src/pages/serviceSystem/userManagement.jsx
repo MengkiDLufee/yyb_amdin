@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Space, Modal, Form } from 'antd';
-//import { DatePicker} from 'antd';
-//import { Radio } from 'antd';
+import {Table, Button, Input, Space, Modal, Form, Image, Select} from 'antd';
+import { DatePicker} from 'antd';
+import { Radio } from 'antd';
 import { Switch } from 'antd';
 import {message} from 'antd'
+import moment from 'moment';
 import {ReloadOutlined,
     SearchOutlined ,
-//    PlusOutlined,
+    PlusOutlined,
 //    CloudUploadOutlined,
 //    CloudDownloadOutlined,
 //    CheckCircleOutlined,
@@ -17,8 +18,9 @@ import './index.less'
 import ajax from "../../api/ajax";
 import addKey from "../../api/addKey";
 import {exportFile} from "../../api";
+const { RangePicker } = DatePicker;
 //const { TextArea } = Input;
-//const { Option } = Select;
+const { Option } = Select;
 
 // class TestReagentDataTable1 extends Component{
 //     columns = [
@@ -2205,9 +2207,262 @@ import {exportFile} from "../../api";
 //         )
 //     }
 // }
+//查看日志
+//历史测试数据 修改数据
+class Modal11 extends Component{
+    //初始化
+    constructor(props) {
+        super(props);
+        console.log("record",this.props.record)
+    }
 
-//测试数据
-class Modal3 extends Component{
+    //表格1数据以及函数
+    //常量数据部分
+
+    //函数部分
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+    //点击完成
+    handleOk = () => {
+        console.log('修改')
+        console.log(this.form)
+        let form = this.form.current;
+        form.validateFields()//表单输入校验
+          .then((values) => {
+              let data={};
+              let myInput=Object.keys(this.state.input);
+              for(let ii=0;ii<myInput.length;ii++){
+                  if(this.state.input[myInput[ii]]!==""){
+                      data[myInput[ii]]=this.state.input[myInput[ii]];
+                  }
+              }
+              data.eupregnaTestPaperDataHisId = this.props.record.eupregnaTestPaperDataHisId;
+              //data.patientId=this.props.record.patientId;
+              //data.loginId=this.props.record.loginId;
+              let url="/user/test/data/modify/data";
+              console.log("request:",data);
+              ajax(url,data,'POST')
+                .then((response)=>{
+                    if(response.data.code!==1004){
+                        console.log("请求错误！",response);
+                    }else{
+                        form.resetFields();
+                        console.log("修改成功：",response);
+                        //Object.assign(this.props.record,this.state.input);
+                        this.props.setVisible(false);
+                    }
+                });
+          })
+          .catch((info) => {
+              console.log('Validate Failed:', info);
+          });
+    };
+    //得到输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        })
+    }
+    //表格行选择
+    onSelectChange = row => {
+        console.log('所选择行',row)
+        //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        this.setState(
+          {selectedRowKeys:row}
+        )
+    };
+    //翻页
+    handleTableChange = (pagination) =>{
+        //console.log(this.props.data.total);
+        let page={
+            page:pagination.current,
+            pageSize: pagination.pageSize,
+        };
+        this.requestData(page);
+        //this.setState({paginationProps:pagination});
+        //console.log(pagination)
+    };
+    //搜索
+    search= ()=> {
+        let page={
+            page:1,
+            pageSize:10,
+        }
+        this.requestData(page);
+    }
+    //重置
+    reset = () => {
+        console.log('重置',this.state.input);
+        let myInput=Object.keys(this.state.input);
+        let data = {};
+        for(let ii=0;ii<myInput.length;ii++){
+            data[myInput[ii]]='';
+        }
+        //this.state.input=data;
+        this.setState(
+          {
+              selectedRowKeys:[],
+              input:data,
+          },this.search
+        )
+        //this.search();
+    };
+    //请求表格数据
+    requestData=(page)=>{
+        let url="/user/test/data/list/"
+          +this.props.record.clientId+'/'+page.page+'/'+page.pageSize;
+        //console.log("request:",data);
+        ajax(url, {},'GET')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null)
+                  console.log("查询失败");
+              else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+          });
+    }
+    //按照搜索情况导出excel
+    exportSearch= ()=>{
+        let data={
+            page:1,
+            pageSize:10,
+        }
+        let myInput=Object.keys(this.state.input);
+        for(let ii=0;ii<myInput.length;ii++){
+            if(this.state.input[myInput[ii]]!==""){
+                data[myInput[ii]]=this.state.input[myInput[ii]];
+            }
+        }
+        console.log("exportFile input:",data);
+        //exportFile("/exam/data/export/login/condition",data);
+        exportFile('/user/base/info/export/condition',{});
+        //console.log("request:",data);
+        // ajax("/exam/data/export/login/condition",data,'POST')
+        //     .then((response)=>{
+        //         console.log(response);
+        //     }).catch(e=>{
+        //     console.log("search error!",e);
+        // });
+    }
+    //添加弹窗
+    add=(record)=>{
+        this.lookModal(record);
+    }
+
+    //表格2数据以及函数
+
+    //参数设置
+    state={
+        //弹窗
+        modalVisible:false,
+        //表格1数据
+        input:{
+        },
+        paginationProps:{
+            position:['bottomLeft'],
+            total:0,
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true,
+        },
+        selectedRowKeys:[],
+        data:[
+            {
+                key:1,
+                patientName:"test",
+                testNumber: "test",
+            }
+        ],
+        record:{
+            loginName:"",
+        },
+
+        //表格2数据
+
+
+    };
+
+    //弹窗2
+
+    form = React.createRef();
+    render(){
+        return(
+          <div>
+              <Modal
+                title={"修改测试计划"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                onOk={this.handleOk}
+                okText={'提交'}
+                cancelText={'取消'}
+                className="modal1"
+              >
+                  <div className="ant-modal-body" >
+                      <div className="modal-body" style={{height:"100%"}}>
+                          <Form
+                            labelCol={{ span: 5 }}
+                            wrapperCol={{ span: 16 }}
+                            layout="horizontal"
+                            name="addPlan"
+                            onFinish={this.onFinish}
+                            onFinishFailed={this.onFinishFailed}
+                            ref={this.form}//表单验证，通过ref获取
+                          >
+                              <Form.Item label="数值"
+                                         name={"数值"}
+                                         rules={[
+                                         ]}
+                              >
+                                  <Input  placeholder={"请输入数值"} onChange={(e)=>{this.inputChange(e,"value")}}
+                                          value={this.state.input.value}
+                                  />
+                              </Form.Item>
+                              <Form.Item label="GOD"
+                                         name={"GOD"}
+                                         rules={[
+                                         ]}
+                              >
+                                  <Input  placeholder={"请输入GOD"} onChange={(e)=>{this.inputChange(e,"tgod")}}
+                                          value={this.state.input.tgod}
+                                  />
+                              </Form.Item>
+                              <Form.Item label="CGOD"
+                                         name={"CGOD"}
+                                         rules={[
+                                         ]}
+                              >
+                                  <Input  placeholder={"CGOD"} onChange={(e)=>{this.inputChange(e,"cgod")}}
+                                          value={this.state.input.cgod}
+                                  />
+                              </Form.Item>
+                          </Form>
+                      </div>
+                  </div>
+              </Modal>
+          </div>
+        )
+    }
+}
+//日志
+class Modal10 extends Component{
     //初始化
     constructor(props) {
         super(props);
@@ -2216,27 +2471,611 @@ class Modal3 extends Component{
 
     //表格1数据以及函数
     //常量数据部分
+
     columns = [
         {
-            title: '用户ID',
-            dataIndex: 'clientId',
+            title: '操作类型',
+            dataIndex: 'oparetionType',
             width:150,
         },
         {
-            title: '测试数据',
-            dataIndex: 'testPaperDataId',
+            title: '操作时间',
+            dataIndex: 'time',
             width:150,
         },
         {
-            title: '日志内容',
-            dataIndex: 'content',
+            title: '操作结果',
+            dataIndex: 'result',
+            width:150,
+        },
+        {
+            title: '测试类型',
+            dataIndex: 'testType',
+            width:150,
+        },
+    ];
+    //函数部分
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+
+    //得到输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        })
+    }
+    //表格行选择
+    onSelectChange = row => {
+        console.log('所选择行',row)
+        //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        this.setState(
+          {selectedRowKeys:row}
+        )
+    };
+    //翻页
+    handleTableChange = (pagination) =>{
+        //console.log(this.props.data.total);
+        // let page={
+        //     page:pagination.current,
+        //     pageSize: pagination.pageSize,
+        // };
+        //this.requestData(page);
+        this.setState({paginationProps:pagination});
+        //console.log(pagination)
+    };
+    //搜索
+    search= ()=> {
+        let page={
+            page:1,
+            pageSize:10,
+        }
+        this.requestData(page);
+    }
+    //重置
+    reset = () => {
+        console.log('重置',this.state.input);
+        let myInput=Object.keys(this.state.input);
+        let data = {};
+        for(let ii=0;ii<myInput.length;ii++){
+            data[myInput[ii]]='';
+        }
+        //this.state.input=data;
+        this.setState(
+          {
+              selectedRowKeys:[],
+              input:data,
+          },this.search
+        )
+        //this.search();
+    };
+    //请求表格数据
+    requestData=(page)=>{
+        let url="/user/test/data/his/test/log/info/3/"
+          +this.props.record.clientId;
+        //console.log("request:",data);
+        ajax(url, {},'GET')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null)
+                  console.log("查询失败");
+              else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+          });
+    }
+    //按照搜索情况导出excel
+    exportSearch= ()=>{
+        let data={
+            page:1,
+            pageSize:10,
+        }
+        let myInput=Object.keys(this.state.input);
+        for(let ii=0;ii<myInput.length;ii++){
+            if(this.state.input[myInput[ii]]!==""){
+                data[myInput[ii]]=this.state.input[myInput[ii]];
+            }
+        }
+        console.log("exportFile input:",data);
+        //exportFile("/exam/data/export/login/condition",data);
+        exportFile('/user/base/info/export/condition',{});
+        //console.log("request:",data);
+        // ajax("/exam/data/export/login/condition",data,'POST')
+        //     .then((response)=>{
+        //         console.log(response);
+        //     }).catch(e=>{
+        //     console.log("search error!",e);
+        // });
+    }
+    //添加弹窗
+    add=(record)=>{
+        this.lookModal(record);
+    }
+
+    //表格2数据以及函数
+
+    //参数设置
+    state={
+        //弹窗
+        modalVisible:false,
+        //表格1数据
+        input:{
+        },
+        paginationProps:{
+            position:['bottomLeft'],
+            total:0,
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true,
+        },
+        selectedRowKeys:[],
+        data:[
+            {
+                key:1,
+                patientName:"test",
+                testNumber: "test",
+            }
+        ],
+        record:{
+            loginName:"",
+        },
+
+        //表格2数据
+
+
+    };
+
+    //弹窗函数
+    render(){
+        return(
+          <div>
+              <Modal
+                title={"日志"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                footer={null}
+                width={1000}
+              >
+                  <div style={{height:'100%',margin:'3px'}}>
+                      <div style={{heigh:"100%"}}>
+                          <Table
+                            columns={this.columns}
+                            dataSource={this.state.data}
+                            bordered={true}
+                            rowSelection={false}
+                            style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                            pagination={this.state.paginationProps}
+                            onChange={this.handleTableChange}
+                          />
+                      </div>
+                  </div>
+              </Modal>
+          </div>
+        )
+    }
+}
+//测试次数 历史测试数据弹窗
+class Modal9 extends Component{
+    columns = [
+        {
+            title: '序号',
+            dataIndex: 'key',
+            width:150,
+        },
+        {
+            title: '试剂',
+            dataIndex: 'paperName',
+            width:150,
+            sorter: {
+                compare: (a, b) => a.paperName - b.paperName,
+                multiple: 3,
+            },
+        },
+        {
+            title: '测试日期',
+            dataIndex: 'testTime',
             width: 150,
+            sorter: {
+                compare: (a, b) => a.testTime - b.testTime,
+                multiple: 3,
+            },
         },
         {
-            title:'问题数据',
-            dataIndex:'errorDataFlag',
+            title: '计划日期',
+            dataIndex: 'planTime',
+            width: 150,
+            sorter: {
+                compare: (a, b) => a.planTime - b.planTime,
+                multiple: 3,
+            },
+        },
+        {
+            title:'数值',
+            dataIndex:'value',
             width:150,
             align:'center',
+            sorter: {
+                compare: (a, b) => a.value - b.value,
+                multiple: 3,
+            },
+        },
+        {
+            title:'GOD',
+            dataIndex:'tgod',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.tgod - b.tgod,
+                multiple: 3,
+            },
+        },
+        {
+            title:'批号',
+            dataIndex:'bathNumber',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.bathNumber - b.bathNumber,
+                multiple: 3,
+            },
+        },
+        {
+            title:'设备号',
+            dataIndex:'deviceNo',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.deviceNo - b.deviceNo,
+                multiple: 3,
+            },
+        },
+        {
+            title:'结果',
+            dataIndex:'result',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.result - b.result,
+                multiple: 3,
+            },
+        },
+        {
+            title:'测试状态',
+            dataIndex:'testStatus',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.testStatus - b.testStatus,
+                multiple: 3,
+            },
+        },
+        {
+            title:'测试图片',
+            dataIndex:'testPicPathAli',
+            width:150,
+            align:'center',
+            render: (text) =>
+              //   ////console.log("record的内容",record)
+              //<img src={text} width="100px" alt=""/>
+              <Image src={text} width="100px" alt=""/>
+        },
+        {
+            title:'C线图片',
+            dataIndex:'testCLinePicPathAli',
+            width:150,
+            align:'center',
+            render: (text) =>
+              //   ////console.log("record的内容",record)
+              //<img src={text} width="100px" alt=""/>
+              <Image src={text} width="100px" alt=""/>
+        },
+        {
+            title:'C线GOD',
+            dataIndex:'cgod',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.cgod - b.cgod,
+                multiple: 3,
+            },
+        },
+        {
+            title:'FSH/LH',
+            dataIndex:'fshLh',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.fshLh - b.fshLh,
+                multiple: 3,
+            },
+        },
+        {
+            title:'LH/FSH',
+            dataIndex:'lhFsh',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.lhFsh - b.lhFsh,
+                multiple: 3,
+            },
+        },
+        {
+            title:'操作',
+            width:150,
+            align:'center',
+            render:(text,record)=>(
+              <Space>
+                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal(record)}}>修改数据</Button>
+              </Space>
+            ),
+        },
+    ];
+    //初始化
+    constructor(props) {
+        super(props);
+        //参数设置
+        let input={};
+        Object.assign(input,this.props.record);
+        //console.log("init record:",input);
+        this.state= {
+            testTime: '',
+            input: input,
+        }
+        let page = {
+            page:1,
+            pageSize:10
+        }
+        this.requestData(page)
+        //时间格式转换
+        // let testTime=this.props.record.testTime;
+        // let mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
+        // this.state.testTime=mymoment;
+    }
+    //函数部分
+    requestData=(page)=>{
+        let data={
+            ...page,
+        }
+        console.log("request:",data);
+        console.log("???")
+        ajax("/user/test/data/his/cycle/type/list/"
+          +this.props.record.eupregnaTestHisId, {},'GET')
+          .then((response)=>{
+              if(response.data.data===null){
+                  message.error("查询失败！")
+              }else{
+                  console.log(response)
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+
+          });
+        // ajax("/user/base/info/list",data,'POST')
+        //   .then((response)=>{
+        //       if(response.data.data==null){
+        //           console.log(response);
+        //           message.error("request error! code:"+response.data.code);
+        //       }else{
+        //           let data=response.data.data.info;
+        //           let paginationProps={...this.state.paginationProps};
+        //           addKey(data);
+        //           paginationProps.total=response.data.data.total;
+        //           paginationProps.current=page.page;
+        //           paginationProps.pageSize=page.pageSize;
+        //           console.log("data:",response);
+        //           this.setState({
+        //               data:data,
+        //               paginationProps:paginationProps,
+        //           });
+        //       }
+        //   });
+    }
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+    //点击完成
+    handleOk = () => {
+        // //console.log('添加完成')
+        // //console.log(this.form)
+        let form = this.form.current;
+        form.validateFields()//表单输入校验
+          .then((values) => {
+              let data={};
+              let myInput=Object.keys(this.state.input);
+              for(let ii=0;ii<myInput.length;ii++){
+                  if(this.state.input[myInput[ii]]!==""){
+                      data[myInput[ii]]=this.state.input[myInput[ii]];
+                  }
+              }
+              //data.patientId=this.props.record.patientId;
+              //data.loginId=this.props.record.loginId;
+              let url="/exam/login/add";
+              ////console.log("request:",data);
+              ajax(url,data,'POST')
+                .then((response)=>{
+                    if(response.data.code!==1002){
+                        ////console.log("请求错误！",response);
+                        message.error("添加失败！")
+                    }else{
+                        form.resetFields();
+                        ////console.log("添加成功：",response);
+                        //Object.assign(this.props.record,this.state.input);
+                        this.props.setVisible(false);
+                    }
+                });
+          })
+          .catch((info) => {
+              ////console.log('Validate Failed:', info);
+              message.error("表单验证出错！");
+          });
+
+
+    };
+
+    //时间选择函数
+    rangePickerOnChange=(value, dateString)=>{
+        //console.log('Selected Time: ', value);
+        //console.log('Formatted Selected Time: ', dateString);
+        let input = {};
+        Object.assign(input, this.state.input)
+        //this.state.input.testTime=dateString;
+        this.setState({
+            input:input,
+            testTime:value,
+        })
+    }
+    rangePickerOnOk=(value)=> {
+        //console.log('onOk: ', value);
+    }
+    //得到文本框输入
+    inputChange = (e,name) => {
+        ////console.log(name);
+        //let themename = e.target.name;
+        //console.log(themename)
+        ////console.log(e.target.name);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        });
+        //console.log(this.state);
+    }
+    //参数设置
+    // state={
+    //     //表格1数据
+    //     testTime:'',
+    //     input:{}
+    // };
+    //弹窗4
+    //添加计划
+    Modal = ()=>{
+        if(this.state.modalVisible)
+            return(
+              <Modal11
+                record={this.state.record}
+                visible={this.state.modalVisible}
+                setVisible={this.setModalvisible}
+              />
+            );
+    }
+    setModalvisible=(flag)=>{
+        this.setState({
+            modalVisible:flag,
+        });
+    }
+    lookModal=record=>{
+        this.setState({
+            modalVisible:true,
+            record:record,
+        });
+    }
+
+    /*表单验证
+      Form.useForm是是 React Hooks 的实现，只能用于函数组件
+      class组件中通过 React.createRef()来获取数据域*/
+    form = React.createRef();
+    render(){
+        return(
+          <div>
+              {/* 弹窗 */}
+              <Modal
+                title={"测试试剂数据"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                footer={null}
+                width={1600}
+              >
+                  <div>
+                      <div>
+                          <span className={"span1"}>用户名{this.props.record.nickName}</span>
+                      </div>
+                      <div>
+                          <span className={"span1"}>测试类型 {this.props.record.testType}</span>
+                      </div>
+                      <div>
+                          这里有一个表，后面做
+                      </div>
+                  </div>
+                  <div>
+                      <div>
+                          <span className={"span1"}>测试数据</span>
+                      </div>
+                      <div style={{height:'100%',margin:'3px'}}>
+                          <Table
+                            columns={this.columns}
+                            dataSource={this.state.data}
+                            bordered={true}
+                            style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                            pagination={false}
+                          />
+                      </div>
+                  </div>
+
+              </Modal>
+              {this.Modal()}
+          </div>
+        )
+    }
+}
+//测试次数
+class Modal8 extends Component{
+    //初始化
+    constructor(props) {
+        super(props);
+        this.search();
+    }
+
+    //表格1数据以及函数
+    //常量数据部分
+
+    columns = [
+        {
+            title: '测试类型',
+            dataIndex: 'testTypeName',
+            width:150,
+        },
+        {
+            title: '测试次数',
+            dataIndex: 'num',
+            width:150,
+        },
+        {
+            title:'操作',
+            dataIndex:'operation',
+            width:150,
+            align:'center',
+            render:(text,record)=>(
+              <Space>
+                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal9(record)}}>历史测试数据</Button>
+              </Space>
+            ),
         },
     ];
     //函数部分
@@ -2301,11 +3140,274 @@ class Modal3 extends Component{
     };
     //请求表格数据
     requestData=(page)=>{
-        let data={};
-        data.clientId=this.props.record.clientId;
-        let url="/user/managment/test/data";
+        let url="/user/test/data/his/cycle/list/"
+          +this.props.record.clientId+'/'+this.props.record.eupregnaTestCycleHisId+'/'+page.page+'/'+page.pageSize;
         //console.log("request:",data);
-        ajax(url,data,'POST')
+        ajax(url, {},'GET')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null)
+                  console.log("查询失败");
+              else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+          });
+    }
+    //按照搜索情况导出excel
+    exportSearch= ()=>{
+        let data={
+            page:1,
+            pageSize:10,
+        }
+        let myInput=Object.keys(this.state.input);
+        for(let ii=0;ii<myInput.length;ii++){
+            if(this.state.input[myInput[ii]]!==""){
+                data[myInput[ii]]=this.state.input[myInput[ii]];
+            }
+        }
+        console.log("exportFile input:",data);
+        //exportFile("/exam/data/export/login/condition",data);
+        exportFile('/user/base/info/export/condition',{});
+        //console.log("request:",data);
+        // ajax("/exam/data/export/login/condition",data,'POST')
+        //     .then((response)=>{
+        //         console.log(response);
+        //     }).catch(e=>{
+        //     console.log("search error!",e);
+        // });
+    }
+    //添加弹窗
+    add=(record)=>{
+        this.lookModal(record);
+    }
+
+    //表格2数据以及函数
+
+    //参数设置
+    state={
+        //弹窗
+        modalVisible:false,
+        //表格1数据
+        input:{
+        },
+        paginationProps:{
+            position:['bottomLeft'],
+            total:0,
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true,
+        },
+        selectedRowKeys:[],
+        data:[
+            {
+                key:1,
+                patientName:"test",
+                testNumber: "test",
+            }
+        ],
+        record:{
+            loginName:"",
+        },
+
+        //表格2数据
+
+
+    };
+
+    //弹窗函数
+    //弹窗9
+    //测试试剂数据
+    Modal9 = ()=>{
+        if(this.state.modalVisible9)
+            return(
+              <Modal9
+                record={this.state.record9}
+                visible={this.state.modalVisible9}
+                setVisible={this.setModalvisible9}
+              />
+            );
+    }
+    setModalvisible9=(flag)=>{
+        this.setState({
+            modalVisible9:flag,
+        });
+    }
+    lookModal9=record=>{
+        this.setState({
+            modalVisible9:true,
+            record9:record,
+        });
+    }
+    //弹窗6
+    //测试问题数据弹窗
+    Modal6 = ()=>{
+        if(this.state.modalVisible6)
+            return(
+              <Modal6
+                record={this.state.record6}
+                visible={this.state.modalVisible6}
+                setVisible={this.setModalvisible6}
+              />
+            );
+    }
+    setModalvisible6=(flag)=>{
+        this.setState({
+            modalVisible6:flag,
+        });
+    }
+    lookModal6=record=>{
+        this.setState({
+            modalVisible6:true,
+            record6:record,
+        });
+    }
+
+    render(){
+        return(
+          <div>
+              <Modal
+                title={"测试次数"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                footer={null}
+                width={1000}
+              >
+                  <div style={{height:'100%',margin:'3px'}}>
+                      <div>
+                          <div>
+                              <span className={"span1"}>用户名&nbsp;&nbsp;&nbsp;&nbsp;{this.props.record.nickName}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                          </div>
+                          <p>时间 {this.props.record.startDate+'-'+this.props.record.endDate}</p>
+                      </div>
+                      <div style={{heigh:"100%"}}>
+                          <Table
+                            columns={this.columns}
+                            dataSource={this.state.data}
+                            bordered={true}
+                            rowSelection={false}
+                            style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                            pagination={this.state.paginationProps}
+                            onChange={this.handleTableChange}
+                          />
+                      </div>
+                  </div>
+              </Modal>
+              {this.Modal9()}
+          </div>
+        )
+    }
+}
+//历史测试数据
+class Modal7 extends Component{
+    //初始化
+    constructor(props) {
+        super(props);
+        this.search();
+    }
+
+    //表格1数据以及函数
+    //常量数据部分
+
+    columns = [
+        {
+            title: '周期开始时间',
+            dataIndex: 'startDate',
+            width:150,
+        },
+        {
+            title: '周期结束时间',
+            dataIndex: 'endDate',
+            width:150,
+        },
+        {
+            title:'操作',
+            dataIndex:'operation',
+            width:150,
+            align:'center',
+            render:(text,record)=>(
+              <Space>
+                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal8(record)}}>查看</Button>
+              </Space>
+            ),
+        },
+    ];
+    //函数部分
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+
+    //得到输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        })
+    }
+    //表格行选择
+    onSelectChange = row => {
+        console.log('所选择行',row)
+        //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        this.setState(
+          {selectedRowKeys:row}
+        )
+    };
+    //翻页
+    handleTableChange = (pagination) =>{
+        //console.log(this.props.data.total);
+        let page={
+            page:pagination.current,
+            pageSize: pagination.pageSize,
+        };
+        this.requestData(page);
+        //this.setState({paginationProps:pagination});
+        //console.log(pagination)
+    };
+    //搜索
+    search= ()=> {
+        let page={
+            page:1,
+            pageSize:10,
+        }
+        this.requestData(page);
+    }
+    //重置
+    reset = () => {
+        console.log('重置',this.state.input);
+        let myInput=Object.keys(this.state.input);
+        let data = {};
+        for(let ii=0;ii<myInput.length;ii++){
+            data[myInput[ii]]='';
+        }
+        //this.state.input=data;
+        this.setState(
+          {
+              selectedRowKeys:[],
+              input:data,
+          },this.search
+        )
+        //this.search();
+    };
+    //请求表格数据
+    requestData=(page)=>{
+        let url="/user/test/data/his/data/list/"
+          +this.props.record.clientId+'/'+page.page+'/'+page.pageSize;
+        //console.log("request:",data);
+        ajax(url, {},'GET')
           .then((response)=>{
               console.log("response:",response);
               if(response.data.data==null)
@@ -2388,36 +3490,103 @@ class Modal3 extends Component{
 
     //弹窗函数
     //弹窗1
-    // //添加
-    // Modal = ()=>{
-    //     if(this.state.modalVisible)
-    //         return(
-    //           <Modal1
-    //             record={this.state.record}
-    //             visible={this.state.modalVisible}
-    //             setVisible={this.setModalvisible}
-    //           />
-    //         );
-    // }
-    // setModalvisible=(flag)=>{
-    //     this.setState({
-    //         modalVisible:flag,
-    //     });
-    // }
-    // lookModal=record=>{
-    //     this.setState({
-    //         modalVisible:true,
-    //         record:record,
-    //     });
-    // }
-    //弹窗2
-
-
+    //测试试剂数据
+    Modal = ()=>{
+        if(this.state.modalVisible)
+            return(
+              <Modal1
+                record={this.state.record}
+                visible={this.state.modalVisible}
+                setVisible={this.setModalvisible}
+              />
+            );
+    }
+    setModalvisible=(flag)=>{
+        this.setState({
+            modalVisible:flag,
+        });
+    }
+    lookModal=record=>{
+        console.log('?')
+        this.setState({
+            modalVisible:true,
+            record:record,
+        });
+    }
+    //弹窗6
+    //测试问题数据弹窗
+    Modal6 = ()=>{
+        if(this.state.modalVisible6)
+            return(
+              <Modal6
+                record={this.state.record6}
+                visible={this.state.modalVisible6}
+                setVisible={this.setModalvisible6}
+              />
+            );
+    }
+    setModalvisible6=(flag)=>{
+        this.setState({
+            modalVisible6:flag,
+        });
+    }
+    lookModal6=record=>{
+        this.setState({
+            modalVisible6:true,
+            record6:record,
+        });
+    }
+    //弹窗8
+    //测试次数弹窗
+    Modal8 = ()=>{
+        if(this.state.modalVisible8)
+            return(
+              <Modal8
+                record={this.state.record8}
+                visible={this.state.modalVisible8}
+                setVisible={this.setModalvisible8}
+              />
+            );
+    }
+    setModalvisible8=(flag)=>{
+        this.setState({
+            modalVisible8:flag,
+        });
+    }
+    lookModal8=record=>{
+        this.setState({
+            modalVisible8:true,
+            record8:record,
+        });
+    }
+    //弹窗10
+    //测试次数弹窗
+    Modal10 = ()=>{
+        if(this.state.modalVisible10)
+            return(
+              <Modal10
+                record={this.state.record10}
+                visible={this.state.modalVisible10}
+                setVisible={this.setModalvisible10}
+              />
+            );
+    }
+    setModalvisible10=(flag)=>{
+        this.setState({
+            modalVisible10:flag,
+        });
+    }
+    lookModal10=()=>{
+        this.setState({
+            modalVisible10:true,
+            record10:this.props.record,
+        });
+    }
     render(){
         return(
           <div>
               <Modal
-                title={"测试数据"}
+                title={"历史测试数据"}
                 centered
                 visible={this.props.visible}
                 onCancel={this.handleCancel}
@@ -2425,14 +3594,17 @@ class Modal3 extends Component{
                 width={1000}
               >
                   <div style={{height:'100%',margin:'3px'}}>
-                      {/*<Button*/}
-                      {/*    type="primary"*/}
-                      {/*    icon={<PlusOutlined  className="icon1" />}*/}
-                      {/*    onClick={this.add}*/}
-                      {/*    className="button1"*/}
-                      {/*>*/}
-                      {/*    添加*/}
-                      {/*</Button>*/}
+                      <div>
+                          <span className={"span1"}>用户名&nbsp;&nbsp;&nbsp;&nbsp;{this.props.record.nickName}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                          <Button
+                              type="primary"
+                              // icon={<PlusOutlined  className="icon1" />}
+                              onClick={this.lookModal10}
+                              className="button2"
+                          >
+                              查看日志
+                          </Button>
+                      </div>
                       <div style={{heigh:"100%"}}>
                           <Table
                             columns={this.columns}
@@ -2446,29 +3618,311 @@ class Modal3 extends Component{
                       </div>
                   </div>
               </Modal>
-              {/*{this.Modal()}*/}
+              {this.Modal8()}
+              {this.Modal10()}
           </div>
         )
     }
 }
-//发送事件
-class Modal2 extends Component{
+//问题试剂数据
+class Modal6 extends Component{
+    columns = [
+        {
+            title: '试剂',
+            dataIndex: 'paperName',
+            width:150,
+            sorter: {
+                compare: (a, b) => a.paperName - b.paperName,
+                multiple: 3,
+            },
+        },
+        {
+            title: '计划日期',
+            dataIndex: 'planTime',
+            width: 150,
+            sorter: {
+                compare: (a, b) => a.planTime - b.planTime,
+                multiple: 3,
+            },
+        },
+        {
+            title:'测试日期',
+            dataIndex:'testTime',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.testTime - b.testTime,
+                multiple: 3,
+            },
+        },
+        {
+            title:'条码',
+            dataIndex:'bathNumber',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.bathNumber - b.bathNumber,
+                multiple: 3,
+            },
+        },
+        {
+            title:'错误类型',
+            dataIndex:'errorType',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.errorType - b.errorType,
+                multiple: 3,
+            },
+        },
+        {
+            title:'问题图片',
+            dataIndex:'errorPicPathAli',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.errorPicPathAli - b.errorPicPathAli,
+                multiple: 3,
+            },
+            render: (text) =>
+              //   ////console.log("record的内容",record)
+              //<img src={text} width="100px" alt=""/>
+              <Image src={text} width="100px" alt=""/>
+        },
+
+    ];
     //初始化
     constructor(props) {
         super(props);
         //参数设置
-        let input={};
-        Object.assign(input,this.props.record);
-        console.log("init record:",input);
+        //console.log("init record:",input);
         this.state= {
-            //testTime: '',
-            input: input,
+            testTime: '',
         }
+        let page = {
+            page:1,
+            pageSize:10
+        }
+        this.requestData(page)
         //时间格式转换
         // let testTime=this.props.record.testTime;
         // let mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
         // this.state.testTime=mymoment;
     }
+    //函数部分
+    requestData=(page)=>{
+        let data={
+            ...page,
+        }
+        //console.log("request:",data);
+        ajax("/user/test/data/error/paper/list/"
+          +this.props.record.testTypeId,{},'GET')
+          .then((response)=>{
+              if(response.data.data===null){
+                  message.error("查询失败！")
+              }else{
+                  console.log(response)
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+
+          });
+        // ajax("/user/base/info/list",data,'POST')
+        //   .then((response)=>{
+        //       if(response.data.data==null){
+        //           console.log(response);
+        //           message.error("request error! code:"+response.data.code);
+        //       }else{
+        //           let data=response.data.data.info;
+        //           let paginationProps={...this.state.paginationProps};
+        //           addKey(data);
+        //           paginationProps.total=response.data.data.total;
+        //           paginationProps.current=page.page;
+        //           paginationProps.pageSize=page.pageSize;
+        //           console.log("data:",response);
+        //           this.setState({
+        //               data:data,
+        //               paginationProps:paginationProps,
+        //           });
+        //       }
+        //   });
+    }
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+    //点击完成
+    handleOk = () => {
+        // //console.log('添加完成')
+        // //console.log(this.form)
+        let form = this.form.current;
+        form.validateFields()//表单输入校验
+          .then((values) => {
+              let data={};
+              let myInput=Object.keys(this.state.input);
+              for(let ii=0;ii<myInput.length;ii++){
+                  if(this.state.input[myInput[ii]]!==""){
+                      data[myInput[ii]]=this.state.input[myInput[ii]];
+                  }
+              }
+              //data.patientId=this.props.record.patientId;
+              //data.loginId=this.props.record.loginId;
+              let url="/exam/login/add";
+              ////console.log("request:",data);
+              ajax(url,data,'POST')
+                .then((response)=>{
+                    if(response.data.code!==1002){
+                        ////console.log("请求错误！",response);
+                        message.error("添加失败！")
+                    }else{
+                        form.resetFields();
+                        ////console.log("添加成功：",response);
+                        //Object.assign(this.props.record,this.state.input);
+                        this.props.setVisible(false);
+                    }
+                });
+          })
+          .catch((info) => {
+              ////console.log('Validate Failed:', info);
+              message.error("表单验证出错！");
+          });
+
+
+    };
+
+    //时间选择函数
+    rangePickerOnChange=(value, dateString)=>{
+        //console.log('Selected Time: ', value);
+        //console.log('Formatted Selected Time: ', dateString);
+        let input = {};
+        Object.assign(input, this.state.input)
+        //this.state.input.testTime=dateString;
+        this.setState({
+            input:input,
+            testTime:value,
+        })
+    }
+    rangePickerOnOk=(value)=> {
+        //console.log('onOk: ', value);
+    }
+    //得到文本框输入
+    inputChange = (e,name) => {
+        ////console.log(name);
+        //let themename = e.target.name;
+        //console.log(themename)
+        ////console.log(e.target.name);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        });
+        //console.log(this.state);
+    }
+    //参数设置
+    // state={
+    //     //表格1数据
+    //     testTime:'',
+    //     input:{}
+    // };
+    //弹窗4
+    //添加计划
+    Modal = ()=>{
+        if(this.state.modalVisible)
+            return(
+              <Modal4
+                record={this.props.record}
+                visible={this.state.modalVisible}
+                setVisible={this.setModalvisible}
+              />
+            );
+    }
+    setModalvisible=(flag)=>{
+        this.setState({
+            modalVisible:flag,
+        });
+    }
+    lookModal=record=>{
+        this.setState({
+            modalVisible:true,
+            record:record,
+        });
+    }
+    //弹窗5
+    //修改计划
+    Modal5 = ()=>{
+        if(this.state.modalVisible5)
+            return(
+              <Modal5
+                record={this.state.record5}
+                visible={this.state.modalVisible5}
+                setVisible={this.setModalvisible5}
+              />
+            );
+    }
+    setModalvisible5=(flag)=>{
+        this.setState({
+            modalVisible5:flag,
+        });
+    }
+    lookModal5=record=>{
+        this.setState({
+            modalVisible5:true,
+            record5:record,
+        });
+    }
+    /*表单验证
+      Form.useForm是是 React Hooks 的实现，只能用于函数组件
+      class组件中通过 React.createRef()来获取数据域*/
+    form = React.createRef();
+    render(){
+        return(
+          <div>
+              {/* 弹窗 */}
+              <Modal
+                title={"问题试剂"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                footer={null}
+                width={1200}
+              >
+
+                  <div>
+                      <div style={{height:'100%',margin:'3px'}}>
+                          <Table
+                            columns={this.columns}
+                            dataSource={this.state.data}
+                            bordered={true}
+                            style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                            pagination={false}
+                          />
+                      </div>
+                  </div>
+              </Modal>
+          </div>
+        )
+    }
+}
+//修改测试数据
+class Modal5 extends Component{
+    //初始化
+    constructor(props) {
+        super(props);
+        console.log("record",this.props.record)
+    }
+
+    //表格1数据以及函数
+    //常量数据部分
+
     //函数部分
     //弹窗关闭函数
     handleCancel= ()=>{
@@ -2488,11 +3942,12 @@ class Modal2 extends Component{
                       data[myInput[ii]]=this.state.input[myInput[ii]];
                   }
               }
+              data.eupregnaTestPaperDataId = this.props.record.eupregnaTestPaperDataId;
               //data.patientId=this.props.record.patientId;
               //data.loginId=this.props.record.loginId;
-              let url="/user/managment";
+              let url="/user/test/data/modify/plan";
               //console.log("request:",data);
-              ajax(url,data,'GET')
+              ajax(url,data,'POST')
                 .then((response)=>{
                     if(response.data.code!==1000){
                         console.log("请求错误！",response);
@@ -2507,185 +3962,7 @@ class Modal2 extends Component{
           .catch((info) => {
               console.log('Validate Failed:', info);
           });
-
-
     };
-
-    //时间选择函数
-    rangePickerOnChange=(value, dateString)=>{
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
-        let input = {}
-        input.testTime=dateString;
-        this.setState({
-        input:input,
-        testTime:value,
-        })
-    }
-    rangePickerOnOk=(value)=> {
-        console.log('onOk: ', value);
-    }
-    //得到文本框输入
-    inputChange = (e,name) => {
-        //console.log(name);
-        let themename = e.target.name;
-        console.log(themename)
-        //console.log(e.target.name);
-        let source={};
-        source[name]=e.target.value;
-        this.setState({
-            input:Object.assign(this.state.input,source),
-        });
-        console.log(this.state);
-    }
-    //参数设置
-    // state={
-    //     //表格1数据
-    //     testTime:'',
-    //     input:{}
-    // };
-
-    /*表单验证
-      Form.useForm是是 React Hooks 的实现，只能用于函数组件
-      class组件中通过 React.createRef()来获取数据域*/
-    form = React.createRef();
-    render(){
-        return(
-          <div>
-              {/* 弹窗 */}
-              <Modal
-                title="修改"
-                centered
-                visible={this.props.visible}
-                onOk={this.handleOk}
-                okText="确定"
-                onCancel={this.handleCancel}
-                cancelText="关闭"
-                className="modal1"
-                width="700"
-              >
-                  <div className="modal-body" style={{height:"550px"}}>
-                      <Form
-                        labelCol={{ span: 5 }}
-                        wrapperCol={{ span: 16 }}
-                        layout="horizontal"
-                        ref={this.form}//表单验证，通过ref获取
-                        initialValues={this.state.input}
-                      >
-                          <Form.Item
-                            label="客户ID"
-                            name="clientId"
-                            rules={[
-                                {
-                                    required: true,
-                                    message: '请输入手机号!',
-                                },
-                            ]}
-                          >
-                              <Input onChange={(e)=>{this.inputChange(e,"clientId")}}
-                                     value={this.state.input.clientId}
-                              />
-                          </Form.Item>
-                          <Form.Item
-                            label="事件"
-                            name="eventId"
-                            rules={[{ required: true ,message:"请输入病人姓名"}]}//设置验证规则
-                          >
-                              <Input    onChange={(e)=>{this.inputChange(e,"eventId")}} value={this.state.input.eventId}/>
-                          </Form.Item>
-                      </Form>
-                  </div>
-              </Modal>
-          </div>
-        )
-    }
-}
-
-export default class UserManagement extends Component {
-    //初始化
-    constructor(props) {
-        super(props);
-        this.search();
-    }
-
-    //表格1数据以及函数
-    //常量数据部分
-    columns = [
-        {
-            title:'姓名',
-            dataIndex:'userName',
-            width:150,
-            align:'center',
-
-        },
-        {
-            title:'客户ID',
-            dataIndex:'clientId',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'设备号',
-            dataIndex:'deviceNo',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'月经周期',
-            dataIndex:'cycle',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'末次月经周期天数',
-            dataIndex:'lastCycleNumber',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'末次月经时间',
-            dataIndex:'lastBleeding',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'注册时间',
-            dataIndex:'regTime',
-            width:150,
-            align:'center',
-        },
-        {
-            title:'终止测试',
-            dataIndex:'eupregnaEnded',
-            width:150,
-            align:'center',
-            render:(text,record)=>(
-              <Switch checkedChildren="是" unCheckedChildren="否" checked={record.eupregnaEnded} onChange={()=>{this.eupregnaEndedChange(record)}}/>
-            )
-        },
-        {
-            title:'上传日志',
-            dataIndex:'uploadLogFlag',
-            width:150,
-            align:'center',
-            render:(text,record)=>(
-              <Switch checkedChildren="是" unCheckedChildren="否" checked={record.uploadLogFlag} onChange={()=>{this.updateLog(record)}}/>
-            )
-        },
-        {
-            title:'操作',
-            dataIndex:'operation',
-            width:300,
-            align:'center',
-            render:(text,record)=>(
-              <Space>
-                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.testData(record)}}>测试数据</Button>
-                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.sendEvent(record)}}>发送事件</Button>
-              </Space>
-            ),
-        },
-    ];
-    //函数部分
     //得到输入
     inputChange = (e,name) => {
         //console.log(name);
@@ -2742,6 +4019,1660 @@ export default class UserManagement extends Component {
     };
     //请求表格数据
     requestData=(page)=>{
+        let url="/user/test/data/list/"
+          +this.props.record.clientId+'/'+page.page+'/'+page.pageSize;
+        //console.log("request:",data);
+        ajax(url, {},'GET')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null)
+                  console.log("查询失败");
+              else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+          });
+    }
+    //按照搜索情况导出excel
+    exportSearch= ()=>{
+        let data={
+            page:1,
+            pageSize:10,
+        }
+        let myInput=Object.keys(this.state.input);
+        for(let ii=0;ii<myInput.length;ii++){
+            if(this.state.input[myInput[ii]]!==""){
+                data[myInput[ii]]=this.state.input[myInput[ii]];
+            }
+        }
+        console.log("exportFile input:",data);
+        //exportFile("/exam/data/export/login/condition",data);
+        exportFile('/user/base/info/export/condition',{});
+        //console.log("request:",data);
+        // ajax("/exam/data/export/login/condition",data,'POST')
+        //     .then((response)=>{
+        //         console.log(response);
+        //     }).catch(e=>{
+        //     console.log("search error!",e);
+        // });
+    }
+    //添加弹窗
+    add=(record)=>{
+        this.lookModal(record);
+    }
+
+    //表格2数据以及函数
+
+    //参数设置
+    state={
+        //弹窗
+        modalVisible:false,
+        //表格1数据
+        input:{
+        },
+        paginationProps:{
+            position:['bottomLeft'],
+            total:0,
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true,
+        },
+        selectedRowKeys:[],
+        data:[
+            {
+                key:1,
+                patientName:"test",
+                testNumber: "test",
+            }
+        ],
+        record:{
+            loginName:"",
+        },
+
+        //表格2数据
+
+
+    };
+
+    //弹窗函数
+    //弹窗1
+    //测试试剂数据
+    Modal = ()=>{
+        if(this.state.modalVisible)
+            return(
+              <Modal1
+                record={this.state.record}
+                visible={this.state.modalVisible}
+                setVisible={this.setModalvisible}
+              />
+            );
+    }
+    setModalvisible=(flag)=>{
+        this.setState({
+            modalVisible:flag,
+        });
+    }
+    lookModal=record=>{
+        console.log('?')
+        this.setState({
+            modalVisible:true,
+            record:record,
+        });
+    }
+    //弹窗2
+
+    form = React.createRef();
+    render(){
+        return(
+          <div>
+              <Modal
+                title={"修改测试计划"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                onOk={this.handleOk}
+                okText={'提交'}
+                cancelText={'取消'}
+                className="modal1"
+              >
+                  <div className="ant-modal-body" >
+                      <div className="modal-body" style={{height:"100%"}}>
+                          <Form
+                            labelCol={{ span: 5 }}
+                            wrapperCol={{ span: 16 }}
+                            layout="horizontal"
+                            name="addPlan"
+                            onFinish={this.onFinish}
+                            onFinishFailed={this.onFinishFailed}
+                            ref={this.form}//表单验证，通过ref获取
+                          >
+                              <Form.Item
+                                label="用户"
+                                name="用户"
+                              >
+                                  <span>{this.props.record.nickName}</span>
+                              </Form.Item>
+                              <Form.Item label="试剂"
+                                         name={"试剂"}
+                              >
+                                  <span >{this.props.record.paperName}</span>
+                              </Form.Item>
+                              <Form.Item label="测试集"
+                                         name={"测试集"}
+                              >
+                                  <span>{this.props.record.testSetName}</span>
+                              </Form.Item>
+                              <Form.Item label="计划时间"
+                                         name={"计划时间"}
+                                         rules={[
+                                             {
+                                                 required: true,
+                                                 message: '请输入计划时间!',
+                                             },
+                                         ]}
+                              >
+                                  <Input  placeholder={"请输入计划时间"} onChange={(e)=>{this.inputChange(e,"planTime")}}
+                                          value={this.state.input.planTime}
+                                  />
+                              </Form.Item>
+                              <Form.Item label="超时时间"
+                                         name={"超时时间"}
+                                         rules={[
+                                             {
+                                                 required: true,
+                                                 message: '请输入超时时间!',
+                                             },
+                                         ]}
+                              >
+                                  <Input  placeholder={"请输入超时时间"}onChange={(e)=>{this.inputChange(e,"timeout")}}
+                                          value={this.state.input.timeout}
+                                  />
+                              </Form.Item>
+                              <Form.Item label="计划添加原因"
+                                         name={"计划添加原因"}
+                              >
+                                  <Input  placeholder={"请输入计划添加原因"} onChange={(e)=>{this.inputChange(e,"planResume")}}
+                                          value={this.state.input.planResume}
+                                  />
+                              </Form.Item>
+                          </Form>
+                      </div>
+                  </div>
+              </Modal>
+          </div>
+        )
+    }
+}
+//添加测试数据
+class Modal4 extends Component{
+    //初始化
+    constructor(props) {
+        super(props);
+        this.requestData();
+    }
+
+    //表格1数据以及函数
+    //常量数据部分
+
+    //函数部分
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+    //点击完成
+    handleOk = () => {
+        console.log('修改')
+        console.log(this.form)
+        let form = this.form.current;
+        form.validateFields()//表单输入校验
+          .then((values) => {
+              let data={};
+              let myInput=Object.keys(this.state.input);
+              for(let ii=0;ii<myInput.length;ii++){
+                  if(this.state.input[myInput[ii]]!==""){
+                      data[myInput[ii]]=this.state.input[myInput[ii]];
+                  }
+              }
+              //data.patientId=this.props.record.patientId;
+              //data.loginId=this.props.record.loginId;
+              let url="/user/managment";
+              //console.log("request:",data);
+              ajax(url,data,'GET')
+                .then((response)=>{
+                    if(response.data.code!==1000){
+                        console.log("请求错误！",response);
+                    }else{
+                        form.resetFields();
+                        console.log("修改成功：",response);
+                        //Object.assign(this.props.record,this.state.input);
+                        this.props.setVisible(false);
+                    }
+                });
+          })
+          .catch((info) => {
+              console.log('Validate Failed:', info);
+          });
+    };
+    //得到输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        })
+    }
+    //表格行选择
+    onSelectChange = row => {
+        console.log('所选择行',row)
+        //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        this.setState(
+          {selectedRowKeys:row}
+        )
+    };
+    //翻页
+    handleTableChange = (pagination) =>{
+        //console.log(this.props.data.total);
+        let page={
+            page:pagination.current,
+            pageSize: pagination.pageSize,
+        };
+        this.requestData(page);
+        //this.setState({paginationProps:pagination});
+        //console.log(pagination)
+    };
+    //搜索
+    search= ()=> {
+        let page={
+            page:1,
+            pageSize:10,
+        }
+        this.requestData(page);
+    }
+    //重置
+    reset = () => {
+        console.log('重置',this.state.input);
+        let myInput=Object.keys(this.state.input);
+        let data = {};
+        for(let ii=0;ii<myInput.length;ii++){
+            data[myInput[ii]]='';
+        }
+        //this.state.input=data;
+        this.setState(
+          {
+              selectedRowKeys:[],
+              input:data,
+          },this.search
+        )
+        //this.search();
+    };
+    //请求表格数据
+    requestData=(page)=>{
+        let url="/user/test/data/all/plan/type"
+        ajax(url, {},'GET')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null)
+                  console.log("查询失败");
+              else{
+                  let data=response.data.data;
+                  console.log("keys data:",response);
+                  this.setState({
+                      data:data,
+                  });
+              }
+          });
+    }
+    //按照搜索情况导出excel
+    exportSearch= ()=>{
+        let data={
+            page:1,
+            pageSize:10,
+        }
+        let myInput=Object.keys(this.state.input);
+        for(let ii=0;ii<myInput.length;ii++){
+            if(this.state.input[myInput[ii]]!==""){
+                data[myInput[ii]]=this.state.input[myInput[ii]];
+            }
+        }
+        console.log("exportFile input:",data);
+        //exportFile("/exam/data/export/login/condition",data);
+        exportFile('/user/base/info/export/condition',{});
+        //console.log("request:",data);
+        // ajax("/exam/data/export/login/condition",data,'POST')
+        //     .then((response)=>{
+        //         console.log(response);
+        //     }).catch(e=>{
+        //     console.log("search error!",e);
+        // });
+    }
+    //添加弹窗
+    add=(record)=>{
+        this.lookModal(record);
+    }
+    //Select 选项
+    optplanType(){
+        let ii = 1;
+        return(
+          this.state.data.map((item)=>{
+              ii = ii+1;
+              return(<Option key = {ii} title="planType" value={item.planTypeId}>{item.planTypeName}</Option>)
+          })
+        )
+    }
+    //表格2数据以及函数
+
+    //参数设置
+    state={
+        //弹窗
+        modalVisible:false,
+        //表格1数据
+        input:{
+        },
+        paginationProps:{
+            position:['bottomLeft'],
+            total:0,
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true,
+        },
+        selectedRowKeys:[],
+        data:[
+        ],
+        record:{
+            loginName:"",
+        },
+
+        //表格2数据
+
+
+    };
+
+    //弹窗函数
+    //弹窗1
+    //测试试剂数据
+    // Modal = ()=>{
+    //     if(this.state.modalVisible)
+    //         return(
+    //           <Modal1
+    //             record={this.state.record}
+    //             visible={this.state.modalVisible}
+    //             setVisible={this.setModalvisible}
+    //           />
+    //         );
+    // }
+    // setModalvisible=(flag)=>{
+    //     this.setState({
+    //         modalVisible:flag,
+    //     });
+    // }
+    // lookModal=record=>{
+    //     console.log('?')
+    //     this.setState({
+    //         modalVisible:true,
+    //         record:record,
+    //     });
+    // }
+    //弹窗2
+
+
+    render(){
+        return(
+          <div>
+              <Modal
+                title={"添加测试计划"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                onOk={this.handleOk}
+                okText={'提交'}
+                cancelText={'取消'}
+                className="modal1"
+              >
+                  <div className="ant-modal-body" >
+                      <div className="modal-body" style={{height:"100%"}}>
+                          <Form
+                            labelCol={{ span: 5 }}
+                            wrapperCol={{ span: 16 }}
+                            layout="horizontal"
+                            name="addPlan"
+                            onFinish={this.onFinish}
+                            onFinishFailed={this.onFinishFailed}
+                          >
+                              <Form.Item
+                                label="用户"
+                                name="用户"
+                              >
+                                  <span>{this.props.record.nickName}</span>
+                              </Form.Item>
+                              <Form.Item label="试剂"
+                                         name={"试剂"}
+                              >
+                                  <span >{this.props.record.paperName}</span>
+                              </Form.Item>
+                              <Form.Item label="测试集"
+                                         name={"测试集"}
+                              >
+                                  <span>{this.props.record.testSetName}</span>
+                              </Form.Item>
+                              <Form.Item label="计划时间"
+                                         name={"计划时间"}
+                                         rules={[
+                                             {
+                                                 required: true,
+                                                 message: '请输入计划时间!',
+                                             },
+                                         ]}
+                              >
+                                  <Input  placeholder={"请输入计划时间"} />
+                              </Form.Item>
+                              <Form.Item label="计划类型"
+                                         name={"计划类型"}
+                                         rules={[
+                                             {
+                                                 required: true,
+                                                 message: '请选择计划类型!',
+                                             },
+                                         ]}
+                              >
+                                  <Select
+                                    placeholder="请选择计划类型 "
+                                    style={{width:'100%'}}
+                                    value={this.state.input.planType}
+                                    onChange={this.handleChange}>
+                                      {this.optplanType()}
+                                  </Select>
+                              </Form.Item>
+                              <Form.Item label="超时时间"
+                                         name={"超时时间"}
+                                         rules={[
+                                             {
+                                                 required: true,
+                                                 message: '请输入超时时间!',
+                                             },
+                                         ]}
+                              >
+                                  <Input  placeholder={"请输入超时时间"} />
+                              </Form.Item>
+                              {/*<Form.Item label="计划添加原因"*/}
+                              {/*           name={"计划添加原因"}*/}
+                              {/*>*/}
+                              {/*    <Input  placeholder={"请输入计划添加原因"} />*/}
+                              {/*</Form.Item>*/}
+                          </Form>
+                      </div>
+                  </div>
+              </Modal>
+          </div>
+        )
+    }
+}
+//测试数据
+class Modal3 extends Component{
+    //初始化
+    constructor(props) {
+        super(props);
+        this.search();
+    }
+
+    //表格1数据以及函数
+    //常量数据部分
+
+    columns = [
+        {
+            title: '测试类型',
+            dataIndex: 'testType',
+            width:150,
+        },
+        {
+            title: '测试次数',
+            dataIndex: 'testCount',
+            width:150,
+        },
+        {
+            title: '末次测试状态',
+            dataIndex: 'lastTestStatus',
+            width: 150,
+        },
+        {
+            title:'末次测试结论',
+            dataIndex:'lastTestConclude',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'末次测试时间',
+            dataIndex:'lastTestDate',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'末次测试状态',
+            dataIndex:'lastTestStatus',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'操作',
+            dataIndex:'operation',
+            width:150,
+            align:'center',
+            render:(text,record)=>(
+              <Space>
+                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal(record)}}>测试试剂数据</Button>
+                  <Button size="small" style={{color:'white',background:'#ff5621'}} onClick={()=>{this.lookModal6(record)}}>测试试剂问题数据</Button>
+              </Space>
+            ),
+        },
+    ];
+    //函数部分
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+
+    //得到输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        })
+    }
+    //表格行选择
+    onSelectChange = row => {
+        console.log('所选择行',row)
+        //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        this.setState(
+          {selectedRowKeys:row}
+        )
+    };
+    //翻页
+    handleTableChange = (pagination) =>{
+        //console.log(this.props.data.total);
+        let page={
+            page:pagination.current,
+            pageSize: pagination.pageSize,
+        };
+        this.requestData(page);
+        //this.setState({paginationProps:pagination});
+        //console.log(pagination)
+    };
+    //搜索
+    search= ()=> {
+        let page={
+            page:1,
+            pageSize:10,
+        }
+        this.requestData(page);
+    }
+    //重置
+    reset = () => {
+        console.log('重置',this.state.input);
+        let myInput=Object.keys(this.state.input);
+        let data = {};
+        for(let ii=0;ii<myInput.length;ii++){
+            data[myInput[ii]]='';
+        }
+        //this.state.input=data;
+        this.setState(
+          {
+              selectedRowKeys:[],
+              input:data,
+          },this.search
+        )
+        //this.search();
+    };
+    //请求表格数据
+    requestData=(page)=>{
+        let url="/user/test/data/list/"
+          +this.props.record.clientId+'/'+page.page+'/'+page.pageSize;
+        //console.log("request:",data);
+        ajax(url, {},'GET')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null)
+                  console.log("查询失败");
+              else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+          });
+    }
+    //按照搜索情况导出excel
+    exportSearch= ()=>{
+        let data={
+            page:1,
+            pageSize:10,
+        }
+        let myInput=Object.keys(this.state.input);
+        for(let ii=0;ii<myInput.length;ii++){
+            if(this.state.input[myInput[ii]]!==""){
+                data[myInput[ii]]=this.state.input[myInput[ii]];
+            }
+        }
+        console.log("exportFile input:",data);
+        //exportFile("/exam/data/export/login/condition",data);
+        exportFile('/user/base/info/export/condition',{});
+        //console.log("request:",data);
+        // ajax("/exam/data/export/login/condition",data,'POST')
+        //     .then((response)=>{
+        //         console.log(response);
+        //     }).catch(e=>{
+        //     console.log("search error!",e);
+        // });
+    }
+    //添加弹窗
+    add=(record)=>{
+        this.lookModal(record);
+    }
+
+    //表格2数据以及函数
+
+    //参数设置
+    state={
+        //弹窗
+        modalVisible:false,
+        //表格1数据
+        input:{
+        },
+        paginationProps:{
+            position:['bottomLeft'],
+            total:0,
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true,
+        },
+        selectedRowKeys:[],
+        data:[
+            {
+                key:1,
+                patientName:"test",
+                testNumber: "test",
+            }
+        ],
+        record:{
+            loginName:"",
+        },
+
+        //表格2数据
+
+
+    };
+
+    //弹窗函数
+    //弹窗1
+    //测试试剂数据
+    Modal = ()=>{
+        if(this.state.modalVisible){
+            let record = this.state.record;
+            record.nickName = this.props.record.nickName;
+            return(
+              <Modal1
+                record={record}
+                visible={this.state.modalVisible}
+                setVisible={this.setModalvisible}
+              /> );
+        }
+    }
+    setModalvisible=(flag)=>{
+        this.setState({
+            modalVisible:flag,
+        });
+    }
+    lookModal=record=>{
+        console.log('?')
+        this.setState({
+            modalVisible:true,
+            record:record,
+        });
+    }
+    //弹窗6
+    //测试问题数据弹窗
+    Modal6 = ()=>{
+        if(this.state.modalVisible6)
+            return(
+              <Modal6
+                record={this.state.record6}
+                visible={this.state.modalVisible6}
+                setVisible={this.setModalvisible6}
+              />
+            );
+    }
+    setModalvisible6=(flag)=>{
+        this.setState({
+            modalVisible6:flag,
+        });
+    }
+    lookModal6=record=>{
+        this.setState({
+            modalVisible6:true,
+            record6:record,
+        });
+    }
+
+    render(){
+        return(
+          <div>
+              <Modal
+                title={"测试数据"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                footer={null}
+                width={1000}
+              >
+                  <div style={{height:'100%',margin:'3px'}}>
+                      {/*<Button*/}
+                      {/*    type="primary"*/}
+                      {/*    icon={<PlusOutlined  className="icon1" />}*/}
+                      {/*    onClick={this.add}*/}
+                      {/*    className="button1"*/}
+                      {/*>*/}
+                      {/*    添加*/}
+                      {/*</Button>*/}
+                      <div style={{heigh:"100%"}}>
+                          <Table
+                            columns={this.columns}
+                            dataSource={this.state.data}
+                            bordered={true}
+                            rowSelection={false}
+                            style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                            pagination={this.state.paginationProps}
+                            onChange={this.handleTableChange}
+                          />
+                      </div>
+                  </div>
+              </Modal>
+              {this.Modal()}
+              {this.Modal6()}
+          </div>
+        )
+    }
+}
+//发送事件
+class Modal2 extends Component{
+    //初始化
+    constructor(props) {
+        super(props);
+        //参数设置
+        let input={};
+        //Object.assign(input,this.props.record);
+       // console.log("init record:",input);
+        this.state= {
+            //testTime: '',
+            input: input,
+        }
+        //时间格式转换
+        // let testTime=this.props.record.testTime;
+        // let mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
+        // this.state.testTime=mymoment;
+    }
+    //函数部分
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+    //点击完成
+    handleOk = () => {
+        console.log('修改')
+        console.log(this.form)
+        let form = this.form.current;
+        form.validateFields()//表单输入校验
+          .then((values) => {
+              let data={};
+              let myInput=Object.keys(this.state.input);
+              for(let ii=0;ii<myInput.length;ii++){
+                  if(this.state.input[myInput[ii]]!==""){
+                      data[myInput[ii]]=this.state.input[myInput[ii]];
+                  }
+              }
+              data.clientId=this.props.record.clientId;
+              //data.loginId=this.props.record.loginId;
+              let url="/user/test/data/add/item";
+              //console.log("request:",data);
+              ajax(url,data,'POST')
+                .then((response)=>{
+                    if(response.data.code!==1000){
+                        console.log("请求错误！",response);
+                    }else{
+                        form.resetFields();
+                        console.log("发送成功：",response);
+                        //Object.assign(this.props.record,this.state.input);
+                        this.props.setVisible(false);
+                    }
+                });
+          })
+          .catch((info) => {
+              console.log('Validate Failed:', info);
+          });
+    };
+
+    //时间选择函数
+    rangePickerOnChange=(value, dateString)=>{
+        console.log('Selected Time: ', value);
+        console.log('Formatted Selected Time: ', dateString);
+        let input = {}
+        Object.assign(input,this.state.input)
+        input.eventDate=dateString.split(' ')[0];
+        input.addPlanTime=dateString.split(' ')[1];
+        this.setState({
+            input:input,
+        })
+    }
+    rangePickerOnOk=(value)=> {
+        console.log('onOk: ', value);
+    }
+    //得到文本框输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        let themename = e.target.name;
+        console.log(themename)
+        //console.log(e.target.name);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        });
+        console.log(this.state);
+    }
+    //选择框
+    selectChange =(e,Option) => {
+        console.log(e)
+        console.log(Option)
+        this.setState({
+            input:Object.assign(this.state.input,{[Option.title]:e})
+        })
+    }
+    //参数设置
+    // state={
+    //     //表格1数据
+    //     testTime:'',
+    //     input:{}
+    // };
+
+    /*表单验证
+      Form.useForm是是 React Hooks 的实现，只能用于函数组件
+      class组件中通过 React.createRef()来获取数据域*/
+    form = React.createRef();
+    render(){
+        return(
+          <div>
+              {/* 弹窗 */}
+              <Modal
+                title="修改"
+                centered
+                visible={this.props.visible}
+                onOk={this.handleOk}
+                okText="确定"
+                onCancel={this.handleCancel}
+                cancelText="关闭"
+                width={600}
+              >
+                  <div className="modal-body" style={{height:"550px"}}>
+                      <Form
+                        labelCol={{ span: 5 }}
+                        wrapperCol={{ span: 16 }}
+                        layout="horizontal"
+                        ref={this.form}//表单验证，通过ref获取
+                        initialValues={this.state.input}
+                      >
+                          <Form.Item
+                            label="时间"
+                            name="eventDate"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: '请选择时间!',
+                                },
+                            ]}
+                          >
+                              <DatePicker
+                                format="YYYY-MM-DD HH:mm:ss"
+                                showTime={{ defaultValue: moment('00:00:00', 'HH:mm:ss') }}
+                                onChange = {this.rangePickerOnChange}
+                              />
+                          </Form.Item>
+                          <Form.Item
+                            label="事件"
+                            name="eventId"
+                            rules={[{ required: true ,message:"请输入病人姓名"}]}//设置验证规则
+                          >
+                              <Select placeholder="请选择激活状态 "
+                                      onChange={this.selectChange}
+                                      className="input1"
+                                      value={this.state.input.eventContent}
+                              >
+                                  <Option title="eventContent" value="has_bleeding">来月经</Option>
+                                  <Option title="eventContent" value="has_sex">同房</Option>
+                                  <Option title="eventContent" value="has_embryo">怀孕</Option>
+                              </Select>
+                          </Form.Item>
+                      </Form>
+                  </div>
+              </Modal>
+          </div>
+        )
+    }
+}
+//测试试剂数据
+class Modal1 extends Component{
+        columns1 = [
+        {
+            title: '序号',
+            dataIndex: 'key',
+            width:150,
+        },
+        {
+            title: '试剂',
+            dataIndex: 'paperName',
+            width:150,
+            sorter: {
+                compare: (a, b) => a.paperName - b.paperName,
+                multiple: 3,
+            },
+        },
+        {
+            title: '计划日期',
+            dataIndex: 'planTime',
+            width: 150,
+            sorter: {
+                compare: (a, b) => a.planTime - b.planTime,
+                multiple: 3,
+            },
+        },
+        {
+            title:'超时时间',
+            dataIndex:'timeout',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.timeout - b.timeout,
+                multiple: 3,
+            },
+        },
+        {
+            title:'测试状态',
+            dataIndex:'testStatus',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.testStatus - b.testStatus,
+                multiple: 3,
+            },
+        },
+        {
+            title:'操作',
+            dataIndex:'patient_createTime',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.patient_name - b.patient_name,
+                multiple: 3,
+            },
+            render:(text,record)=>(
+                <Space>
+                    <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal5(record)}}>修改</Button>
+                </Space>
+            ),
+        },
+    ];
+        columns2 = [
+        {
+            title: '序号',
+            dataIndex: 'key',
+            width:150,
+            fixed: 'left',
+        },
+        {
+            title: '试剂',
+            dataIndex: 'paperName',
+            width:150,
+            sorter: {
+                compare: (a, b) => a.paperName - b.paperName,
+                multiple: 3,
+            },
+        },
+        {
+            title: '测试日期',
+            dataIndex: 'testTime',
+            width: 150,
+            sorter: {
+                compare: (a, b) => a.testTime - b.testTime,
+                multiple: 3,
+            },
+        },
+        {
+            title: '计划日期',
+            dataIndex: 'planTime',
+            width: 150,
+            sorter: {
+                compare: (a, b) => a.planTime - b.planTime,
+                multiple: 3,
+            },
+        },
+        {
+            title:'数值',
+            dataIndex:'value',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.value - b.value,
+                multiple: 3,
+            },
+        },
+        {
+            title:'GOD',
+            dataIndex:'tgod',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.tgod - b.tgod,
+                multiple: 3,
+            },
+        },
+        {
+            title:'批号',
+            dataIndex:'bathNumber',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.bathNumber - b.bathNumber,
+                multiple: 3,
+            },
+        },
+        {
+            title:'设备号',
+            dataIndex:'deviceNo',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.deviceNo - b.deviceNo,
+                multiple: 3,
+            },
+        },
+        {
+            title:'结果',
+            dataIndex:'result',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.result - b.result,
+                multiple: 3,
+            },
+        },
+        {
+            title:'测试状态',
+            dataIndex:'testStatus',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.testStatus - b.testStatus,
+                multiple: 3,
+            },
+        },
+        {
+            title:'测试图片',
+            dataIndex:'testPicPathAli',
+            width:150,
+            align:'center',
+            render: (text) =>
+              //   ////console.log("record的内容",record)
+              //<img src={text} width="100px" alt=""/>
+              <Image src={text} width="100px" alt=""/>
+        },
+        {
+            title:'C线图片',
+            dataIndex:'testCLinePicPathAli',
+            width:150,
+            align:'center',
+            render: (text) =>
+              //   ////console.log("record的内容",record)
+              //<img src={text} width="100px" alt=""/>
+              <Image src={text} width="100px" alt=""/>
+        },
+        {
+            title:'C线GOD',
+            dataIndex:'cgod',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.cgod - b.cgod,
+                multiple: 3,
+            },
+        },
+        {
+            title:'FSH/LH',
+            dataIndex:'fshLh',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.fshLh - b.fshLh,
+                multiple: 3,
+            },
+        },
+        {
+            title:'LH/FSH',
+            dataIndex:'lhFsh',
+            width:150,
+            align:'center',
+            sorter: {
+                compare: (a, b) => a.lhFsh - b.lhFsh,
+                multiple: 3,
+            },
+        },
+        // {
+        //     title:'操作',
+        //     width:150,
+        //     align:'center',
+        //     render:(text,record)=>(
+        //         <Space>
+        //             <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.markButtonModal(record)}}>标曲</Button>
+        //         </Space>
+        //     ),
+        // },
+    ];
+    //初始化
+    constructor(props) {
+        super(props);
+        //参数设置
+        let input={};
+        Object.assign(input,this.props.record);
+        //console.log("init record:",input);
+        this.state= {
+            testTime: '',
+            input: input,
+        }
+        let page = {
+            page:1,
+            pageSize:10
+        }
+        this.requestData2(page).then(this.requestData1(page))
+        //时间格式转换
+        // let testTime=this.props.record.testTime;
+        // let mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
+        // this.state.testTime=mymoment;
+    }
+    //函数部分
+    requestData1=(page)=>{
+        let data={
+            ...page,
+        }
+        console.log("request:",data);
+        console.log("???")
+        ajax("/user/test/data/detail/list/"
+          +this.props.record.clientId+'/'+this.props.record.testTypeId, {},'GET')
+          .then((response)=>{
+              if(response.data.data===null){
+                  message.error("查询失败！")
+                  console.log('error',response)
+              }else{
+                  //console.log(response)
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data1:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+
+          });
+        // ajax("/user/base/info/list",data,'POST')
+        //   .then((response)=>{
+        //       if(response.data.data==null){
+        //           console.log(response);
+        //           message.error("request error! code:"+response.data.code);
+        //       }else{
+        //           let data=response.data.data.info;
+        //           let paginationProps={...this.state.paginationProps};
+        //           addKey(data);
+        //           paginationProps.total=response.data.data.total;
+        //           paginationProps.current=page.page;
+        //           paginationProps.pageSize=page.pageSize;
+        //           console.log("data:",response);
+        //           this.setState({
+        //               data:data,
+        //               paginationProps:paginationProps,
+        //           });
+        //       }
+        //   });
+    }
+    requestData2=(page)=>{
+        let data={
+            ...page,
+        }
+        console.log("request:",data);
+        console.log('req2')
+        let Promis = ajax("/user/test/data/detail/plan/list/"
+          +this.props.record.clientId+'/'+this.props.record.testTypeId, {},'GET')
+          .then((response)=>{
+              if(response.data.data===null){
+                  message.error("查询失败！")
+              }else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("request2 data:",response);
+                  this.setState({
+                      data2:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+
+          });
+        return Promis;
+        // ajax("/user/base/info/list",data,'POST')
+        //   .then((response)=>{
+        //       if(response.data.data==null){
+        //           console.log(response);
+        //           message.error("request error! code:"+response.data.code);
+        //       }else{
+        //           let data=response.data.data.info;
+        //           let paginationProps={...this.state.paginationProps};
+        //           addKey(data);
+        //           paginationProps.total=response.data.data.total;
+        //           paginationProps.current=page.page;
+        //           paginationProps.pageSize=page.pageSize;
+        //           console.log("data:",response);
+        //           this.setState({
+        //               data:data,
+        //               paginationProps:paginationProps,
+        //           });
+        //       }
+        //   });
+    }
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+    //点击完成
+    handleOk = () => {
+        // //console.log('添加完成')
+        // //console.log(this.form)
+        let form = this.form.current;
+        form.validateFields()//表单输入校验
+          .then((values) => {
+              let data={};
+              let myInput=Object.keys(this.state.input);
+              for(let ii=0;ii<myInput.length;ii++){
+                  if(this.state.input[myInput[ii]]!==""){
+                      data[myInput[ii]]=this.state.input[myInput[ii]];
+                  }
+              }
+              //data.patientId=this.props.record.patientId;
+              //data.loginId=this.props.record.loginId;
+              let url="/exam/login/add";
+              ////console.log("request:",data);
+              ajax(url,data,'POST')
+                .then((response)=>{
+                    if(response.data.code!==1002){
+                        ////console.log("请求错误！",response);
+                        message.error("添加失败！")
+                    }else{
+                        form.resetFields();
+                        ////console.log("添加成功：",response);
+                        //Object.assign(this.props.record,this.state.input);
+                        this.props.setVisible(false);
+                    }
+                });
+          })
+          .catch((info) => {
+              ////console.log('Validate Failed:', info);
+              message.error("表单验证出错！");
+          });
+
+
+    };
+
+    //时间选择函数
+    rangePickerOnChange=(value, dateString)=>{
+        //console.log('Selected Time: ', value);
+        //console.log('Formatted Selected Time: ', dateString);
+        let input = {};
+        Object.assign(input, this.state.input)
+        //this.state.input.testTime=dateString;
+        this.setState({
+            input:input,
+            testTime:value,
+        })
+    }
+    rangePickerOnOk=(value)=> {
+        //console.log('onOk: ', value);
+    }
+    //得到文本框输入
+    inputChange = (e,name) => {
+        ////console.log(name);
+        //let themename = e.target.name;
+        //console.log(themename)
+        ////console.log(e.target.name);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        });
+        //console.log(this.state);
+    }
+    //参数设置
+    // state={
+    //     //表格1数据
+    //     testTime:'',
+    //     input:{}
+    // };
+    //弹窗4
+    //添加计划
+    Modal = ()=>{
+        if(this.state.modalVisible)
+            return(
+              <Modal4
+                record={this.props.record}
+                visible={this.state.modalVisible}
+                setVisible={this.setModalvisible}
+              />
+            );
+    }
+    setModalvisible=(flag)=>{
+        this.setState({
+            modalVisible:flag,
+        });
+    }
+    lookModal=()=>{
+        let record4 = this.props.record;
+        // record4.testSetName = this.props.record.testSetName
+        // record4.nickName = this.props.record.nickName
+        record4.paperName = ''
+        for(let i = 0;i<this.state.data1.length;i++){
+            if(record4.paperName!==this.state.data1[i].paperName){
+                if(record4.paperName===''){
+                    record4.paperName = this.state.data1[i].paperName;
+                }else{
+                    record4.paperName = record4.paperName+' , '+this.state.data1[i].paperName
+                    break;
+                }
+            }
+        }
+        console.log(record4)
+        // record4
+        this.setState({
+            modalVisible:true,
+            record:record4,
+        });
+    }
+    //弹窗5
+    //修改计划
+    Modal5 = ()=>{
+        if(this.state.modalVisible5)
+        {
+            return(
+              <Modal5
+                record={this.state.record5}
+                visible={this.state.modalVisible5}
+                setVisible={this.setModalvisible5}
+              />
+            );
+        }
+    }
+    setModalvisible5=(flag)=>{
+        this.setState({
+            modalVisible5:flag,
+        });
+    }
+    lookModal5=record=>{
+        let record5 = record;
+        record5.testSetName = this.props.record.testSetName
+        record5.nickName = this.props.record.nickName
+
+        this.setState({
+            modalVisible5:true,
+            record5:record5,
+        });
+    }
+    /*表单验证
+      Form.useForm是是 React Hooks 的实现，只能用于函数组件
+      class组件中通过 React.createRef()来获取数据域*/
+    form = React.createRef();
+    render(){
+        return(
+          <div>
+              {/* 弹窗 */}
+              <Modal
+                title={"测试试剂数据"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                footer={null}
+                width={1200}
+              >
+                  <div>
+                      <div>
+                          <span className={"span1"}>用户名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{this.props.record.nickName}</span>
+                      </div>
+                      <div>
+                          <span className={"span1"}>测试类型&nbsp; {this.props.record.testType}</span>
+                      </div>
+                      <div>
+                          这里有一个表，后面做
+                      </div>
+                  </div>
+
+                  <div>
+                      <Button
+                        type="primary"
+                        icon={<PlusOutlined  className="icon1" />}
+                        onClick={this.lookModal}
+                        className="button2"
+                        block
+                      >
+                          添加计划
+                      </Button>
+                      <div style={{height:'100%',margin:'3px'}}>
+                          <Table
+                            columns={this.columns1}
+                            dataSource={this.state.data1}
+                            bordered={true}
+                            style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                            pagination={false}
+                          />
+                      </div>
+                  </div>
+
+                  <div>
+                      <div>
+                          <span className={"span1"}>测试数据</span>
+                      </div>
+                      <div style={{height:'100%',margin:'3px'}}>
+                          <Table
+                            columns={this.columns2}
+                            dataSource={this.state.data2}
+                            bordered={true}
+                            style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                            pagination={false}
+                            scroll={{ x: 1000 }}
+                          />
+                      </div>
+                  </div>
+
+              </Modal>
+              {this.Modal()}
+              {this.Modal5()}
+          </div>
+        )
+    }
+}
+
+export default class UserManagement extends Component {
+    //初始化
+    constructor(props) {
+        super(props);
+        this.search();
+    }
+
+    //表格1数据以及函数
+    //常量数据部分
+    columns = [
+        {
+            title:'用户名',
+            dataIndex:'nickName',
+            width:150,
+            align:'center',
+
+        },
+        {
+            title:'电话',
+            dataIndex:'phone',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'当前设备号',
+            dataIndex:'deviceCode',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'生理周期',
+            dataIndex:'cycle',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'末次月经周期天数',
+            dataIndex:'lastCycleNumber',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'末次月经时间',
+            dataIndex:'lastBleeding',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'注册时间',
+            dataIndex:'regTime',
+            width:150,
+            align:'center',
+        },
+        {
+            title:'终止测试',
+            dataIndex:'eupregnaEnded',
+            width:150,
+            align:'center',
+            // render:(text,record)=>(
+            //   <Switch checkedChildren="是" unCheckedChildren="否" checked={record.ended} onChange={()=>{this.eupregnaEndedChange(record)}}/>
+            // )
+            render:(text,record)=>{return(<Switch checkedChildren="是" unCheckedChildren="否" checked={record.eupregnaEnded} onChange={()=>{this.eupregnaEndedChange(record)}}/>)
+            }
+        },
+        {
+            title:'上传日志',
+            dataIndex:'uploadLogFlag',
+            width:150,
+            align:'center',
+            render:(text,record)=>(
+              <Switch checkedChildren="是" unCheckedChildren="否" checked={record.uploadLogFlag} onChange={()=>{this.updateLog(record)}}/>
+            )
+        },
+        {
+            title:'操作',
+            dataIndex:'operation',
+            width:300,
+            align:'center',
+            render:(text,record)=>(
+              <Space>
+                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.testData(record)}}>测试数据</Button>
+                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal7(record)}}>历史测试数据</Button>
+                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal2(record)}}>发送事件</Button>
+              </Space>
+            ),
+        },
+    ];
+    //函数部分
+    //得到输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        })
+    }
+    //表格行选择
+    onSelectChange = row => {
+        console.log('所选择行',row)
+        //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        this.setState(
+          {selectedRowKeys:row}
+        )
+    };
+    //翻页
+    handleTableChange = (pagination) =>{
+        //console.log(this.props.data.total);
+        let page={
+            page:pagination.current,
+            pageSize: pagination.pageSize,
+        };
+        this.requestData(page);
+        //this.setState({paginationProps:pagination});
+        //console.log(pagination)
+    };
+    //搜索
+    search= ()=> {
+        let page={
+            page:1,
+            pageSize:10,
+        }
+        this.requestData(page);
+    }
+    //重置
+    reset = () => {
+        console.log('重置',this.state.input);
+        let myInput=Object.keys(this.state.input);
+        let data = {};
+        for(let ii=0;ii<myInput.length;ii++){
+            data[myInput[ii]]='';
+        }
+        //this.state.input=data;
+        this.setState(
+          {
+              rangePickerData:undefined,
+              selectedRowKeys:[],
+              input:data,
+          },this.search
+        )
+        //this.search();
+    };
+    //请求表格数据
+    requestData=(page)=>{
         let data={
             ...page,
         }
@@ -2752,19 +5683,24 @@ export default class UserManagement extends Component {
             }
         }
         console.log("request:",data);
-        ajax("/user/managment/test/list",data,'POST')
+        ajax("/user/management/test/list",data,'POST')
           .then((response)=>{
-              let data=response.data.data.info;
-              let paginationProps={...this.state.paginationProps};
-              addKey(data);
-              paginationProps.total=response.data.data.total;
-              paginationProps.current=page.page;
-              paginationProps.pageSize=page.pageSize;
-              console.log("data:",response);
-              this.setState({
-                  data:data,
-                  paginationProps:paginationProps,
-              });
+              if(response.data.data===null){
+                  message.error("查询失败！")
+              }else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+
           });
         // ajax("/user/base/info/list",data,'POST')
         //   .then((response)=>{
@@ -2811,33 +5747,53 @@ export default class UserManagement extends Component {
     }
     //终止测试
     eupregnaEndedChange=(record)=>{
-        console.log("eupregnaEndedChange!");
+        //console.log("eupregnaEndedChange!");
+        let myMap = {}
+        myMap[false] = 1;
+        myMap[true] = 0;
         let data={};
-        data.eupregnaEnded=record.eupregnaEnded;
         data.clientId=record.clientId;
+        data.eupregnaEnded = myMap[record.eupregnaEnded];
         //console.log("request:",data);
-        ajax("/user/managment",data,'GET')
+        ajax("/user/base/test/stop/"
+          +data.clientId+'/'+data.eupregnaEnded, {},'GET')
           .then((response)=>{
-              if(response.data.code!==1000){
+              if(response.data.code!==1004){
                   console.log("请求错误！",response);
               }else{
                   console.log("修改成功：",response);
+                  record.eupregnaEnded = !record.eupregnaEnded;
+                  this.setState({})
+                  // let mydata = []
+                  // Object.assign(mydata,this.state.data)
+                  // console.log(mydata)
+                  // this.setState({
+                  //     data:mydata
+                  // })
+
               }
           });
     }
     //上传日志
     updateLog=(record)=>{
         console.log("updateLog!");
+        let myMap = {}
+        myMap[false] = 1;
+        myMap[true] = 0;
         let data={};
-        data.uploadLogFlag=record.uploadLogFlag;
+        data.uploadLogFlag=myMap[record.uploadLogFlag];
         data.clientId=record.clientId;
         //console.log("request:",data);
-        ajax("/user/managment",data,'GET')
+        ajax("/user/base/log/update/"
+          +data.clientId+'/'+data.uploadLogFlag, {},'GET')
           .then((response)=>{
-              if(response.data.code!==1000){
+              if(response.data.code!==1004){
                   console.log("请求错误！",response);
               }else{
                   console.log("修改成功：",response);
+                  record.uploadLogFlag = !record.uploadLogFlag;
+                  this.setState({})
+                  console.log(this.state.data)
               }
           });
     }
@@ -2845,8 +5801,27 @@ export default class UserManagement extends Component {
     testData=(record)=>{
         this.lookModal3(record);
     }
-    sendEvent=(record)=>{
-        this.lookModal2(record);
+    //得到输入时间
+    rangePickerDataChange=(datas,dateStrings)=>{
+        ////console.log("timeTest!");
+        ////console.log(datas);
+        ////console.log(dateStrings);
+        let input = {}
+        input.startTime=dateStrings[0]+" 00:00:00";
+        input.endTime=dateStrings[1]+" 23:59:59";
+        this.setState({
+            input:input,
+            rangePickerData:datas,
+        })
+    }
+    RadioInputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        },this.search)
     }
     //表格2数据以及函数
 
@@ -2943,7 +5918,29 @@ export default class UserManagement extends Component {
             record3:record,
         });
     }
-
+    // //弹窗7
+    //历史测试数据
+    Modal7 = ()=>{
+        if(this.state.modalVisible7)
+            return(
+              <Modal7
+                record={this.state.record7}
+                visible={this.state.modalVisible7}
+                setVisible={this.setModalvisible7}
+              />
+            );
+    }
+    setModalvisible7=(flag)=>{
+        this.setState({
+            modalVisible7:flag,
+        });
+    }
+    lookModal7=record=>{
+        this.setState({
+            modalVisible7:true,
+            record7:record,
+        });
+    }
 
     render() {
         const { selectedRowKeys } = this.state;
@@ -2955,9 +5952,10 @@ export default class UserManagement extends Component {
           <div style={{height:"100%"}}>
               <div style={{'margin':'0 0 15px 0'}}>
                   <div justify="space-between" gutter="15" style={{display:"flex"}}>
-                      <Input placeholder={'客户'} className={'input1'} onChange={(e)=>{this.inputChange(e,"clientId")}} value={this.state.input.clientId}/>
-                      <Input placeholder={'手机号'} className={'input1'} onChange={(e)=>{this.inputChange(e,"phone")}} value={this.state.input.phone}/>
-                      <Input placeholder={'设备号'} className={'input1'} onChange={(e)=>{this.inputChange(e,"deviceNo")}} value={this.state.input.deviceNo}/>
+                      <Input placeholder={'用户名'} className={'input1'} onChange={(e)=>{this.inputChange(e,"nickName")}} value={this.state.input.nickName}/>
+                      <Input placeholder={'电话'} className={'input1'} onChange={(e)=>{this.inputChange(e,"phone")}} value={this.state.input.phone}/>
+                      <Input placeholder={'设备码'} className={'input1'} onChange={(e)=>{this.inputChange(e,"deviceCode")}} value={this.state.input.deviceCode}/>
+                      <RangePicker value={this.state.rangePickerData} onChange={(data,datastrings)=>{this.rangePickerDataChange(data,datastrings)}}></RangePicker>
                       <Button
                         type={"primary"}
                         icon={<SearchOutlined className={"icon1"}/> }
@@ -2974,7 +5972,17 @@ export default class UserManagement extends Component {
                       >
                           重置
                       </Button>
-                  </div>
+                </div>
+                <div>
+                    <Radio.Group onChange={(e)=>{this.RadioInputChange(e,"radioValue")}} value={this.state.input.radioValue} defaultValue={''}>
+                        <Radio value={''}><span className={"span2"}>全部</span></Radio>
+                        <Radio value={1}><span className={"span2"}>有效用户</span></Radio>
+                        <Radio value={2}><span className={"span2"}>今日已测试用户</span></Radio>
+                        <Radio value={3}><span className={"span2"}>今日有测试计划用户</span></Radio>
+                        <Radio value={4}><span className={"span2"}>今日漏测用户</span></Radio>
+                        <Radio value={5}><span className={"span2"}>今日报警用户</span></Radio>
+                    </Radio.Group>
+                </div>
               </div>
               {/*表格*/}
               <div style={{heigh:"100%"}}>
@@ -2984,12 +5992,14 @@ export default class UserManagement extends Component {
                     bordered={true}
                     rowSelection={rowSelection}
                     style={{margin:"20px 0",borderBottom:'1px,soild'}}
+                    scroll={{ y: 550 }}
                     pagination={this.state.paginationProps}
                     onChange={this.handleTableChange}
                   />
               </div>
               {this.Modal3()}
               {this.Modal2()}
+              {this.Modal7()}
           </div>
         )
     }

@@ -218,7 +218,7 @@ class ModifyDetailPatientInfoModal extends Component{
         return(
           this.dataTable.allPatientName.map((item)=>{
               ii = ii+1;
-              return(<Option key = {ii} title="patientId" value={item.patientId}>{item.patientName+"  Id: " + item.patientId}</Option>)
+              return(<Option key = {ii} title="patientId" value={item.patientId}>{item.patientName}</Option>)
           })
         )
     }

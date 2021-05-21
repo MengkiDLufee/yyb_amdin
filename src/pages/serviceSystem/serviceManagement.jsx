@@ -519,6 +519,7 @@ class Modal1 extends Component{
         this.state= {
             testTime: '',
             input: input,
+            csServiceRecordId:null,
         }
         //时间格式转换
         // let testTime=this.props.record.testTime;
@@ -528,6 +529,19 @@ class Modal1 extends Component{
     //函数部分
     //弹窗关闭函数
     handleCancel= ()=>{
+        if(this.state.csServiceRecordId===null){
+
+        }else{
+            let url = '/customer/management/chat/upload/pic/delete/'+this.state.csServiceRecordId
+            ajax(url, {},'GET')
+              .then((response)=>{
+                  if(response.data.code!==1006){
+                      console.log("请求错误！",response);
+                  }else{
+                      console.log("修改成功：",response);
+                  }
+              });
+        }
         this.props.setVisible(false);
     }
     //点击完成
@@ -606,7 +620,8 @@ class Modal1 extends Component{
                 Object.assign(input,this.state.input)
                 input.csServiceRecordId = e.file.response.data;
                 this.setState({
-                    input:input
+                    input:input,
+                    csServiceRecordId:e.file.response.data
                 })
             }
             else{

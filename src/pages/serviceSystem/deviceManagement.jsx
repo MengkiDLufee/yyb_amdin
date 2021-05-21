@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Space, Modal, Form, message} from 'antd';
-//import { DatePicker} from 'antd';
+import {Table, Button, Input, Space, Modal, Form, message, DatePicker, Select} from 'antd';
 import { Radio } from 'antd';
 //import { Switch } from 'antd';
+import moment from 'moment';
+
 import {ReloadOutlined,
     SearchOutlined ,
 //    PlusOutlined,
@@ -16,8 +17,10 @@ import './index.less'
 import ajax from "../../api/ajax";
 import addKey from "../../api/addKey";
 import {exportFile} from "../../api";
+
 const { TextArea } = Input;
-//const { Option } = Select;
+const { Option } = Select;
+const { Moment } = moment;
 
 // class PatientTable extends Component{
 //     columns = [
@@ -287,13 +290,28 @@ class Modal3 extends Component{
     //常量数据部分
     columns = [
         {
-            title: '设备码',
-            dataIndex: 'deviceCode',
+            title: '用户名',
+            dataIndex: 'userName',
             width:150,
         },
         {
-            title: '客户ID',
-            dataIndex: 'clientId',
+            title: '使用版本类型',
+            dataIndex: 'appType',
+            width:150,
+        },
+        {
+            title: '是否激活',
+            dataIndex: 'userFlag',
+            width:150,
+        },
+        {
+            title: '绑定时间',
+            dataIndex: 'bindTime',
+            width:150,
+        },
+        {
+            title: '解绑时间',
+            dataIndex: 'unbindTime',
             width:150,
         },
     ];
@@ -359,11 +377,10 @@ class Modal3 extends Component{
     };
     //请求表格数据
     requestData=(page)=>{
-        let data={};
-        data.deviceCode=this.props.record.deviceCode;
-        let url="/device/managment/user";
+        let url="/device/manage/history/user/list/"
+        +this.props.record.deviceId+'/'+page.page+'/'+page.pageSize;
         //console.log("request:",data);
-        ajax(url,data,'POST')
+        ajax(url,{},'GET')
           .then((response)=>{
               console.log("response:",response);
               if(response.data.data===null||response.data.data===undefined)
@@ -516,16 +533,30 @@ class Modal2 extends Component{
         super(props);
         //参数设置
         let input={};
+
         Object.assign(input,this.props.record);
+
         console.log("init record:",input);
-        this.state= {
-            //testTime: '',
-            input: input,
+        this.state = {
+            input:input,
         }
         //时间格式转换
         // let testTime=this.props.record.testTime;
         // let mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
         // this.state.testTime=mymoment;
+    }
+    componentDidMount = ()=>{
+        let input = this.state.input
+        if(input.renewalTime!==null)
+            input.renewalTime = moment(input.renewalTime)
+        if(input.activeTime!==null)
+            input.activeTime = moment(input.activeTime)
+        if(input.fixTime!==null)
+            input.fixTime = moment(input.fixTime)
+        this.form.current.setFieldsValue(input);
+        this.setState({
+            input:input
+        })
     }
     //函数部分
     //弹窗关闭函数
@@ -536,23 +567,33 @@ class Modal2 extends Component{
     handleOk = () => {
         console.log('修改')
         console.log(this.form)
+        console.log(typeof(this.state.input.renewalTime))
         let form = this.form.current;
         form.validateFields()//表单输入校验
             .then((values) => {
                 let data={};
                 let myInput=Object.keys(this.state.input);
                 for(let ii=0;ii<myInput.length;ii++){
-                    if(this.state.input[myInput[ii]]!==""){
+                    if(this.state.input[myInput[ii]]===null){
+
+                    }
+                    else if(this.state.input[myInput[ii]]._isAMomentObject){
+                        console.log('get it')
+                        console.log(this.state.input[myInput[ii]])
+                        data[myInput[ii]] = this.state.input[myInput[ii]].format('YYYY-MM-DD h:mm:ss')
+                        console.log(data[myInput[ii]])
+                    }
+                    else if(this.state.input[myInput[ii]]!==""){
                         data[myInput[ii]]=this.state.input[myInput[ii]];
                     }
                 }
                 //data.patientId=this.props.record.patientId;
                 //data.loginId=this.props.record.loginId;
-                let url="/device/managment/modify";
-                //console.log("request:",data);
+                let url="/device/manage/info/modify";
+                console.log("request:",data);
                 ajax(url,data,'POST')
                     .then((response)=>{
-                        if(response.data.code!==1000){
+                        if(response.data.code!==1004){
                             console.log("请求错误！",response);
                         }else{
                             form.resetFields();
@@ -570,14 +611,15 @@ class Modal2 extends Component{
     };
 
     //时间选择函数
-    rangePickerOnChange=(value, dateString)=>{
+    rangePickerOnChange=(value, dateString,name)=>{
         console.log('Selected Time: ', value);
         console.log('Formatted Selected Time: ', dateString);
+        console.log('name ', name);
         let input = {}
-        input.testTime=dateString;
+        Object.assign(input,this.state.input)
+        input[name]=value;
         this.setState({
             input:input,
-            testTime:value,
         })
     }
     rangePickerOnOk=(value)=> {
@@ -640,62 +682,208 @@ class Modal2 extends Component{
                     okText="确定"
                     onCancel={this.handleCancel}
                     cancelText="关闭"
-                    className="modal1"
-                    width="700"
+                    width={700}
+                    forceRender={true}
+
                 >
-                    <div className="modal-body" style={{height:"550px"}}>
-                        <Form
-                            labelCol={{ span: 5 }}
-                            wrapperCol={{ span: 16 }}
-                            layout="horizontal"
-                            ref={this.form}//表单验证，通过ref获取
-                            initialValues={this.state.input}
-                        >
-                            <Form.Item
-                                label="设备码"
-                                name="deviceCode"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: '请输入设备码!',
-                                    },
-                                ]}
+                    <div className="ant-modal-body">
+                        <div className="modal-body" style={{height:"550px"}}>
+                            <Form
+                                labelCol={{ span: 5 }}
+                                wrapperCol={{ span: 16 }}
+                                layout="horizontal"
+                                ref={this.form}//表单验证，通过ref获取
+                                // initialValues={this.state.input}
                             >
-                                <Input onChange={(e)=>{this.inputChange(e,"deviceCode")}}
-                                       value={this.state.input.deviceCode}
-                                />
-                            </Form.Item>
-                            <Form.Item
-                                label="是否激活"
-                                name="available"
-                                rules={[{ required: true ,message:"请选择是否激活"}]}//设置验证规则
-                            >
-                                <Radio.Group onChange={(e)=>{this.radioChange(e,"available")}} value={this.state.input.available}>
-                                    <Radio value={1}>是</Radio>
-                                    <Radio value={0}>否</Radio>
-                                </Radio.Group>
-                            </Form.Item>
-                            <Form.Item
-                              label="是否已用"
-                              name="active"
-                              rules={[{ required: true ,message:"请选择是否已用"}]}//设置验证规则
-                            >
-                                <Radio.Group onChange={(e)=>{this.radioChange(e,"active")}} value={this.state.input.active}>
-                                    <Radio value={1}>是</Radio>
-                                    <Radio value={0}>否</Radio>
-                                </Radio.Group>
-                            </Form.Item>
-                            <Form.Item
-                              label="是否共享"
-                              name="shared"
-                              rules={[{ required: true ,message:"请选择是否共享"}]}//设置验证规则
-                            >
-                                <Radio.Group onChange={(e)=>{this.radioChange(e,"shared")}} value={this.state.input.shared}>
-                                    <Radio value={1}>是</Radio>
-                                    <Radio value={0}>否</Radio>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Form>
+                                <Form.Item
+                                    label="设备码"
+                                    name="deviceCode"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            message: '请输入设备码!',
+                                        },
+                                    ]}
+                                >
+                                    <Input onChange={(e)=>{this.inputChange(e,"deviceCode")}}
+                                           value={this.state.input.deviceNo}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                  label="设备号"
+                                  name="deviceNo"
+                                  rules={[
+                                      {
+                                          required: true,
+                                          message: '请输入设备码!',
+                                      },
+                                  ]}
+                                >
+                                    <Input onChange={(e)=>{this.inputChange(e,"deviceNo")}}
+                                           value={this.state.input.deviceNo}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                  label="硬件版本"
+                                  name="hardwareVersion"
+                                  rules={[
+                                  ]}
+                                >
+                                    <Input onChange={(e)=>{this.inputChange(e,"hardwareVersion")}}
+                                           value={this.state.input.hardwareVersion}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                  label="软件版本"
+                                  name="softareVersion"
+                                  rules={[
+                                  ]}
+                                >
+                                    <Input onChange={(e)=>{this.inputChange(e,"softareVersion")}}
+                                           value={this.state.input.softareVersion}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                  label="更新时间"
+                                  name="renewalTime"
+                                  rules={[
+                                  ]}
+                                >
+                                    <DatePicker showToday showTime onChange={(data,dataString)=>{this.rangePickerOnChange(data,dataString,'renewalTime')}} onOk={this.rangePickerOnOk} value={this.state.input.renewalTime}/>
+                                </Form.Item>
+                                <Form.Item
+                                  label="蓝牙密码"
+                                  name="blePassword"
+                                  rules={[
+                                  ]}
+                                >
+                                    <Input onChange={(e)=>{this.inputChange(e,"blePassword")}}
+                                           value={this.state.input.blePassword}
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                  label="是否激活"
+                                  name="available"
+                                  rules={[{ required: true ,message:"请选择是否激活"}]}//设置验证规则
+                                >
+                                    <Radio.Group onChange={(e)=>{this.radioChange(e,"available")}} value={this.state.input.available}>
+                                        <Radio value={'1'}>是</Radio>
+                                        <Radio value={'0'}>否</Radio>
+                                    </Radio.Group>
+                                </Form.Item>
+                                <Form.Item
+                                  label="是否已用"
+                                  name="active"
+                                  rules={[{ required: true ,message:"请选择是否已用"}]}//设置验证规则
+                                >
+                                    <Radio.Group onChange={(e)=>{this.radioChange(e,"active")}} value={this.state.input.active}>
+                                        <Radio value={'1'}>是</Radio>
+                                        <Radio value={'0'}>否</Radio>
+                                    </Radio.Group>
+                                </Form.Item>
+
+                                <Form.Item
+                                  label="激活时间"
+                                  name="activeTime"
+                                  rules={[
+                                  ]}
+                                >
+                                    <DatePicker showToday showTime
+                                                onChange={(data,dataString)=>
+                                                {this.rangePickerOnChange(data,dataString,'activeTime')}}
+                                                onOk={this.rangePickerOnOk} value={this.state.input.activeTime}/>
+                                </Form.Item>
+                                <Form.Item
+                                  label="是否共享"
+                                  name="shared"
+                                  rules={[{ required: true ,message:"请选择是否共享"}]}//设置验证规则
+                                >
+                                    <Radio.Group onChange={(e)=>{this.radioChange(e,"shared")}} value={this.state.input.shared}>
+                                        <Radio value={'1'}>是</Radio>
+                                        <Radio value={'0'}>否</Radio>
+                                    </Radio.Group>
+                                </Form.Item>
+                                <Form.Item
+                                  label="矫正倍数"
+                                  name="adjust"
+                                  rules={[
+                                      {
+                                          required: true,
+                                          message: '请输入矫正倍数!',
+                                      },
+                                  ]}
+                                >
+                                    <Input onChange={(e)=>{this.inputChange(e,"adjust")}}
+                                           value={this.state.input.adjust}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                  label="类型"
+                                  name="target"
+                                  rules={[
+                                  ]}
+                                >
+                                    <Select
+                                      placeholder="请选择病人Id "
+                                      style={{width:'100%'}}
+                                      value={this.state.input.target}
+                                      onChange={this.selectChange}>
+                                        <Option title="target" value="device_normnal">正常</Option>
+                                        <Option title="target" value="device_testing">测试</Option>
+                                        <Option title="target" value="eupregna">优孕保</Option>
+                                        <Option title="target" value="eupregna_testing">优孕保测试</Option>
+                                        <Option title="target" value="professional_normal">专业正常</Option>
+                                        <Option title="target" value="professional_testing">专业测试</Option>
+                                        <Option title="target" value="research">研究</Option>
+                                        <Option title="target" value="other">其他</Option>
+                                        <Option title="target" value="other_test">其他测试</Option>
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item
+                                  label="状态"
+                                  name="status"
+                                  rules={[
+                                  ]}
+                                >
+                                    <Select
+                                      placeholder="请选择状态 "
+                                      style={{width:'100%'}}
+                                      value={this.state.input.status}
+                                      onChange={this.selectChange}>
+                                        <Option title="status" value="no_test">未测试</Option>
+                                        <Option title="status" value="pass">测试通过</Option>
+                                        <Option title="status" value="no_pass">测试未通过</Option>
+                                        <Option title="status" value="repair">返修</Option>
+                                        <Option title="status" value="cannot_use">存在故障,完全无法使用</Option>
+                                        <Option title="status" value="use_no_testvalue">存在故障，可用但影响测试值</Option>
+                                        <Option title="status" value="temporary_use">存在故障，可临时用</Option>
+                                        <Option title="status" value="discard">废弃</Option>
+                                    </Select>
+                                </Form.Item>
+                                <Form.Item
+                                  label="备注"
+                                  name="memo"
+                                  rules={[
+                                  ]}
+                                >
+                                    <TextArea rows={4} onChange={(e)=>{this.inputChange(e,"memo")}} value={this.state.input.memo}/>
+                                </Form.Item>
+
+                                <Form.Item
+                                  label="返修时间"
+                                  name="fixTime"
+                                  rules={[
+                                  ]}
+                                >
+                                    <DatePicker showToday showTime
+                                                onChange={(data,dataString)=>
+                                                {this.rangePickerOnChange(data,dataString,'fixTime')}}
+                                                onOk={this.rangePickerOnOk} value={this.state.input.fixTime}/>
+
+                                </Form.Item>
+                            </Form>
+                        </div>
                     </div>
                 </Modal>
             </div>
@@ -769,6 +957,7 @@ class Modal1 extends Component{
         console.log('Selected Time: ', value);
         console.log('Formatted Selected Time: ', dateString);
         let input = {}
+        Object.assign(input,this.state.input)
         input.testTime=dateString;
         this.setState({
         input:input,
@@ -904,7 +1093,7 @@ export default class DeviceManagement_Serve extends Component {
         },
         {
             title:'绑定用户',
-            dataIndex:'clientId',
+            dataIndex:'nickName',
             width:150,
             align:'center',
         },
@@ -913,18 +1102,36 @@ export default class DeviceManagement_Serve extends Component {
             dataIndex:'available',
             width:150,
             align:'center',
+            render:(text)=>{
+                if(text==='1')
+                    return(<span>已激活</span>)
+                else
+                    return(<span>未激活</span>)
+            }
         },
         {
             title:'使用状态',
             dataIndex:'active',
             width:150,
             align:'center',
+            render:(text)=>{
+                if(text==='1')
+                    return(<span>使用中</span>)
+                else
+                    return(<span>使用中</span>)
+            }
         },
         {
             title:'是否共享',
             dataIndex:'shared',
             width:150,
             align:'center',
+            render:(text)=>{
+                if(text==='1')
+                    return(<span>共享</span>)
+                else
+                    return(<span>未共享</span>)
+            }
         },
         {
             title:'操作',
@@ -961,21 +1168,21 @@ export default class DeviceManagement_Serve extends Component {
     //翻页
     handleTableChange = (pagination) =>{
         //console.log(this.props.data.total);
-        // let page={
-        //     page:pagination.current,
-        //     pageSize: pagination.pageSize,
-        // };
-        this.requestData();
+        let page={
+            page:pagination.current,
+            pageSize: pagination.pageSize,
+        };
+        this.requestData(page);
         //this.setState({paginationProps:pagination});
         //console.log(pagination)
     };
     //搜索
     search= ()=> {
-        // let page={
-        //     page:1,
-        //     pageSize:10,
-        // }
-        this.requestData();
+        let page={
+            page:1,
+            pageSize:10,
+        }
+        this.requestData(page);
     }
     //重置
     reset = () => {
@@ -995,9 +1202,9 @@ export default class DeviceManagement_Serve extends Component {
         //this.search();
     };
     //请求表格数据
-    requestData=()=>{
+    requestData=(page)=>{
         let data={
-            //...page,
+            ...page,
         }
         let myInput=Object.keys(this.state.input);
         for(let ii=0;ii<myInput.length;ii++){
@@ -1006,16 +1213,16 @@ export default class DeviceManagement_Serve extends Component {
             }
         }
         //console.log("request:",data);
-        ajax("/device/managment/list",data,'POST')
+        ajax("/device/management/list",data,'POST')
             .then((response)=>{
                 //console.log(response);
-                if(response.code===1000){
+                if(response.data.code===1000){
                     let data=response.data.data.info;
                     let paginationProps={...this.state.paginationProps};
                     addKey(data);
                     paginationProps.total=response.data.data.total;
-                    paginationProps.current=1;
-                    paginationProps.pageSize=10;
+                    paginationProps.current=page.page;
+                    paginationProps.pageSize=page.pageSize;
                     console.log("data:",response);
                     this.setState({
                         data:data,
@@ -1025,6 +1232,7 @@ export default class DeviceManagement_Serve extends Component {
                     // console.log("/device/managment/list error!")
                     // console.log(response);
                     message.error("请求错误！")
+                    console.log(response)
                 }
             });
     }
@@ -1082,7 +1290,7 @@ export default class DeviceManagement_Serve extends Component {
         },
         //表格1数据
         input:{
-            deviceCode:"",
+            deviceNo:"",
         },
         paginationProps:{
             position:['bottomLeft'],

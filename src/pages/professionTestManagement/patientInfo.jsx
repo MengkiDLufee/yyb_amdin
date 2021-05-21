@@ -967,6 +967,7 @@ class Modal2 extends Component{
         //console.log('Selected Time: ', value);
         //console.log('Formatted Selected Time: ', dateString);
         let input = {}
+        Object.assign(input,this.state.input)
         input.testTime=dateString;
         this.setState({
         input:input,
@@ -1221,6 +1222,7 @@ class Modal1 extends Component{
         //console.log('Selected Time: ', value);
         //console.log('Formatted Selected Time: ', dateString);
         let input = {}
+        Object.assign(input,this.state.input)
         input.testTime=dateString;
         this.setState({
         input:input,
