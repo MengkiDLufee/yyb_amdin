@@ -2209,11 +2209,18 @@ const { Option } = Select;
 // }
 //查看日志
 //历史测试数据 修改数据
+
+//
 class Modal11 extends Component{
     //初始化
     constructor(props) {
         super(props);
         console.log("record",this.props.record)
+        let input = {};
+        Object.assign(input,this.props.record);
+        this.state = {
+            input:input
+        }
     }
 
     //表格1数据以及函数
@@ -2226,7 +2233,7 @@ class Modal11 extends Component{
     }
     //点击完成
     handleOk = () => {
-        console.log('修改')
+        console.log('修改???')
         console.log(this.form)
         let form = this.form.current;
         form.validateFields()//表单输入校验
@@ -2245,6 +2252,7 @@ class Modal11 extends Component{
               console.log("request:",data);
               ajax(url,data,'POST')
                 .then((response)=>{
+                    console.log("???",response);
                     if(response.data.code!==1004){
                         console.log("请求错误！",response);
                     }else{
@@ -2425,9 +2433,10 @@ class Modal11 extends Component{
                             onFinish={this.onFinish}
                             onFinishFailed={this.onFinishFailed}
                             ref={this.form}//表单验证，通过ref获取
+                            initialValues={this.state.input}
                           >
                               <Form.Item label="数值"
-                                         name={"数值"}
+                                         name={"value"}
                                          rules={[
                                          ]}
                               >
@@ -2436,7 +2445,7 @@ class Modal11 extends Component{
                                   />
                               </Form.Item>
                               <Form.Item label="GOD"
-                                         name={"GOD"}
+                                         name={"tgod"}
                                          rules={[
                                          ]}
                               >
@@ -2445,7 +2454,7 @@ class Modal11 extends Component{
                                   />
                               </Form.Item>
                               <Form.Item label="CGOD"
-                                         name={"CGOD"}
+                                         name={"cgod"}
                                          rules={[
                                          ]}
                               >
@@ -2670,7 +2679,7 @@ class Modal10 extends Component{
         )
     }
 }
-//测试次数 历史测试数据弹窗
+//title测试试剂数据,在测试次数的历史测试数据弹窗中
 class Modal9 extends Component{
     columns = [
         {
@@ -3034,6 +3043,7 @@ class Modal9 extends Component{
                             bordered={true}
                             style={{margin:"20px 0",borderBottom:'1px,soild'}}
                             pagination={false}
+                            scroll={{x:500}}
                           />
                       </div>
                   </div>
@@ -3918,6 +3928,21 @@ class Modal5 extends Component{
     constructor(props) {
         super(props);
         console.log("record",this.props.record)
+        let input = {}
+        input.planTime = this.props.record.planTime
+        input.timeout = this.props.record.timeout
+        input.planResume = this.props.record.planResume
+        let planTime=this.props.record.planTime;
+        let mymoment = '';
+        console.log('修改input',input);
+        if(planTime!==null)mymoment = moment(planTime,'YYYY-MM-DD HH:mm:ss');
+        this.state={
+            planTime:mymoment,
+            input:input
+        }
+    }
+    componentDidMount = ()=>{
+        this.form.current.setFieldsValue(this.state.input)
     }
 
     //表格1数据以及函数
@@ -3949,13 +3974,15 @@ class Modal5 extends Component{
               //console.log("request:",data);
               ajax(url,data,'POST')
                 .then((response)=>{
-                    if(response.data.code!==1000){
+                    if(response.data.code!==1004){
                         console.log("请求错误！",response);
                     }else{
                         form.resetFields();
                         console.log("修改成功：",response);
                         //Object.assign(this.props.record,this.state.input);
+                        message.success('修改成功')
                         this.props.setVisible(false);
+
                     }
                 });
           })
@@ -4146,7 +4173,7 @@ class Modal5 extends Component{
               >
                   <div className="ant-modal-body" >
                       <div className="modal-body" style={{height:"100%"}}>
-                          <Form
+                          <Form 
                             labelCol={{ span: 5 }}
                             wrapperCol={{ span: 16 }}
                             layout="horizontal"
@@ -4154,6 +4181,7 @@ class Modal5 extends Component{
                             onFinish={this.onFinish}
                             onFinishFailed={this.onFinishFailed}
                             ref={this.form}//表单验证，通过ref获取
+                            
                           >
                               <Form.Item
                                 label="用户"
@@ -4172,7 +4200,8 @@ class Modal5 extends Component{
                                   <span>{this.props.record.testSetName}</span>
                               </Form.Item>
                               <Form.Item label="计划时间"
-                                         name={"计划时间"}
+                                         initialValue={this.state.planTime}
+                                         name={"myplanTime"}
                                          rules={[
                                              {
                                                  required: true,
@@ -4180,12 +4209,10 @@ class Modal5 extends Component{
                                              },
                                          ]}
                               >
-                                  <Input  placeholder={"请输入计划时间"} onChange={(e)=>{this.inputChange(e,"planTime")}}
-                                          value={this.state.input.planTime}
-                                  />
+                                  <DatePicker showTime onChange={this.rangePickerOnChange} onOk={this.rangePickerOnOk} value={this.state.planTime}/>
                               </Form.Item>
                               <Form.Item label="超时时间"
-                                         name={"超时时间"}
+                                         name={"timeout"}
                                          rules={[
                                              {
                                                  required: true,
@@ -4198,7 +4225,7 @@ class Modal5 extends Component{
                                   />
                               </Form.Item>
                               <Form.Item label="计划添加原因"
-                                         name={"计划添加原因"}
+                                         name={"planResume"}
                               >
                                   <Input  placeholder={"请输入计划添加原因"} onChange={(e)=>{this.inputChange(e,"planResume")}}
                                           value={this.state.input.planResume}
@@ -4242,13 +4269,18 @@ class Modal4 extends Component{
                       data[myInput[ii]]=this.state.input[myInput[ii]];
                   }
               }
+              data.clientId = this.props.record.clientId;
+              data.testTypeId = this.props.record.testTypeId;
+              data.paperId = this.props.record.paperId;
+              data.eupregnaTestId = this.props.record.eupregnaTestId;
+              
               //data.patientId=this.props.record.patientId;
               //data.loginId=this.props.record.loginId;
-              let url="/user/managment";
-              //console.log("request:",data);
-              ajax(url,data,'GET')
+              let url="/user/test/data/add/plan";
+              console.log("request:",data);
+              ajax(url,data,'POST')
                 .then((response)=>{
-                    if(response.data.code!==1000){
+                    if(response.data.code!==1002){
                         console.log("请求错误！",response);
                     }else{
                         form.resetFields();
@@ -4370,6 +4402,45 @@ class Modal4 extends Component{
           })
         )
     }
+    //选择框变化（完成）
+    handleChange=(e,Option) =>{
+        //console.log(e)
+        //console.log(Option)
+        let source = {};
+        source[Option.title] = Option.value;
+        console.log(e,Option);
+        if(Option.title==='planType'){
+            for(let i = 0;i< this.state.data.length;i++){
+                if(this.state.data[i]['planTypeId']===Option.value){
+                    source['timeout'] = this.state.data[i]['timeout'];
+                    break
+                }
+            }
+        }
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        },()=>{
+            this.form.current.setFieldsValue(this.state.input);
+            //console.log(this.state.input);
+        })
+    }
+    //时间选择函数
+    rangePickerOnChange=(value, dateString)=>{
+        ////console.log('Selected Time: ', value);
+        ////console.log('Formatted Selected Time: ', dateString);
+        let input = {};
+        Object.assign(input, this.state.input);
+        input.planTime=dateString;
+        this.setState({
+            input:input
+        },()=>{   
+                 this.setState({
+            planTime:value,
+        })})
+    }
+    rangePickerOnOk=(value)=> {
+        ////console.log('onOk: ', value);
+    }
     //表格2数据以及函数
 
     //参数设置
@@ -4425,7 +4496,10 @@ class Modal4 extends Component{
     // }
     //弹窗2
 
-
+    /*表单验证
+      Form.useForm是是 React Hooks 的实现，只能用于函数组件
+      class组件中通过 React.createRef()来获取数据域*/
+    form = React.createRef();
     render(){
         return(
           <div>
@@ -4448,20 +4522,21 @@ class Modal4 extends Component{
                             name="addPlan"
                             onFinish={this.onFinish}
                             onFinishFailed={this.onFinishFailed}
+                            ref = {this.form}
                           >
                               <Form.Item
                                 label="用户"
-                                name="用户"
+                                name="nickName"
                               >
                                   <span>{this.props.record.nickName}</span>
                               </Form.Item>
                               <Form.Item label="试剂"
-                                         name={"试剂"}
+                                         name={"paperName"}
                               >
                                   <span >{this.props.record.paperName}</span>
                               </Form.Item>
                               <Form.Item label="测试集"
-                                         name={"测试集"}
+                                         name={"testSetName"}
                               >
                                   <span>{this.props.record.testSetName}</span>
                               </Form.Item>
@@ -4474,10 +4549,10 @@ class Modal4 extends Component{
                                              },
                                          ]}
                               >
-                                  <Input  placeholder={"请输入计划时间"} />
+                                  <DatePicker showTime onChange={this.rangePickerOnChange} onOk={this.rangePickerOnOk} value={this.state.planTime}/>
                               </Form.Item>
                               <Form.Item label="计划类型"
-                                         name={"计划类型"}
+                                         name={"planType"}
                                          rules={[
                                              {
                                                  required: true,
@@ -4494,7 +4569,7 @@ class Modal4 extends Component{
                                   </Select>
                               </Form.Item>
                               <Form.Item label="超时时间"
-                                         name={"超时时间"}
+                                         // name={"timeout"}
                                          rules={[
                                              {
                                                  required: true,
@@ -4502,7 +4577,10 @@ class Modal4 extends Component{
                                              },
                                          ]}
                               >
-                                  <Input  placeholder={"请输入超时时间"} />
+                                  {/*<Input  placeholder={"请输入超时时间"}onChange={(e)=>{this.inputChange(e,"timeout")}}*/}
+                                  {/*        value={this.state.input.timeout}*/}
+                                  {/*/>*/}
+                                  {this.state.input.timeout}
                               </Form.Item>
                               {/*<Form.Item label="计划添加原因"*/}
                               {/*           name={"计划添加原因"}*/}
@@ -5220,8 +5298,35 @@ class Modal1 extends Component{
             ...page,
         }
         console.log("request:",data);
+        console.log('req2')
+        ajax("/user/test/data/detail/plan/list/"
+          +this.props.record.clientId+'/'+this.props.record.testTypeId, {},'GET')
+          .then((response)=>{
+              if(response.data.data===null){
+                  message.error("查询失败！")
+              }else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("request1 data:",response);
+                  this.setState({
+                      data1:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+
+          });
+    }
+    requestData2=(page)=>{
+       let data={
+            ...page,
+        }
+        console.log("request:",data);
         console.log("???")
-        ajax("/user/test/data/detail/list/"
+        let Promis = ajax("/user/test/data/detail/list/"
           +this.props.record.clientId+'/'+this.props.record.testTypeId, {},'GET')
           .then((response)=>{
               if(response.data.data===null){
@@ -5237,78 +5342,12 @@ class Modal1 extends Component{
                   paginationProps.pageSize=page.pageSize;
                   console.log("data:",response);
                   this.setState({
-                      data1:data,
-                      paginationProps:paginationProps,
-                  });
-              }
-
-          });
-        // ajax("/user/base/info/list",data,'POST')
-        //   .then((response)=>{
-        //       if(response.data.data==null){
-        //           console.log(response);
-        //           message.error("request error! code:"+response.data.code);
-        //       }else{
-        //           let data=response.data.data.info;
-        //           let paginationProps={...this.state.paginationProps};
-        //           addKey(data);
-        //           paginationProps.total=response.data.data.total;
-        //           paginationProps.current=page.page;
-        //           paginationProps.pageSize=page.pageSize;
-        //           console.log("data:",response);
-        //           this.setState({
-        //               data:data,
-        //               paginationProps:paginationProps,
-        //           });
-        //       }
-        //   });
-    }
-    requestData2=(page)=>{
-        let data={
-            ...page,
-        }
-        console.log("request:",data);
-        console.log('req2')
-        let Promis = ajax("/user/test/data/detail/plan/list/"
-          +this.props.record.clientId+'/'+this.props.record.testTypeId, {},'GET')
-          .then((response)=>{
-              if(response.data.data===null){
-                  message.error("查询失败！")
-              }else{
-                  let data=response.data.data.info;
-                  let paginationProps={...this.state.paginationProps};
-                  addKey(data);
-                  paginationProps.total=response.data.data.total;
-                  paginationProps.current=page.page;
-                  paginationProps.pageSize=page.pageSize;
-                  console.log("request2 data:",response);
-                  this.setState({
                       data2:data,
                       paginationProps:paginationProps,
                   });
               }
-
           });
         return Promis;
-        // ajax("/user/base/info/list",data,'POST')
-        //   .then((response)=>{
-        //       if(response.data.data==null){
-        //           console.log(response);
-        //           message.error("request error! code:"+response.data.code);
-        //       }else{
-        //           let data=response.data.data.info;
-        //           let paginationProps={...this.state.paginationProps};
-        //           addKey(data);
-        //           paginationProps.total=response.data.data.total;
-        //           paginationProps.current=page.page;
-        //           paginationProps.pageSize=page.pageSize;
-        //           console.log("data:",response);
-        //           this.setState({
-        //               data:data,
-        //               paginationProps:paginationProps,
-        //           });
-        //       }
-        //   });
     }
     //弹窗关闭函数
     handleCancel= ()=>{
@@ -5419,7 +5458,21 @@ class Modal1 extends Component{
                 }
             }
         }
-        console.log(record4)
+        record4.eupregnaTestId = this.state.data1[0].eupregnaTestId
+        record4.paperId =  this.state.data1[0].paperTypeId
+        if(this.props.record.testType==='卵巢功能评估'){
+            for(let i = 0;i<this.state.data1.length;i++){
+                if(record4.paperId!==this.state.data1[i].paperTypeId){
+                    if(record4.paperId===''){
+                        record4.paperId = this.state.data1[i].paperTypeId;
+                    }else{
+                        record4.paperId = record4.paperId+','+this.state.data1[i].paperTypeId
+                        break;
+                    }
+                }
+            }
+        }
+        console.log('record4',record4)
         // record4
         this.setState({
             modalVisible:true,
