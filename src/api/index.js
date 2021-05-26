@@ -28,7 +28,7 @@ export function exportFile (url,data) {
           const link = document.createElement('a');
           link.href = url;
           // 从header中获取服务端命名的文件名
-          const fileName =decodeURI(res.headers['content-disposition'].split('\'')[2]);
+          const fileName =decodeURI(res.headers['content-disposition'] ? res.headers['content-disposition'].split('\'')[2] : '未命名');
           link.setAttribute('download', fileName);
           document.body.appendChild(link);
           link.click();
@@ -111,14 +111,27 @@ export function getBathNum(data){
 export function getExpRes(data){
   return ajax('/experiment/data/queryExpDataResult',data,'POST')
 }
+//5.4.4 查看实验结果里的实验详情（根据id）
+export function getExpResDetail(data){
+  return ajax('/experiment/data/queryExpDataDetail',data,'POST')
+}
+//5.4.5 查看实验计划（根据planid）
+export function getExpPlan(data){
+  return ajax('/experiment/data/queryTestPlan',data,'POST')
+}
 
 //5.1.2.3 根据试剂种类选择批号
 
 //5.1.2.4添加实验数据
-
+export function expDataAdd (data){
+  return ajax('/experiment/data/addExpData',data,'POST')
+}
 //5.1.3 修改（修改实验计划相关信息，正在进行实验的计划无法修改）
 
 //5.1.4删除（删除实验计划相关信息）
+export function expDataDelete (data){
+  return ajax('/experiment/data/deleteExpData',data,'POST')
+}
 
 
 
@@ -148,6 +161,14 @@ export function expDevTest(data) {
   return ajax('experiment/device/list',data,'POST')
 }
 
+//5.4.1 试剂测试
+export function expRegTest(data) {
+  return ajax('experiment/paperTest/info/list',data,'POST')
+}
+//5.4.2 查看历史设备信息
+export function expRegDevTest(data) {
+  return ajax('experiment/paperTest/queryDeviceHis',data,'POST')
+}
 
 /**
  * 家庭版统计模块

@@ -503,7 +503,8 @@ export default class Experimenter extends Component {
               搜索
             </Button>
 
-            <Button type="primary"
+            <Button
+              type="primary"
               icon={<ReloadOutlined className="icon1" />}
               onClick={this.reset}
               className="button1"
