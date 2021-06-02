@@ -81,74 +81,74 @@ function transformHistoryData(data) {
 
 const selectType = [
   {
-    name:'正常',
-    value:'device_normal'
+    name: '正常',
+    value: 'device_normal'
   },
   {
-    name:'测试',
-    value:'device_testing'
+    name: '测试',
+    value: 'device_testing'
   },
   {
-    name:'优孕保',
-    value:'eupregna'
+    name: '优孕保',
+    value: 'eupregna'
   },
   {
-    name:'优孕保测试',
-    value:'eupregna_testing'
+    name: '优孕保测试',
+    value: 'eupregna_testing'
   },
   {
-    name:'专业正常',
-    value:'professional_normal'
+    name: '专业正常',
+    value: 'professional_normal'
   },
   {
-    name:'专业测试',
-    value:'professional_testing'
+    name: '专业测试',
+    value: 'professional_testing'
   },
   {
-    name:'研究',
-    value:'research'
+    name: '研究',
+    value: 'research'
   },
   {
-    name:'其他',
-    value:'other'
+    name: '其他',
+    value: 'other'
   },
   {
-    name:'其他测试',
-    value:'other_test'
+    name: '其他测试',
+    value: 'other_test'
   }
 ]
 const stateType = [
   {
-    name:'未测试',
-    value:'no_test'
+    name: '未测试',
+    value: 'no_test'
   },
   {
-    name:'测试通过',
-    value:'pass'
+    name: '测试通过',
+    value: 'pass'
   },
   {
-    name:'测试未通过',
-    value:'no_pass'
+    name: '测试未通过',
+    value: 'no_pass'
   },
   {
-    name:'返修',
-    value:'repair'
+    name: '返修',
+    value: 'repair'
   },
   {
-    name:'存在故障,完全无法使用',
-    value:'use_no_testvalue'
+    name: '存在故障,完全无法使用',
+    value: 'use_no_testvalue'
   },
   {
-    name:'存在故障，可用但影响测试值',
-    value:'professional_testing'
+    name: '存在故障，可用但影响测试值',
+    value: 'professional_testing'
   },
   {
-    name:'存在故障，可临时用',
-    value:'temporary_use'
+    name: '存在故障，可临时用',
+    value: 'temporary_use'
   },
   {
-    name:'废弃',
-    value:'discard'
+    name: '废弃',
+    value: 'discard'
   }
 ]
 
@@ -398,13 +398,13 @@ export default class DeviceManagement extends Component {
   }
   //表格行选择
   onSelectChange = row => {
-    let newArr = [...new Set([...row,...this.state.selectedRowKeysAll])]//并集
+    let newArr = [...new Set([...row, ...this.state.selectedRowKeysAll])]//并集
     //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
     this.setState({
-       selectedRowKeys: row,
-       selectedRowKeysAll:newArr 
-      })
-      console.log(row,newArr)
+      selectedRowKeys: row,
+      selectedRowKeysAll: newArr
+    })
+    console.log(row, newArr)
   };
 
   //客户输入框
@@ -586,7 +586,7 @@ export default class DeviceManagement extends Component {
     if (state !== undefined) {
       params.status = state
     }
-    exportFile('/device/manage/info/export/condition',params)
+    exportFile('/device/manage/info/export/condition', params)
   };
   //修改
   modify = (record) => {
@@ -759,20 +759,20 @@ export default class DeviceManagement extends Component {
     if (state !== undefined) {
       params.status = state
     }
-    devList(params).then( res => {
-        // console.log(res)
-        let data = transformData(res.data.data.info)
-        let paginationProps = Object.assign(this.state.paginationProps, {
-          total: res.data.data.total,
-          current: pagination.current,
-          pageSize: pagination.pageSize,
-        })
-        this.setState({
-          data,
-          paginationProps,
-          selectedRowKeys: arr,
-        })
-      }
+    devList(params).then(res => {
+      // console.log(res)
+      let data = transformData(res.data.data.info)
+      let paginationProps = Object.assign(this.state.paginationProps, {
+        total: res.data.data.total,
+        current: pagination.current,
+        pageSize: pagination.pageSize,
+      })
+      this.setState({
+        data,
+        paginationProps,
+        selectedRowKeys: arr,
+      })
+    }
     )
   };
   //使用人员表格变化
@@ -853,7 +853,7 @@ export default class DeviceManagement extends Component {
               value={this.state.input.type}
             >
               {
-                selectType.map((item,index)=>{
+                selectType.map((item, index) => {
                   return <Option key={index} name="type" value={item.value}>{item.name}</Option>
                 })
               }
@@ -865,7 +865,7 @@ export default class DeviceManagement extends Component {
               value={this.state.input.state}
             >
               {
-                stateType.map((item,index)=>{
+                stateType.map((item, index) => {
                   return <Option key={index} name="state" value={item.value}>{item.name}</Option>
                 })
               }

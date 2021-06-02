@@ -42,7 +42,7 @@ class Login extends Component {
         return (
             <div className="login">
                 <header className="login-header">
-                    <img src={logo} alt="logo"/>
+                    <img src={logo} alt="logo" />
                 </header>
                 <section className="login-content">
                     <div style={{ height: '60px' }}>
@@ -59,7 +59,7 @@ class Login extends Component {
                             name="username"
                             rules={[{ required: true, message: '请输入账号' }]}//声明式验证
                         >
-                            <Input 
+                            <Input
                                 prefix={<UserOutlined className="site-form-item-icon" />}
                                 placeholder="账号"
                             />

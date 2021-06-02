@@ -1,49 +1,50 @@
 import React, { Component } from 'react'
-import { Table ,Button , Input , Row, Col, DatePicker} from 'antd';
-import {ReloadOutlined,
-    SearchOutlined ,
+import { Table, Button, Input, Row, Col, DatePicker } from 'antd';
+import {
+  ReloadOutlined,
+  SearchOutlined,
 } from '@ant-design/icons'
 import { userDrugHome } from "../../api/index";
 const { RangePicker } = DatePicker
 
 
 const columns = [
-    {
-        title: '手机号',
-        dataIndex: 'phone',
-      },
-    {
-      title: '姓名',
-      dataIndex: 'nickName',
-    },
-    {
-        title: '测试类型',
-        dataIndex: 'testTypeName',
-      },
-      {
-        title: '事件值',
-        dataIndex: 'drug',
-      },
-    {
-      title: '创建时间',
-      dataIndex: 'startData',
-    },
+  {
+    title: '手机号',
+    dataIndex: 'phone',
+  },
+  {
+    title: '姓名',
+    dataIndex: 'nickName',
+  },
+  {
+    title: '测试类型',
+    dataIndex: 'testTypeName',
+  },
+  {
+    title: '事件值',
+    dataIndex: 'drug',
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'startData',
+  },
 
-  ];
-  function transformData(data) {
-    let newData = [];
-    for (let i = 0; i < data.length; i++) {
-      let newItem = {};
-      newItem.key =i;
-      newItem.nickName = data[i].nickName;
-      newItem.phone = data[i].phone;
-      newItem.testTypeName = data[i].testTypeName;
-      newItem.drug = data[i].drug;
-      newItem.startData = data[i].startData;
-      newData.push(newItem);
-    }
-    return newData;
+];
+function transformData(data) {
+  let newData = [];
+  for (let i = 0; i < data.length; i++) {
+    let newItem = {};
+    newItem.key = i;
+    newItem.nickName = data[i].nickName;
+    newItem.phone = data[i].phone;
+    newItem.testTypeName = data[i].testTypeName;
+    newItem.drug = data[i].drug;
+    newItem.startData = data[i].startData;
+    newData.push(newItem);
   }
+  return newData;
+}
 
 export default class UserMedication extends Component {
   state = {
@@ -150,30 +151,30 @@ export default class UserMedication extends Component {
   }
 
 
-    render() {
-      const { data, current, pageSize, total } = this.state
-        return (
-            <div>
-                <div style={{fontWeight:'bold'}} >用户人数：{total}</div>
-                <div style={{'margin':'10px 0'}} >
-                <Row justify="space-between" gutter="32" style={{display:"flex" }}  >
-                <Col span={4}>
-                    <Input
-                      placeholder="姓名"
-                      value={this.state.input.nickName}
+  render() {
+    const { data, current, pageSize, total } = this.state
+    return (
+      <div>
+        <div style={{ fontWeight: 'bold' }} >用户人数：{total}</div>
+        <div style={{ 'margin': '10px 0' }} >
+          <Row justify="space-between" gutter="32" style={{ display: "flex" }}  >
+            <Col span={4}>
+              <Input
+                placeholder="姓名"
+                value={this.state.input.nickName}
                 onChange={this.searchChange}
                 id="nickName"
-                        />
-                </Col>
-                <Col span={4}>
-                    <Input
-                      placeholder="手机号"
-                      value={this.state.input.phone}
+              />
+            </Col>
+            <Col span={4}>
+              <Input
+                placeholder="手机号"
+                value={this.state.input.phone}
                 onChange={this.searchChange}
                 id="phone"
-                        />
-                </Col>
-                <Col span={6}>
+              />
+            </Col>
+            <Col span={6}>
               <RangePicker
                 value={this.state.time}
                 format="YYYY-MM-DD"
@@ -181,44 +182,44 @@ export default class UserMedication extends Component {
               />
             </Col>
 
-                <Col span={4} style={{display:"flex"}}>
-                    <Button type="primary" 
-                            icon={<SearchOutlined /> }
-                            style={{marginRight:'10px'}}
-                            onClick={this.search}
-                    >   
-                        搜索
+            <Col span={4} style={{ display: "flex" }}>
+              <Button type="primary"
+                icon={<SearchOutlined />}
+                style={{ marginRight: '10px' }}
+                onClick={this.search}
+              >
+                搜索
                     </Button>
-                    <Button type="primary"
-                        icon={<ReloadOutlined /> }  
-                        onClick={this.reset}
-                    >
-                        重置
+              <Button type="primary"
+                icon={<ReloadOutlined />}
+                onClick={this.reset}
+              >
+                重置
                     </Button>
-                </Col>
-                <Col span={6} >
-                </Col>
-                </Row>
-                </div>
-                <div>
-                <Table 
-                columns={columns} 
-                dataSource={data} 
-                bordered={true} 
-                style={{margin:'20px 0'}}
-                pagination={{ 
-                  position: ['bottomLeft'],
-                  total,
-                  showTotal: total => `共 ${total} 条`,
-                  showQuickJumper: true,
-                  showSizeChanger: true,
-                  current,
-                  pageSize
-                }}
-                onChange={this.handTablechange}
-                />
-                </div>
-            </div>
-        )
-    }
+            </Col>
+            <Col span={6} >
+            </Col>
+          </Row>
+        </div>
+        <div>
+          <Table
+            columns={columns}
+            dataSource={data}
+            bordered={true}
+            style={{ margin: '20px 0' }}
+            pagination={{
+              position: ['bottomLeft'],
+              total,
+              showTotal: total => `共 ${total} 条`,
+              showQuickJumper: true,
+              showSizeChanger: true,
+              current,
+              pageSize
+            }}
+            onChange={this.handTablechange}
+          />
+        </div>
+      </div>
+    )
+  }
 }

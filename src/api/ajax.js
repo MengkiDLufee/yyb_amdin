@@ -11,9 +11,9 @@ import {
     message
 } from 'antd'
 
-// const baseUrl = 'http://java.xixibackup.me:8080'
-// axios.defaults.baseURL = 'http://java.xixibackup.me:8080'
-axios.defaults.baseURL = 'http://192.168.1.173:8080'
+
+axios.defaults.baseURL = 'http://java.xixibackup.me:8080'
+// axios.defaults.baseURL = 'http://192.168.1.173:8080'
 // axios.defaults.baseURL = 'http://192.168.2.102:8080'
 
 

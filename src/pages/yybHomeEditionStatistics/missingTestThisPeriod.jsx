@@ -42,10 +42,10 @@ export default class MissingTestThisPeriod extends Component {
     total: '',//数据总条数
     current: 1,//当前页数
     pageSize: 10,//当前页面条数
-    input:{
-      name:'',
-      deviceNo:'',
-      phone:''
+    input: {
+      name: '',
+      deviceNo: '',
+      phone: ''
     }
   }
   loadData = (params) => {
@@ -54,13 +54,13 @@ export default class MissingTestThisPeriod extends Component {
       let data = this.transformData(res.data.data.info)
       this.setState({
         data,
-        current:params.page,
-        pageSize:params.pageSize,
-        total:res.data.data.total
+        current: params.page,
+        pageSize: params.pageSize,
+        total: res.data.data.total
       })
     })
   }
-   transformData = function(data){
+  transformData = function (data) {
     let newData = [];
     for (let i = 0; i < data.length; i++) {
       let newItem = {};
@@ -83,10 +83,10 @@ export default class MissingTestThisPeriod extends Component {
   }
 
   handTablechange = (pagination) => {
-    const {current,pageSize} = pagination
+    const { current, pageSize } = pagination
     const { name, deviceNo, phone } = this.state.input
     let params = {
-      page:current,
+      page: current,
       pageSize,
     }
     if (name) {
@@ -98,21 +98,21 @@ export default class MissingTestThisPeriod extends Component {
     if (phone) {
       params.phone = phone
     }
-    this.loadData(params)     
+    this.loadData(params)
   }
   searchChange = (e) => {
     // console.log(e.target)
     const ID = e.target.id
     const value = e.target.value
     this.setState({
-      input:Object.assign(this.state.input,{[ID]:value})
+      input: Object.assign(this.state.input, { [ID]: value })
     })
   }
   search = () => {
     const { name, deviceNo, phone } = this.state.input
     let params = {
-      page:1,
-      pageSize:10
+      page: 1,
+      pageSize: 10
     }
     if (name) {
       params.nickName = name
@@ -128,13 +128,13 @@ export default class MissingTestThisPeriod extends Component {
   }
   reset = () => {
     this.loadData({
-      page:1,
-      pageSize:10
+      page: 1,
+      pageSize: 10
     })
-    let input = Object.assign(this.state.input,{
-      name:'',
-      deviceNo:'',
-      phone:'',
+    let input = Object.assign(this.state.input, {
+      name: '',
+      deviceNo: '',
+      phone: '',
     })
     this.setState({
       input
@@ -150,8 +150,8 @@ export default class MissingTestThisPeriod extends Component {
         <div style={{ 'margin': '10px 0' }} >
           <Row justify="space-between" gutter="15" style={{ display: "flex" }}  >
             <Col span={3}>
-              <Input 
-                placeholder="姓名" 
+              <Input
+                placeholder="姓名"
                 value={name}
                 onChange={this.searchChange}
                 id="name"
@@ -159,7 +159,7 @@ export default class MissingTestThisPeriod extends Component {
             </Col>
             <Col span={3}>
               <Input
-                placeholder="设备号" 
+                placeholder="设备号"
                 value={deviceNo}
                 onChange={this.searchChange}
                 id="deviceNo"
@@ -167,14 +167,14 @@ export default class MissingTestThisPeriod extends Component {
             </Col>
             <Col span={3}>
               <Input
-                placeholder="手机号" 
+                placeholder="手机号"
                 value={phone}
                 onChange={this.searchChange}
                 id="phone"
               />
             </Col>
             <Col span={4} offset={1} style={{ display: 'flex' }}>
-              <Button 
+              <Button
                 type="primary"
                 icon={<SearchOutlined />}
                 style={{ marginRight: '10px' }}
@@ -182,7 +182,7 @@ export default class MissingTestThisPeriod extends Component {
               >
                 搜索
               </Button>
-              <Button 
+              <Button
                 type="primary"
                 icon={<ReloadOutlined />}
                 onClick={this.reset}
