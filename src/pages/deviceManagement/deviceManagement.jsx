@@ -823,7 +823,7 @@ export default class DeviceManagement extends Component {
       onChange: this.onSelectChange,
     };
     const { total, current, pageSize } = this.state.paginationProps
-    // const [form] = Form.useForm();
+    
 
     return (
       <div style={{ height: "100%" }}>

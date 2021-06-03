@@ -8,8 +8,8 @@ import ajax from './ajax'
 
 
  //登陆接口
-export function  reqLogin(username,password) {
-  return ajax('/login',{username,password},'POST')
+export function  reqLogin(data) {
+  return ajax('/login',data,'POST')
 }
 
 

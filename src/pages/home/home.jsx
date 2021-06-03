@@ -4,6 +4,10 @@ import React, { Component } from 'react'
 export default class Home extends Component {
 
     render() {
+        let data = sessionStorage.getItem('token');
+        
+        console.log(data);
+        console.log(localStorage.getItem('acount_yyb'),localStorage.getItem('password_yyb'));
         return (
             <div
                 style={{

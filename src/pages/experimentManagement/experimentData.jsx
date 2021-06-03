@@ -8,6 +8,7 @@ import {
   Modal,
   Form,
   Popconfirm,
+  message,
 } from "antd";
 import {
   ReloadOutlined,
@@ -48,7 +49,7 @@ function transformData(data) {
   let newData = [];
   for (let i = 0; i < data.length; i++) {
     let newItem = {};
-    newItem.key = i;
+    newItem.key = data[i].paperTestPlanId;
     newItem.batch_num = data[i].bathNumber;
     newItem.type = data[i].paperTypeId;
     newItem.r_time = data[i].reactiveTime;
@@ -77,7 +78,8 @@ export default class ExperimentData extends Component {
       visible_exp_plan: false, //查看实验计划
       visible_modify: false, //修改弹窗
       visible_static: false, //修改弹窗中修改数据弹窗
-      selectedRowKeys: [], // Check here to configure the default column
+      selectedRowKeys: [],
+      selectedRowKeysAll: [],//所有页面选择数据的id
       expPerson: [], //实验人员姓名和id
       //主页面表格
       tableData: [], //表格数据
@@ -87,8 +89,8 @@ export default class ExperimentData extends Component {
       //搜索栏输入选择框的值
       input: {
         batch: "", //批号
-        type: "", //试剂类型
-        exper: "", //实验人员
+        type: undefined, //试剂类型
+        exper: undefined, //实验人员
       },
       paperType: [], //试剂类型数据
       //修改弹窗
@@ -456,48 +458,62 @@ export default class ExperimentData extends Component {
     }, 1000);
   };
   //表格行选择操作
-  onSelectChange = (selectedRowKey) => {
-    //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
-    this.setState({ selectedRowKeys: selectedRowKey }, () => {
+  onSelectChange = (row) => {
+    let newArr = [...new Set([...row, ...this.state.selectedRowKeysAll])]//并集
+    this.setState({
+      selectedRowKeys: row,
+      selectedRowKeysAll: newArr
+    }, () => {
       console.log("所选择行", this.state.selectedRowKeys);
     });
   };
   //批号输入框
-  batchChange = (value) => {
-    // console.log(e.target.value)
-    // this.setState({
-    //  input:Object.assign(this.state.input,{batch:e.target.value})
-    // })
-    console.log(value);
+  batchChange = (e) => {
+    this.setState({
+      input: Object.assign(this.state.input, { batch: e.target.value })
+    })
   };
   //搜索栏实验人员选择框
   experChange = (e) => {
-    console.log(e);
     this.setState({
       input: Object.assign(this.state.input, { exper: e }),
     });
   };
   //搜索栏试剂类型输入框
   typeChange = (e) => {
-    console.log(e.target.value);
     this.setState({
-      input: Object.assign(this.state.input, { type: e.target.value }),
+      input: Object.assign(this.state.input, { type: e }),
     });
   };
   search = () => {
-    console.log("搜索", this.state.input);
+    // console.log("搜索", this.state.input);
+    let params = {
+      page: 1,
+      pageSize: 10
+    }
+    if (this.state.input.batch) {
+      params.bathNumber = this.state.input.batch
+    }
+    if (this.state.input.type) {
+      params.paperTypeId = this.state.input.type
+    }
+    if (this.state.input.exper) {
+      params.testPersonId = this.state.input.exper
+    }
+    // console.log(params);
+    this.loadData(params)
   };
   //重置
   reset = () => {
-    console.log("重置", this.state.current, this.state.pageSize);
-    let data = Object.assign(this.state.input, {
+    // console.log("重置", this.state.current, this.state.pageSize);
+    let input = Object.assign(this.state.input, {
       batch: "",
-      type: "",
+      type: undefined,
       exper: undefined,
     });
     this.setState({
       selectedRowKeys: [],
-      input: data,
+      input,
       current: 1,
       pageSize: 10,
     });
@@ -516,20 +532,26 @@ export default class ExperimentData extends Component {
 
   //导出已选择数据
   exportChoose = () => {
-    console.log("导出已选择数据", this.state.selectedRowKeys);
-    exportFile("/experiment/data/export/choose", [
-      "1267999756647403521",
-      "1268001674039922690",
-    ]);
+    console.log("导出已选择数据", this.state.selectedRowKeysAll);
+    exportFile("/experiment/data/export/choose", this.state.selectedRowKeysAll);
   };
   //按搜索条件导出
   exportSearch = () => {
     console.log("按搜索条件导出", this.state.input);
-    exportFile("/experiment/data/export/condition", {
-      bathNumber: "501001",
-      paperTypeId: 33,
-      testPersonId: "1267645485175279617",
-    });
+    let params = {
+      page: 1,
+      pageSize: 10
+    }
+    if (this.state.input.batch) {
+      params.bathNumber = this.state.input.batch
+    }
+    if (this.state.input.type) {
+      params.paperTypeId = this.state.input.type
+    }
+    if (this.state.input.exper) {
+      params.testPersonId = this.state.input.exper
+    }
+    exportFile("/experiment/data/export/condition", params);
   };
   typeChange_add = (e) => {
     console.log(e);
@@ -557,11 +579,17 @@ export default class ExperimentData extends Component {
           concentrationValue: values.sights[0].reagent,
           allTestNumber: values.sights[0].card_num,
         }).then((res) => {
-          console.log(res);
+          this.setState({
+            visible_add: false,
+          });
+          this.loadData({page:1,pageSize:10})
+          if (res.data.msg === "保存成功") {
+            message.success('添加成功')
+          } else {
+            message.warning('添加失败')
+          }
         });
-        this.setState({
-          visible_add: false,
-        });
+        
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
@@ -666,16 +694,23 @@ export default class ExperimentData extends Component {
   //修改
   modify = (record) => {
     console.log("修改", record);
-    let data = Object.assign(this.state.modal, {
-      batch: record.batch_num,
-      type: record.type,
-      r_time: record.r_time,
-      exper: record.exper,
-    });
-    this.setState({
-      visible_modify: true,
-      modal: data,
-    });
+    message.info(
+      record.state === 'plan_testing'
+        ?
+        '实验进行中无法修改'
+        :
+        '实验已完成无法修改'
+    )
+    // let data = Object.assign(this.state.modal, {
+    //   batch: record.batch_num,
+    //   type: record.type,
+    //   r_time: record.r_time,
+    //   exper: record.exper,
+    // });
+    // this.setState({
+    //   visible_modify: true,
+    //   modal: data,
+    // });
   };
   handleOk_modify = () => {
     this.setState({
@@ -729,25 +764,26 @@ export default class ExperimentData extends Component {
   handTablechange = (pagination) => {
     console.log(pagination, pagination.current, pagination.pageSize);
     console.log(this.state.current, this.state.pageSize);
-
-    expList({
+    let arr = this.state.selectedRowKeysAll
+    let params = {
       page: pagination.current,
-      pageSize: pagination.pageSize,
-    }).then((res) => {
-      let data = transformData(res.data.data.info);
-      console.log(data);
-      this.setState({
-        current: pagination.current,
-        pageSize: pagination.pageSize,
-        tableData: data,
-      });
-    });
+      pageSize: pagination.pageSize
+    }
+    if (this.state.input.batch) {
+      params.bathNumber = this.state.input.batch
+    }
+    if (this.state.input.type) {
+      params.paperTypeId = this.state.input.type
+    }
+    if (this.state.input.exper) {
+      params.testPersonId = this.state.input.exper
+    }
+    this.loadData(params)
+    this.setState({
+      selectedRowKeys: arr,
+    })
   };
 
-  //使用人员表格变化
-  handTablechange_modify = (pagination) => {
-    console.log(pagination);
-  };
 
   //修改试剂浓度
   concentrationChange = (e) => {
@@ -776,6 +812,7 @@ export default class ExperimentData extends Component {
     const {
       selectedRowKeys,
       paperType,
+      expPerson,
       tableData,
       current,
       pageSize,
@@ -800,15 +837,15 @@ export default class ExperimentData extends Component {
             <Input
               placeholder="批号"
               className="input1"
-              onChange={this.batchChange.bind(this)}
+              onChange={this.batchChange}
               value={this.state.input.batch}
             />
-            {/* <Input  placeholder="试剂类型" className="input1" onChange={this.typeChange.bind(this)} value={this.state.input.type} /> */}
             <Select
               placeholder="试剂类型"
-              onChange={this.batchChange}
+              onChange={this.typeChange}
               className="input1"
               dropdownStyle={{ width: "300px" }}
+              value={this.state.input.type}
               allowClear
             >
               {paperType.map((paper, index) => {
@@ -823,10 +860,10 @@ export default class ExperimentData extends Component {
               placeholder="实验人员"
               onChange={this.experChange}
               className="input1"
-              // vulue={this.state.input.exper}
+              value={this.state.input.exper}
               allowClear
             >
-              {this.state.expPerson.map((item) => {
+              {expPerson.map((item) => {
                 return (
                   <Option key={item.testPersonId} value={item.testPersonId}>
                     {item.personName}
@@ -1229,7 +1266,7 @@ export default class ExperimentData extends Component {
 
         </Modal>
         {/* 修改弹窗 */}
-        <Modal
+        {/* <Modal
           title="修改"
           centered
           visible={this.state.visible_modify}
@@ -1271,14 +1308,13 @@ export default class ExperimentData extends Component {
                   showQuickJumper: true,
                   showSizeChanger: true,
                 }}
-                onChange={this.handTablechange_modify}
                 size="small"
               />
             </div>
           </div>
-        </Modal>
+        </Modal> */}
         {/* 修改弹窗中修改表格数据弹窗 */}
-        <Modal
+        {/* <Modal
           title="修改实验数据"
           centered
           visible={this.state.visible_static}
@@ -1313,7 +1349,7 @@ export default class ExperimentData extends Component {
               </div>
             </div>
           </div>
-        </Modal>
+        </Modal> */}
       </div>
     );
   }
