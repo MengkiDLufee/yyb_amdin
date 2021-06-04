@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Space, Modal, Form, Image, Select} from 'antd';
+import {Table, Button, Input, Space, Modal, Form, Image, Select,TimePicker} from 'antd';
 import { DatePicker} from 'antd';
 import { Radio } from 'antd';
 import { Switch } from 'antd';
@@ -18,6 +18,7 @@ import './index.less'
 import ajax from "../../api/ajax";
 import addKey from "../../api/addKey";
 import {exportFile} from "../../api";
+import * as echarts from 'echarts';
 const { RangePicker } = DatePicker;
 //const { TextArea } = Input;
 const { Option } = Select;
@@ -2209,8 +2210,1241 @@ const { Option } = Select;
 // }
 //查看日志
 //历史测试数据 修改数据
+/****************** */
+//历史测试数据 精液液化 详细数据 
+class Modal14 extends Component{
+	//初始化
+	constructor(props) {
+			super(props);
+			this.search();
+	}
 
-//
+	//表格1数据以及函数
+	//常量数据部分
+
+	columns = [
+			{
+					title: '试剂',
+					dataIndex: 'paperName',
+					width:150,
+			},
+			{
+					title: '测试日期',
+					dataIndex: 'testDate',
+					width:150,
+			},
+			{
+					title: '设备号',
+					dataIndex: 'deviceNo',
+					width:150,
+			},
+			{
+				title: '数值',
+				dataIndex: 'value',
+				width:150,
+			},
+			{
+				title:'测试图片',
+				dataIndex:'testPicPathAli',
+				width:150,
+				align:'center',
+				render: (text) =>
+					//   ////console.log("record的内容",record)
+					//<img src={text} width="100px" alt=""/>
+					<Image src={text} width="100px" alt=""/>
+			},
+			// {
+			// 		title:'数值',
+			// 		dataIndex:'operation',
+			// 		width:150,
+			// 		align:'center',
+			// 		render:(text,record)=>(
+			// 			<Space>
+			// 					<Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal8(record)}}>查看</Button>
+			// 			</Space>
+			// 		),
+			// },
+	];
+	//函数部分
+	//弹窗关闭函数
+	handleCancel= ()=>{
+			this.props.setVisible(false);
+	}
+
+	//得到输入
+	inputChange = (e,name) => {
+			//console.log(name);
+			//console.log(e.target.value);
+			let source={};
+			source[name]=e.target.value;
+			this.setState({
+					input:Object.assign(this.state.input,source),
+			})
+	}
+	//表格行选择
+	onSelectChange = row => {
+			console.log('所选择行',row)
+			//setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+			this.setState(
+				{selectedRowKeys:row}
+			)
+	};
+	//翻页
+	handleTableChange = (pagination) =>{
+			//console.log(this.props.data.total);
+			let page={
+					page:pagination.current,
+					pageSize: pagination.pageSize,
+			};
+			this.requestData(page);
+			//this.setState({paginationProps:pagination});
+			//console.log(pagination)
+	};
+	//搜索
+	search= ()=> {
+			let page={
+					page:1,
+					pageSize:10,
+			}
+			this.requestData(page);
+	}
+	//重置
+	reset = () => {
+			console.log('重置',this.state.input);
+			let myInput=Object.keys(this.state.input);
+			let data = {};
+			for(let ii=0;ii<myInput.length;ii++){
+					data[myInput[ii]]='';
+			}
+			//this.state.input=data;
+			this.setState(
+				{
+						selectedRowKeys:[],
+						input:data,
+				},this.search
+			)
+			//this.search();
+	};
+	//请求表格数据
+	requestData=(page)=>{
+			let url="/user/test/data/semen/his/data/list/"
+				+this.props.record.eupregnaTestHisId
+			//console.log("request:",data);
+			ajax(url, {},'GET')
+				.then((response)=>{
+						console.log("response:",response);
+						if(response.data.data==null)
+								console.log("查询失败");
+						else{
+								let data=response.data.data.info;
+								if(data===undefined){
+									data=response.data.data
+								}
+								let paginationProps={...this.state.paginationProps};
+								addKey(data);
+								paginationProps.total=response.data.data.total;
+								paginationProps.current=page.page;
+								paginationProps.pageSize=page.pageSize;
+								console.log("data:",response);
+								this.setState({
+										data:data,
+										paginationProps:paginationProps,
+								});
+						}
+						//绘制图表
+						ajax("/user/test/data/semen/canvas/data/his/"
+						+this.props.record.eupregnaTestHisId, {},'GET')
+						.then((response)=>{
+								console.log(response)
+								if(response.data.data===null){
+										message.error("查询失败！")
+										console.log('error',response)
+								}else{
+									if(!response.data.data.isData){
+										message.info('无画图数据')
+										return 0
+									}
+									//console.log(response)
+									let data=response.data.data;
+									this.setState({
+										data3:data,
+								 },()=>{
+									 console.log('data3:',this.state.data3.paperName)
+									 //画图
+									 let chartDom = document.getElementById('figure4');
+									 let myChart = echarts.init(chartDom);
+									 let option;
+						 
+									 option = {
+											 xAxis: {
+													 type: 'category',
+													 data: this.state.data3.xData,
+													 //boundaryGap: false,
+													//  "axisLabel":{
+													// 	 interval: 0
+														 
+													// 	 }
+											 },
+											 yAxis: {
+													 type: 'value'
+											 },
+											 tooltip: {
+												 trigger: 'axis'
+											 },
+											 legend: {
+												 data: this.state.data3.paperName
+											 },
+											 series: [{
+													 name: this.state.data3.paperName[0],
+													 data: this.state.data3.data,
+													 type: 'line'
+											 }]
+									 };
+						 
+									 option && myChart.setOption(option);
+								 });
+		
+								}
+						});
+				});
+	}
+	//按照搜索情况导出excel
+	exportSearch= ()=>{
+			let data={
+					page:1,
+					pageSize:10,
+			}
+			let myInput=Object.keys(this.state.input);
+			for(let ii=0;ii<myInput.length;ii++){
+					if(this.state.input[myInput[ii]]!==""){
+							data[myInput[ii]]=this.state.input[myInput[ii]];
+					}
+			}
+			console.log("exportFile input:",data);
+			//exportFile("/exam/data/export/login/condition",data);
+			exportFile('/user/base/info/export/condition',{});
+			//console.log("request:",data);
+			// ajax("/exam/data/export/login/condition",data,'POST')
+			//     .then((response)=>{
+			//         console.log(response);
+			//     }).catch(e=>{
+			//     console.log("search error!",e);
+			// });
+	}
+	//添加弹窗
+	add=(record)=>{
+			this.lookModal(record);
+	}
+
+	//表格2数据以及函数
+
+	//参数设置
+	state={
+			//弹窗
+			modalVisible:false,
+			//表格1数据
+			input:{
+			},
+			paginationProps:{
+					position:['bottomLeft'],
+					total:0,
+					showTotal:total => `共 ${total} 条`,
+					showQuickJumper:true,
+					showSizeChanger:true,
+			},
+			selectedRowKeys:[],
+			data:[
+			],
+			record:{
+					loginName:"",
+			},
+
+			//表格2数据
+
+
+	};
+
+	//弹窗函数
+
+	render(){
+			return(
+				<div>
+						<Modal
+							title={"历史测试数据"}
+							centered
+							visible={this.props.visible}
+							onCancel={this.handleCancel}
+							footer={null}
+							width={1000}
+						>
+								<div style={{height:'100%',margin:'3px'}}>
+								<div>
+                      <div>
+                          <span className={"span1"}>用户名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{this.props.record.nickName}</span>
+                      </div>
+                      <div>
+                          <span className={"span1"}>测试类型&nbsp; {this.props.record.testTypeName}</span>
+                      </div>
+                      <div>
+												<div id="figure4" style={{ width: '100%', height: 500 }}></div>
+                      </div>
+                  </div>
+										<div style={{heigh:"100%"}}>
+												<Table
+													columns={this.columns}
+													dataSource={this.state.data}
+													bordered={true}
+													rowSelection={false}
+													style={{margin:"20px 0",borderBottom:'1px,soild'}}
+													pagination={this.state.paginationProps}
+													onChange={this.handleTableChange}
+												/>
+										</div>
+								</div>
+						</Modal>
+				</div>
+			)
+	}
+}
+//精液液化 详细数据
+class Modal13 extends Component{
+	//初始化
+	constructor(props) {
+			super(props);
+			this.search();
+	}
+
+	//表格1数据以及函数
+	//常量数据部分
+
+	columns = [
+			{
+					title: '测试日期',
+					dataIndex: 'testDate',
+					width:150,
+			},
+			{
+					title: '设备号',
+					dataIndex: 'deviceNo',
+					width:150,
+			},
+			{
+				title: '数值',
+				dataIndex: 'value',
+				width:150,
+			},
+			{
+				title:'测试图片',
+				dataIndex:'testPicPathAli',
+				width:150,
+				align:'center',
+				render: (text) =>
+					//   ////console.log("record的内容",record)
+					//<img src={text} width="100px" alt=""/>
+					<Image src={text} width="100px" alt=""/>
+			},
+			// {
+			// 		title:'数值',
+			// 		dataIndex:'operation',
+			// 		width:150,
+			// 		align:'center',
+			// 		render:(text,record)=>(
+			// 			<Space>
+			// 					<Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal8(record)}}>查看</Button>
+			// 			</Space>
+			// 		),
+			// },
+	];
+	//函数部分
+	//弹窗关闭函数
+	handleCancel= ()=>{
+			this.props.setVisible(false);
+	}
+
+	//得到输入
+	inputChange = (e,name) => {
+			//console.log(name);
+			//console.log(e.target.value);
+			let source={};
+			source[name]=e.target.value;
+			this.setState({
+					input:Object.assign(this.state.input,source),
+			})
+	}
+	//表格行选择
+	onSelectChange = row => {
+			console.log('所选择行',row)
+			//setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+			this.setState(
+				{selectedRowKeys:row}
+			)
+	};
+	//翻页
+	handleTableChange = (pagination) =>{
+			//console.log(this.props.data.total);
+			let page={
+					page:pagination.current,
+					pageSize: pagination.pageSize,
+			};
+			this.requestData(page);
+			//this.setState({paginationProps:pagination});
+			//console.log(pagination)
+	};
+	//搜索
+	search= ()=> {
+			let page={
+					page:1,
+					pageSize:10,
+			}
+			this.requestData(page);
+	}
+	//重置
+	reset = () => {
+			console.log('重置',this.state.input);
+			let myInput=Object.keys(this.state.input);
+			let data = {};
+			for(let ii=0;ii<myInput.length;ii++){
+					data[myInput[ii]]='';
+			}
+			//this.state.input=data;
+			this.setState(
+				{
+						selectedRowKeys:[],
+						input:data,
+				},this.search
+			)
+			//this.search();
+	};
+	//请求表格数据
+	requestData=(page)=>{
+			let url="/user/test/data/semen/test/data/list/"
+				+this.props.record.eupregnaTestId
+			//console.log("request:",data);
+			ajax(url, {},'GET')
+				.then((response)=>{
+						console.log("response:",response);
+						if(response.data.data==null)
+								console.log("查询失败");
+						else{
+								let data=response.data.data.info;
+								if(data===undefined){
+									data=response.data.data
+								}
+								let paginationProps={...this.state.paginationProps};
+								addKey(data);
+								paginationProps.total=response.data.data.total;
+								paginationProps.current=page.page;
+								paginationProps.pageSize=page.pageSize;
+								console.log("data:",response);
+								this.setState({
+										data:data,
+										paginationProps:paginationProps,
+								});
+						}
+						//绘制图表
+						ajax("/user/test/data/canvasCharts/"
+						+this.props.record.eupregnaTestId, {},'GET')
+						.then((response)=>{
+								console.log(response)
+								if(response.data.data===null){
+										message.error("查询失败！")
+										console.log('error',response)
+								}else{
+									if(!response.data.data.isData){
+										message.info('无画图数据')
+										return 0
+									}
+									//console.log(response)
+									let data=response.data.data;
+									this.setState({
+										data3:data,
+								 },()=>{
+									 console.log('data3:',this.state.data3.paperName)
+									 //画图
+									 let chartDom = document.getElementById('figure13');
+									 let myChart = echarts.init(chartDom);
+									 let option;
+						 
+									 option = {
+											 xAxis: {
+													 type: 'category',
+													 data: this.state.data3.xData,
+													 //boundaryGap: false,
+													//  "axisLabel":{
+													// 	 interval: 0
+														 
+													// 	 }
+											 },
+											 yAxis: {
+													 type: 'value'
+											 },
+											 tooltip: {
+												 trigger: 'axis'
+											 },
+											 legend: {
+												 data: [this.state.data3.paperName[0]]
+											 },
+											 series: [{
+													 name: this.state.data3.paperName[0],
+													 data: this.state.data3.data,
+													 type: 'line'
+											 }]
+									 };
+						 
+									 option && myChart.setOption(option);
+								 });
+		
+								}
+						});
+				});
+	}
+	//按照搜索情况导出excel
+	exportSearch= ()=>{
+			let data={
+					page:1,
+					pageSize:10,
+			}
+			let myInput=Object.keys(this.state.input);
+			for(let ii=0;ii<myInput.length;ii++){
+					if(this.state.input[myInput[ii]]!==""){
+							data[myInput[ii]]=this.state.input[myInput[ii]];
+					}
+			}
+			console.log("exportFile input:",data);
+			//exportFile("/exam/data/export/login/condition",data);
+			exportFile('/user/base/info/export/condition',{});
+			//console.log("request:",data);
+			// ajax("/exam/data/export/login/condition",data,'POST')
+			//     .then((response)=>{
+			//         console.log(response);
+			//     }).catch(e=>{
+			//     console.log("search error!",e);
+			// });
+	}
+	//添加弹窗
+	add=(record)=>{
+			this.lookModal(record);
+	}
+
+	//表格2数据以及函数
+
+	//参数设置
+	state={
+			//弹窗
+			modalVisible:false,
+			//表格1数据
+			input:{
+			},
+			paginationProps:{
+					position:['bottomLeft'],
+					total:0,
+					showTotal:total => `共 ${total} 条`,
+					showQuickJumper:true,
+					showSizeChanger:true,
+			},
+			selectedRowKeys:[],
+			data:[
+			],
+			record:{
+					loginName:"",
+			},
+
+			//表格2数据
+
+
+	};
+
+	//弹窗函数
+	//弹窗1
+	//测试试剂数据
+	Modal = ()=>{
+			if(this.state.modalVisible)
+					return(
+						<Modal1
+							record={this.state.record}
+							visible={this.state.modalVisible}
+							setVisible={this.setModalvisible}
+						/>
+					);
+	}
+	setModalvisible=(flag)=>{
+			this.setState({
+					modalVisible:flag,
+			});
+	}
+	lookModal=record=>{
+			console.log('?')
+			this.setState({
+					modalVisible:true,
+					record:record,
+			});
+	}
+	//弹窗6
+	//测试问题数据弹窗
+	Modal6 = ()=>{
+			if(this.state.modalVisible6)
+					return(
+						<Modal6
+							record={this.state.record6}
+							visible={this.state.modalVisible6}
+							setVisible={this.setModalvisible6}
+						/>
+					);
+	}
+	setModalvisible6=(flag)=>{
+			this.setState({
+					modalVisible6:flag,
+			});
+	}
+	lookModal6=record=>{
+			this.setState({
+					modalVisible6:true,
+					record6:record,
+			});
+	}
+	//弹窗8
+	//测试次数弹窗
+	Modal8 = ()=>{
+			if(this.state.modalVisible8)
+					return(
+						<Modal8
+							record={this.state.record8}
+							visible={this.state.modalVisible8}
+							setVisible={this.setModalvisible8}
+						/>
+					);
+	}
+	setModalvisible8=(flag)=>{
+			this.setState({
+					modalVisible8:flag,
+			});
+	}
+	lookModal8=record=>{
+			this.setState({
+					modalVisible8:true,
+					record8:record,
+			});
+	}
+	//弹窗10
+	//测试次数弹窗
+	Modal10 = ()=>{
+			if(this.state.modalVisible10)
+					return(
+						<Modal10
+							record={this.state.record10}
+							visible={this.state.modalVisible10}
+							setVisible={this.setModalvisible10}
+						/>
+					);
+	}
+	setModalvisible10=(flag)=>{
+			this.setState({
+					modalVisible10:flag,
+			});
+	}
+	lookModal10=()=>{
+			this.setState({
+					modalVisible10:true,
+					record10:this.props.record,
+			});
+	}
+	render(){
+			return(
+				<div>
+						<Modal
+							title={"历史测试数据"}
+							centered
+							visible={this.props.visible}
+							onCancel={this.handleCancel}
+							footer={null}
+							width={1000}
+						>
+								<div style={{height:'100%',margin:'3px'}}>
+								<div>
+                      <div>
+                          <span className={"span1"}>用户名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{this.props.record.nickName}</span>
+                      </div>
+                      <div>
+                          <span className={"span1"}>测试类型&nbsp; {this.props.record.testType}</span>
+                      </div>
+                      <div>
+												<div id="figure13" style={{ width: '100%', height: 500 }}></div>
+                      </div>
+                  </div>
+										<div style={{heigh:"100%"}}>
+												<Table
+													columns={this.columns}
+													dataSource={this.state.data}
+													bordered={true}
+													rowSelection={false}
+													style={{margin:"20px 0",borderBottom:'1px,soild'}}
+													pagination={this.state.paginationProps}
+													onChange={this.handleTableChange}
+												/>
+										</div>
+								</div>
+						</Modal>
+				</div>
+			)
+	}
+}
+//修改用户信息
+class Modal12 extends Component{
+    //初始化
+    constructor(props) {
+        super(props);
+        console.log("record",this.props.record)
+        let input = {}
+        // input.planTime = this.props.record.planTime
+        // input.timeout = this.props.record.timeout
+        // input.planResume = this.props.record.planResume
+        Object.assign(input,this.props.record)
+        let planTime=this.props.record.planTime;
+        let mymoment = '';
+        console.log('修改input',input);
+        if(planTime!==null)mymoment = moment(planTime,'YYYY-MM-DD HH:mm:ss');
+        this.state={
+            planTime:mymoment,
+            input:input
+        }
+    }
+    componentDidMount = ()=>{
+        this.form.current.setFieldsValue(this.state.input)
+    }
+
+    //表格1数据以及函数
+    //常量数据部分
+
+    //函数部分
+    //弹窗关闭函数
+    handleCancel= ()=>{
+        this.props.setVisible(false);
+    }
+    //点击完成
+    handleOk = () => {
+        console.log('修改')
+        console.log(this.form)
+        let form = this.form.current;
+        form.validateFields()//表单输入校验
+          .then((values) => {
+              let data={};
+              let myInput=Object.keys(this.state.input);
+              for(let ii=0;ii<myInput.length;ii++){
+                  if(this.state.input[myInput[ii]]!==""){
+                      data[myInput[ii]]=this.state.input[myInput[ii]];
+                  }
+									if(this.state.input[myInput[ii]]===true){
+										data[myInput[ii]]=1;
+									}
+									if(this.state.input[myInput[ii]]===false){
+										data[myInput[ii]]=0;
+									}
+              }
+              data.eupregnaTestPaperDataId = this.props.record.eupregnaTestPaperDataId;
+              //data.patientId=this.props.record.patientId;
+              //data.loginId=this.props.record.loginId;
+              let url="/user/base/info/modify";
+              console.log("request:",data);
+              ajax(url,data,'POST')
+                .then((response)=>{
+									console.log(response)
+                    if(response.data.code!==1004){
+                        console.log("请求错误！",response);
+                    }else{
+                        //form.resetFields();
+                        console.log("修改成功：",response);
+                        //Object.assign(this.props.record,this.state.input);
+                        message.success('修改成功')
+                        this.props.setVisible(false);
+
+                    }
+                });
+          })
+          .catch((e) => {
+              console.log('Validate Failed:', e);
+          });
+    };
+    //得到输入
+    inputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        })
+    }
+    //产生input框
+    getInput = (labelName,valueName,required)=>{
+        let myMessage1 = '请输入'+ labelName +'!'
+        let myPlaceholder = '请输入'+ labelName
+        if(required){
+            return(
+                <Form.Item label={labelName}
+                            name={valueName}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: myMessage1,
+                                },
+                            ]}
+                >
+                    <Input  placeholder={myPlaceholder}onChange={(e)=>{this.inputChange(e,valueName)}}
+                            value={this.state.input[valueName]}
+                    />
+                </Form.Item>
+            )
+        }else{
+            return(
+                <Form.Item label={labelName}
+                            name={valueName}
+                            rules={[
+                            ]}
+                >
+                    <Input  placeholder={myPlaceholder}onChange={(e)=>{this.inputChange(e,valueName)}}
+                            value={this.state.input[valueName]}
+                    />
+                </Form.Item>
+            )
+        }
+
+    }
+    //单选框变化回调
+    RadioInputChange = (e,name) => {
+        //console.log(name);
+        //console.log(e.target.value);
+        let source={};
+        source[name]=e.target.value;
+        this.setState({
+            input:Object.assign(this.state.input,source),
+        })
+    }
+    //时间选择函数
+    rangePickerOnChange=(value, dateString,valueName)=>{
+        console.log('Selected Time: ', value);
+        //console.log('Formatted Selected Time: ', dateString);
+        let input = {};
+        let state = {};
+        Object.assign(input, this.state.input)
+        Object.assign(state, this.state)
+				if(valueName==='manBirthday'||valueName==='womanBirthday'||valueName==='preferTestTime'){
+					input[valueName]=dateString;
+				}else{
+					input[valueName]=dateString+' 00:00:00';
+				}
+        state.input = input
+        state[valueName] = value
+        this.setState(state)
+    }
+    //生成时间选择框
+    getRangePicker = (labelName,valueName,required,showTime)=>{
+        let myname = 'my'+valueName
+        let myMessage2 = '请选择'+labelName+'!'
+
+        let tmp=this.state.input[valueName];
+        let mymoment = '';
+        //console.log('修改input',input);
+        if(tmp!==null)mymoment = moment(tmp,'YYYY-MM-DD HH:mm:ss');
+				if(valueName==='preferTestTime'){
+					return(
+						<Form.Item label={labelName}
+												initialValue={mymoment}
+												name={myname}
+												rules={[
+														{
+																required: required,
+																message: myMessage2,
+														},
+												]}
+						>
+								<TimePicker 
+								onChange={(value, dateString)=>
+								{this.rangePickerOnChange(value, dateString,valueName)}} 
+								value={this.state[valueName]}/>
+						</Form.Item>
+					)
+				}
+        return(
+            <Form.Item label={labelName}
+                        initialValue={mymoment}
+                        name={myname}
+                        rules={[
+                            {
+                                required: required,
+                                message: myMessage2,
+                            },
+                        ]}
+            >
+                <DatePicker showTime={showTime}
+                onChange={(value, dateString)=>
+                {this.rangePickerOnChange(value, dateString,valueName)}} 
+                value={this.state[valueName]}/>
+            </Form.Item>
+        )
+    }
+			//选择框
+		selectChange =(e,Option) => {
+				console.log(e)
+				console.log(Option)
+				this.setState({
+						input:Object.assign(this.state.input,{[Option.title]:e})
+				})
+		}
+    //表格行选择
+    onSelectChange = row => {
+        console.log('所选择行',row)
+        //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
+        this.setState(
+          {selectedRowKeys:row}
+        )
+    };
+    //翻页
+    handleTableChange = (pagination) =>{
+        //console.log(this.props.data.total);
+        let page={
+            page:pagination.current,
+            pageSize: pagination.pageSize,
+        };
+        this.requestData(page);
+        //this.setState({paginationProps:pagination});
+        //console.log(pagination)
+    };
+    //搜索
+    search= ()=> {
+        let page={
+            page:1,
+            pageSize:10,
+        }
+        this.requestData(page);
+    }
+    //重置
+    reset = () => {
+        console.log('重置',this.state.input);
+        let myInput=Object.keys(this.state.input);
+        let data = {};
+        for(let ii=0;ii<myInput.length;ii++){
+            data[myInput[ii]]='';
+        }
+        //this.state.input=data;
+        this.setState(
+          {
+              selectedRowKeys:[],
+              input:data,
+          },this.search
+        )
+        //this.search();
+    };
+    //请求表格数据
+    requestData=(page)=>{
+        let url="/user/test/data/list/"
+          +this.props.record.clientId+'/'+page.page+'/'+page.pageSize;
+        //console.log("request:",data);
+        ajax(url, {},'GET')
+          .then((response)=>{
+              console.log("response:",response);
+              if(response.data.data==null)
+                  console.log("查询失败");
+              else{
+                  let data=response.data.data.info;
+                  let paginationProps={...this.state.paginationProps};
+                  addKey(data);
+                  paginationProps.total=response.data.data.total;
+                  paginationProps.current=page.page;
+                  paginationProps.pageSize=page.pageSize;
+                  console.log("data:",response);
+                  this.setState({
+                      data:data,
+                      paginationProps:paginationProps,
+                  });
+              }
+          });
+    }
+    //按照搜索情况导出excel
+    exportSearch= ()=>{
+        let data={
+            page:1,
+            pageSize:10,
+        }
+        let myInput=Object.keys(this.state.input);
+        for(let ii=0;ii<myInput.length;ii++){
+            if(this.state.input[myInput[ii]]!==""){
+                data[myInput[ii]]=this.state.input[myInput[ii]];
+            }
+        }
+        console.log("exportFile input:",data);
+        //exportFile("/exam/data/export/login/condition",data);
+        exportFile('/user/base/info/export/condition',{});
+        //console.log("request:",data);
+        // ajax("/exam/data/export/login/condition",data,'POST')
+        //     .then((response)=>{
+        //         console.log(response);
+        //     }).catch(e=>{
+        //     console.log("search error!",e);
+        // });
+    }
+    //添加弹窗
+    add=(record)=>{
+        this.lookModal(record);
+    }
+
+    //表格2数据以及函数
+
+    //参数设置
+    state={
+        //弹窗
+        modalVisible:false,
+        //表格1数据
+        input:{
+        },
+        paginationProps:{
+            position:['bottomLeft'],
+            total:0,
+            showTotal:total => `共 ${total} 条`,
+            showQuickJumper:true,
+            showSizeChanger:true,
+        },
+        selectedRowKeys:[],
+        data:[
+        ],
+        record:{
+            loginName:"",
+        },
+
+        //表格2数据
+
+
+    };
+
+    //弹窗函数
+    //弹窗1
+    //测试试剂数据
+    Modal = ()=>{
+        if(this.state.modalVisible)
+            return(
+              <Modal1
+                record={this.state.record}
+                visible={this.state.modalVisible}
+                setVisible={this.setModalvisible}
+              />
+            );
+    }
+    setModalvisible=(flag)=>{
+        this.setState({
+            modalVisible:flag,
+        });
+    }
+    lookModal=record=>{
+        console.log('?')
+        this.setState({
+            modalVisible:true,
+            record:record,
+        });
+    }
+    //弹窗2
+
+    form = React.createRef();
+    render(){
+        return(
+          <div>
+              <Modal
+                title={"修改用户信息"}
+                centered
+                visible={this.props.visible}
+                onCancel={this.handleCancel}
+                onOk={this.handleOk}
+                okText={'提交'}
+                cancelText={'取消'}
+                className="modal1"
+              >
+                  <div className="ant-modal-body" >
+                      <div className="modal-body" style={{height:"500px"}}>
+                          <Form 
+                            labelCol={{ span: 7 }}
+                            wrapperCol={{ span: 16 }}
+                            layout="horizontal"
+                            name="addPlan"
+                            onFinish={this.onFinish}
+                            onFinishFailed={this.onFinishFailed}
+                            ref={this.form}//表单验证，通过ref获取
+                            
+                          >
+                              {this.getInput('用户名','userName',true)}
+                              {this.getInput('手机号','phone',true)}
+                              {this.getInput('姓名','femaleName',true)}
+                              <Form.Item label="性别"
+                                         name={"gender"}
+                                         rules={[
+                                             {
+                                                 required: true,
+                                                 message: '请选择性别!',
+                                             },
+                                         ]}
+                              >
+                                <Radio.Group onChange={(e)=>{this.RadioInputChange(e,"gender")}} value={this.state.input.gender}>
+                                    <Radio value={'M'}><span className={"span2"}>男</span></Radio>
+                                    <Radio value={'F'}><span className={"span2"}>女</span></Radio>
+                                </Radio.Group>
+                              </Form.Item>
+                              {this.getInput('用户昵称','nickName',true)}
+                              {this.getInput('密码','password',true)}
+                              {this.getInput('用户备注','userRemark',true)}
+                              {this.getInput('男方年龄','manAge',true)}
+                              {this.getInput('女方年龄','womanAge',true)}
+                              {this.getRangePicker('男方生日','manBirthday',true,false)}
+                              {this.getRangePicker('女方生日','womanBirthday',true,false)}
+                              {this.getRangePicker('末次月经时间','lastBleeding',true,false)}
+                              {this.getInput('末次月经天数','lastCycleNumber',true)}
+                              {this.getInput('生理周期','cycle',true)}
+                              {this.getRangePicker('用药日期','preferTestTime',true,false)}
+															
+                              <Form.Item
+                                label="测试状态"
+                                name="testStatus"
+                                rules={[{ required: true ,message:"请选择测试状态"}]}//设置验证规则
+                            	>
+                                <Select placeholder="请选择测试状态"
+                                        onChange={this.selectChange}
+                                        style={{width:'100%'}}
+                                        value={this.state.input.testStatus}
+                                >
+                                    <Option title="testStatus" value={null}>请选择测试状态</Option>
+                                    <Option title="testStatus" value="suspend">暂停测试</Option>
+                                    <Option title="testStatus" value="finished">测试完成</Option>
+                                    <Option title="testStatus" value="testing">测试中</Option>
+                                </Select>
+                              </Form.Item>
+                              {/* {this.getInput('状态','status',true)} */}
+                              {this.getInput('邮箱','email',true)}
+                              {this.getInput('地址','address',true)}
+                              {this.getRangePicker('注册时间','regTime',true,false)}
+															<Form.Item
+                                label="注册状态"
+                                name="regStatus"
+                                rules={[{ required: true ,message:"请选择测试状态"}]}//设置验证规则
+                            	>
+                                <Select placeholder="请选择注册状态"
+                                        onChange={this.selectChange}
+                                        style={{width:'100%'}}
+                                        value={this.state.input.regStatus}
+                                >
+                                    <Option title="regStatus" value={''}>请选择注册状态</Option>
+                                    <Option title="regStatus" value="USER_CREATED">已创建</Option>
+                                    <Option title="regStatus" value="USER_BINDED">已绑定</Option>
+                                    <Option title="regStatus" value="USER_REGISTERED">已注册</Option>
+                                </Select>
+                              </Form.Item>
+															<Form.Item label="测试账号"
+                                         name={"testAccount"}
+                                         rules={[
+                                             {
+                                                 required: true,
+                                                 message: '请选择测试账号!',
+                                             },
+                                         ]}
+                              >
+                                <Radio.Group onChange={(e)=>{this.RadioInputChange(e,"testAccount")}} 
+																value={this.state.input.testAccount}>
+                                    <Radio value={false}><span className={"span2"}>否</span></Radio>
+                                    <Radio value={true}><span className={"span2"}>是</span></Radio>
+                                </Radio.Group>
+                              </Form.Item>
+                              {this.getInput('医生','doctor',true)}
+                              {this.getInput('最短生理周期','minCycle',true)}
+                              {this.getInput('最长生理周期','maxCycle',true)}
+                              {this.getInput('婚龄','marriedYears',true)}
+                              {this.getInput('生育疾病','pregnantIllness',true)}
+															<Form.Item label="是否有过生育"
+                                         name={"hasBearing"}
+                              >
+                                <Radio.Group onChange={(e)=>{this.RadioInputChange(e,"hasBearing")}} value={this.state.input.hasBearing}>
+                                    <Radio value={false}><span className={"span2"}>否</span></Radio>
+                                    <Radio value={true}><span className={"span2"}>是</span></Radio>
+                                </Radio.Group>
+                              </Form.Item>
+															<Form.Item label="是否做过孕检"
+                                         name={"hasPregnantCheck"}
+                              >
+                                <Radio.Group onChange={(e)=>{this.RadioInputChange(e,"hasPregnantCheck")}} value={this.state.input.hasPregnantCheck}>
+                                    <Radio value={false}><span className={"span2"}>否</span></Radio>
+                                    <Radio value={true}><span className={"span2"}>是</span></Radio>
+                                </Radio.Group>
+                              </Form.Item>
+															<Form.Item label="是否有生育疾病"
+                                         name={"hasPregnantIllness"}
+                                         rules={[
+                                         ]}
+                              >
+                                <Radio.Group onChange={(e)=>{this.RadioInputChange(e,"hasPregnantIllness")}} value={this.state.input.hasPregnantIllness}>
+                                    <Radio value={false}><span className={"span2"}>否</span></Radio>
+                                    <Radio value={true}><span className={"span2"}>是</span></Radio>
+                                </Radio.Group>
+                              </Form.Item>
+                              {this.getInput('常见生理周期','commonCycle',true)}
+															{this.getRangePicker('免打扰开始时间','dndTimeStart',true,false)}
+															{this.getRangePicker('免打扰结束时间','dndTimeEnd',true,false)}
+															<Form.Item label="终止测试"
+                                         name={"ended"}
+                                         rules={[
+                                         ]}
+                              >
+                                <Radio.Group onChange={(e)=>{this.RadioInputChange(e,"ended")}} value={this.state.input.ended}>
+                                    <Radio value={false}><span className={"span2"}>否</span></Radio>
+                                    <Radio value={true}><span className={"span2"}>是</span></Radio>
+                                </Radio.Group>
+                              </Form.Item>
+															<Form.Item label="终止优孕宝测试"
+                                         name={"eupregnaEnded"}
+                                         rules={[
+                                         ]}
+                              >
+                                <Radio.Group onChange={(e)=>{this.RadioInputChange(e,"eupregnaEnded")}} value={this.state.input.eupregnaEnded}>
+                                    <Radio value={false}><span className={"span2"}>否</span></Radio>
+                                    <Radio value={true}><span className={"span2"}>是</span></Radio>
+                                </Radio.Group>
+                              </Form.Item>
+															<Form.Item label="指导类型"
+                                         name={"schemeType"}
+                                         rules={[
+                                         ]}
+                              >
+																<Select placeholder="请选择指导类型"
+                                        onChange={this.selectChange}
+																				style={{width:'100%'}}
+                                        value={this.state.input.schemeType}
+                                >
+                                    <Option title="schemeType" value={''}>请选择指导类型</Option>
+                                    <Option title="schemeType" value="no_scheme">不指导，任意测</Option>
+                                    <Option title="schemeType" value="scheme_nomal">正常</Option>
+                                </Select>
+                              </Form.Item>
+															{this.getInput('当前使用设备','userDeviceId',true)}
+															{this.getInput('用户号','userNo',true)}
+															<Form.Item label="是否上传日志"
+                                         name={"uploadLogFlag"}
+                                         rules={[
+                                         ]}
+                              >
+                                <Radio.Group onChange={(e)=>{this.RadioInputChange(e,"uploadLogFlag")}} value={this.state.input.uploadLogFlag}>
+                                    <Radio value={false}><span className={"span2"}>否</span></Radio>
+                                    <Radio value={true}><span className={"span2"}>是</span></Radio>
+                                </Radio.Group>
+                              </Form.Item>
+															<Form.Item label={'环信用户账号'}
+															>
+																{this.state.input.phone}
+															</Form.Item>
+                              {this.getInput('环信密码','csoPassword',true)}
+                              {/* {this.getInput('QQOpenID','qqOpenId',true)} */}
+                              {this.getInput('微信OpenID','wechat',true)}                    
+                          </Form>
+                      </div>
+                  </div>
+              </Modal>
+          </div>
+        )
+    }
+}
+//修改测试计划
 class Modal11 extends Component{
     //初始化
     constructor(props) {
@@ -2256,7 +3490,7 @@ class Modal11 extends Component{
                     if(response.data.code!==1004){
                         console.log("请求错误！",response);
                     }else{
-                        form.resetFields();
+                        //form.resetFields();
                         console.log("修改成功：",response);
                         //Object.assign(this.props.record,this.state.input);
                         this.props.setVisible(false);
@@ -2392,11 +3626,6 @@ class Modal11 extends Component{
         },
         selectedRowKeys:[],
         data:[
-            {
-                key:1,
-                patientName:"test",
-                testNumber: "test",
-            }
         ],
         record:{
             loginName:"",
@@ -2634,11 +3863,6 @@ class Modal10 extends Component{
         },
         selectedRowKeys:[],
         data:[
-            {
-                key:1,
-                patientName:"test",
-                testNumber: "test",
-            }
         ],
         record:{
             loginName:"",
@@ -2679,7 +3903,7 @@ class Modal10 extends Component{
         )
     }
 }
-//title测试试剂数据,在测试次数的历史测试数据弹窗中
+//历史测试数据 测试次数 测试试剂数据
 class Modal9 extends Component{
     columns = [
         {
@@ -2698,7 +3922,7 @@ class Modal9 extends Component{
         },
         {
             title: '测试日期',
-            dataIndex: 'testTime',
+            dataIndex: 'testDate',
             width: 150,
             sorter: {
                 compare: (a, b) => a.testTime - b.testTime,
@@ -2863,14 +4087,293 @@ class Modal9 extends Component{
         }
         console.log("request:",data);
         console.log("???")
-        ajax("/user/test/data/his/cycle/type/list/"
-          +this.props.record.eupregnaTestHisId, {},'GET')
+				console.log(this.props.record)
+				let url = "/user/test/data/his/cycle/type/list/"+this.props.record.eupregnaTestHisId
+				//历史测试数据（生精能力）
+				if(this.props.record.testTypeCode==='male_fsh'){
+					url = '/user/test/data/male/fsh/his/list/' + this.props.record.eupregnaTestTypeHisId
+					this.columns = [
+						{
+								title: '序号',
+								dataIndex: 'key',
+								width:150,
+						},
+						{
+								title: '试剂',
+								dataIndex: 'paperName',
+								width:150,
+								sorter: {
+										compare: (a, b) => a.paperName - b.paperName,
+										multiple: 3,
+								},
+						},
+						{
+								title: '测试日期',
+								dataIndex: 'testTime',
+								width: 150,
+								sorter: {
+										compare: (a, b) => a.testTime - b.testTime,
+										multiple: 3,
+								},
+						},
+						{
+								title: '计划日期',
+								dataIndex: 'planTime',
+								width: 150,
+								sorter: {
+										compare: (a, b) => a.planTime - b.planTime,
+										multiple: 3,
+								},
+						},
+						{
+								title:'数值',
+								dataIndex:'value',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.value - b.value,
+										multiple: 3,
+								},
+						},
+						{
+								title:'GOD',
+								dataIndex:'tgod',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.tgod - b.tgod,
+										multiple: 3,
+								},
+						},
+						{
+								title:'批号',
+								dataIndex:'bathNumber',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.bathNumber - b.bathNumber,
+										multiple: 3,
+								},
+						},
+						{
+								title:'设备号',
+								dataIndex:'deviceNo',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.deviceNo - b.deviceNo,
+										multiple: 3,
+								},
+						},
+						{
+								title:'结果',
+								dataIndex:'result',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.result - b.result,
+										multiple: 3,
+								},
+						},
+						{
+								title:'测试状态',
+								dataIndex:'testStatus',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.testStatus - b.testStatus,
+										multiple: 3,
+								},
+						},
+						{
+								title:'测试图片',
+								dataIndex:'testPicPathAli',
+								width:150,
+								align:'center',
+								render: (text) =>
+									//   ////console.log("record的内容",record)
+									//<img src={text} width="100px" alt=""/>
+									<Image src={text} width="100px" alt=""/>
+						},
+						{
+								title:'C线图片',
+								dataIndex:'testCLinePicPathAli',
+								width:150,
+								align:'center',
+								render: (text) =>
+									//   ////console.log("record的内容",record)
+									//<img src={text} width="100px" alt=""/>
+									<Image src={text} width="100px" alt=""/>
+						},
+						{
+								title:'C线GOD',
+								dataIndex:'cgod',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.cgod - b.cgod,
+										multiple: 3,
+								},
+						},
+						{
+								title:'操作',
+								width:150,
+								align:'center',
+								render:(text,record)=>(
+									<Space>
+											<Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal(record)}}>修改数据</Button>
+									</Space>
+								),
+						},
+				  ];
+				}
+				//历史测试内容（精液液化）
+				if(this.props.record.testTypeCode==='sperm'){
+					url = '/user/test/data/semen/his/list/' + this.props.record.eupregnaTestTypeHisId
+					this.columns = [
+						{
+								title: '序号',
+								dataIndex: 'key',
+								width:150,
+						},
+						{
+								title: '开始时间',
+								dataIndex: 'startDate',
+								width:150,
+								sorter: {
+										compare: (a, b) => a.paperName - b.paperName,
+										multiple: 3,
+								},
+						},
+						{
+								title: '结束时间',
+								dataIndex: 'endDate',
+								width: 150,
+								sorter: {
+										compare: (a, b) => a.planTime - b.planTime,
+										multiple: 3,
+								},
+						},
+						{
+								title:'测试状态',
+								dataIndex:'testStatus',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.timeout - b.timeout,
+										multiple: 3,
+								},
+						},
+						{
+								title:'测试结果',
+								dataIndex:'result',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.testStatus - b.testStatus,
+										multiple: 3,
+								},
+						},
+						{
+							title:'是否完成',
+							dataIndex:'finishFlag',
+							width:150,
+							align:'center',
+							sorter: {
+									compare: (a, b) => a.testStatus - b.testStatus,
+									multiple: 3,
+							},
+							render:(text)=>{
+								if(text===false){
+									return(<span>否</span>)
+								}else if(text===true){
+									return(<span>是</span>)
+								}else{
+									return(<span></span>)
+								}
+							}
+					  },
+						{
+								title:'是否取消',
+								dataIndex:'abortFlag',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.testStatus - b.testStatus,
+										multiple: 3,
+								},
+								render:(text)=>{
+									if(text===false){
+										return(<span>否</span>)
+									}else if(text===true){
+										return(<span>是</span>)
+									}else{
+										return(<span></span>)
+									}
+								}
+						},
+						{
+							title:'用药类型',
+							dataIndex:'takeDrugType',
+							width:150,
+							align:'center',
+							sorter: {
+									compare: (a, b) => a.testStatus - b.testStatus,
+									multiple: 3,
+							},
+					  },
+						{
+							title:'用药日期',
+							dataIndex:'takeDrugDate',
+							width:150,
+							align:'center',
+							sorter: {
+									compare: (a, b) => a.testStatus - b.testStatus,
+									multiple: 3,
+							},
+					  },
+						{
+							title:'用药描述',
+							dataIndex:'takeDrugDesc',
+							width:150,
+							align:'center',
+							sorter: {
+									compare: (a, b) => a.testStatus - b.testStatus,
+									multiple: 3,
+							},
+					  },
+						{
+								title:'操作',
+								dataIndex:'patient_createTime',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.patient_name - b.patient_name,
+										multiple: 3,
+								},
+								render:(text,record)=>(
+										<Space>
+												<Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal14(record)}}>详细数据</Button>
+												<Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal5(record)}}>日志</Button>
+										</Space>
+								),
+						},
+				];
+				}
+				else{
+
+				}
+        ajax(url, {},'GET')
           .then((response)=>{
+						console.log('request1',response)
               if(response.data.data===null){
                   message.error("查询失败！")
               }else{
                   console.log(response)
                   let data=response.data.data.info;
+									if(data===undefined){
+										data=response.data.data
+									}
                   let paginationProps={...this.state.paginationProps};
                   addKey(data);
                   paginationProps.total=response.data.data.total;
@@ -2880,9 +4383,8 @@ class Modal9 extends Component{
                   this.setState({
                       data:data,
                       paginationProps:paginationProps,
-                  });
-              }
-
+                  },this.requestData3);
+								}
           });
         // ajax("/user/base/info/list",data,'POST')
         //   .then((response)=>{
@@ -2904,6 +4406,284 @@ class Modal9 extends Component{
         //       }
         //   });
     }
+		requestData3=()=>{
+			console.log("request3:");
+			console.log("request3:");
+			//卵巢功能评估
+			if(this.props.record.testTypeCode==="egg_quality"){
+			 ajax("/user/test/data/eggQualityCharts/his/"
+			 +this.props.record.eupregnaTestHisId, {},'GET')
+			 .then((response)=>{
+					 console.log(response)
+					 if(response.data.data===null){
+							 message.error("查询失败！")
+							 console.log('error',response)
+					 }else{
+						 if(!response.data.data.isData){
+							 message.info('无画图数据')
+							 return 0
+						 }
+							 //console.log(response)
+							 let data=response.data.data;
+							 this.setState({
+								data3:data,
+						},()=>{
+							console.log('data3:',this.state.data3.paperName)
+							//画图
+							let chartDom = document.getElementById('figure1');
+							let myChart = echarts.init(chartDom);
+							let option;
+				
+							option = {
+									xAxis: {
+											type: 'category',
+											data: this.state.data3.xData,
+											//boundaryGap: false,
+											// "axisLabel":{
+											// 	interval: 0
+												
+											// 	}
+									},
+									yAxis: {
+											type: 'value'
+									},
+									tooltip: {
+										trigger: 'axis'
+									},
+									legend: {
+										data: this.state.data3.legend
+									},
+									// toolbox: {
+									// 	show: true,
+									// 	feature: {
+									// 			dataZoom: {
+									// 					yAxisIndex: 'none'
+									// 			},
+									// 			dataView: {readOnly: false},
+									// 			magicType: {type: ['line', 'bar']},
+									// 			restore: {},
+									// 			saveAsImage: {}
+									// 	}
+									// },
+									series: [
+										{
+											name: this.state.data3.result[0].name,
+											data: this.state.data3.result[0].data,
+											type: 'line'
+											},
+										 {
+											 name: this.state.data3.result[1].name,
+											 data: this.state.data3.result[1].data,
+											 type: 'line'
+										 },
+										 {
+											 name: this.state.data3.result[2].name,
+											 data: this.state.data3.result[2].data,
+											 type: 'line'
+										 },
+								 ]
+							};
+				
+							option && myChart.setOption(option);
+						});
+
+					 }
+			 });
+			}
+			//精液液化 用户名：77777777773
+			else if(this.props.record.testTypeCode==="sperm"){
+				//精液液化 用户名：77777777773
+
+			 ajax("/user/test/data/semen/canvas/time/his/"
+			 +this.props.record.eupregnaTestTypeHisId, {},'GET')
+			 .then((response)=>{
+					 console.log(response)
+					 if(response.data.data===null){
+							 message.error("查询失败！")
+							 console.log('error',response)
+					 }else{
+						 if(!response.data.data.isData){
+							 message.info('无画图数据')
+							 return 0
+						 }
+						 //console.log(response)
+						 let data=response.data.data;
+						 this.setState({
+							 data3:data,
+						},()=>{
+							console.log('data3:',this.state.data3.paperName)
+							//画图
+							let chartDom = document.getElementById('figure1');
+							let myChart = echarts.init(chartDom);
+							let option;
+				
+							option = {
+									xAxis: {
+											type: 'category',
+											data: this.state.data3.xData,
+											//boundaryGap: false,
+											// "axisLabel":{
+											// 	interval: 0
+												
+											// 	}
+									},
+									yAxis: {
+											type: 'value'
+									},
+									tooltip: {
+										trigger: 'axis'
+									},
+									legend: {
+									 //data: [this.state.data3.paperName[0]]
+									 data: ['精液液化']
+									},
+									series: [{
+									 //name: this.state.data3.paperName[0],
+									 name: '精液液化',
+									 data: this.state.data3.data,
+									 type: 'line'
+									}]
+							};
+				
+							option && myChart.setOption(option);
+						});
+
+					 }
+			 });
+			}
+			//生精功能 用户名：Rabbit
+			else if(this.props.record.testTypeCode==="male_fsh"){
+			 //生精功能 用户名：Rabbit
+			 //tested
+			 console.log('圣经')
+			ajax("/user/test/data/male/fsh/canvas/his/"
+			+this.props.record.eupregnaTestTypeHisId, {},'GET')
+			.then((response)=>{
+					console.log(response)
+					if(response.data.data===null){
+							message.error("查询失败！")
+							console.log('error',response)
+					}else{
+						if(!response.data.data.isData){
+							message.info('无画图数据')
+							return 0
+						}
+						//console.log(response)
+						let data=response.data.data;
+						if(data.paperName===undefined){
+						 data.paperName = ['tmp']
+						}
+						this.setState({
+							data3:data,
+					 },()=>{
+						 console.log('data3:',this.state.data3.paperName)
+						 //画图
+						 let chartDom = document.getElementById('figure1');
+						 let myChart = echarts.init(chartDom);
+						 let option;
+			 
+						 option = {
+								 xAxis: {
+										 type: 'category',
+										 data: this.state.data3.xData,
+										 //boundaryGap: false,
+										//  "axisLabel":{
+										// 	 interval: 0
+											 
+										// 	 }
+								 },
+								 yAxis: {
+										 type: 'value'
+								 },
+								 tooltip: {
+									 trigger: 'axis'
+								 },
+								 legend: {
+									 data: [this.state.data3.paperName[0]]
+								 },
+								 series: [{
+										 name: this.state.data3.paperName[0],
+										 data: this.state.data3.data,
+										 type: 'line'
+								 }]
+						 };
+			 
+						 option && myChart.setOption(option);
+					 });
+
+					}
+			});
+		 }else{
+				//其他图表绘制（寻找黄金优孕期、早期妊娠确认、早期胚胎检测）
+				//tested
+			 ajax("/user/test/data/his/canvas/charts/"
+			 +this.props.record.eupregnaTestHisId, {},'GET')
+			 .then((response)=>{
+					 console.log(response)
+					 if(response.data.data===null){
+							 message.error("查询失败！")
+							 console.log('error',response)
+					 }else{
+						 if(!response.data.data.isData){
+							 message.info('无画图数据')
+							 return 0
+						 }
+						 //console.log(response)
+						 let data=response.data.data;
+						 this.setState({
+							 data3:data,
+						},()=>{
+							console.log('data3:',this.state.data3.paperName)
+							//画图
+							let chartDom = document.getElementById('figure1');
+							let myChart = echarts.init(chartDom);
+							let option;
+				
+							option = {
+									xAxis: {
+											type: 'category',
+											data: this.state.data3.xData,
+											//boundaryGap: false,
+											// "axisLabel":{
+											// 	interval: 0
+												
+											// 	}
+									},
+									yAxis: {
+											type: 'value'
+									},
+									tooltip: {
+										trigger: 'axis'
+									},
+									legend: {
+										data: [this.state.data3.paperName[0]]
+									},
+									// toolbox: {
+									// 	show: true,
+									// 	feature: {
+									// 			dataZoom: {
+									// 					yAxisIndex: 'none'
+									// 			},
+									// 			dataView: {readOnly: false},
+									// 			magicType: {type: ['line', 'bar']},
+									// 			restore: {},
+									// 			saveAsImage: {}
+									// 	}
+									// },
+									series: [{
+											name: this.state.data3.paperName[0],
+											data: this.state.data3.data,
+											type: 'line'
+									}]
+							};
+				
+							option && myChart.setOption(option);
+						});
+
+					 }
+			 });
+			}
+	  }
     //弹窗关闭函数
     handleCancel= ()=>{
         this.props.setVisible(false);
@@ -2932,7 +4712,7 @@ class Modal9 extends Component{
                         ////console.log("请求错误！",response);
                         message.error("添加失败！")
                     }else{
-                        form.resetFields();
+                        //form.resetFields();
                         ////console.log("添加成功：",response);
                         //Object.assign(this.props.record,this.state.input);
                         this.props.setVisible(false);
@@ -2953,7 +4733,7 @@ class Modal9 extends Component{
         //console.log('Formatted Selected Time: ', dateString);
         let input = {};
         Object.assign(input, this.state.input)
-        //this.state.input.testTime=dateString;
+        input.testTime=dateString;
         this.setState({
             input:input,
             testTime:value,
@@ -2994,16 +4774,47 @@ class Modal9 extends Component{
             );
     }
     setModalvisible=(flag)=>{
-        this.setState({
-            modalVisible:flag,
-        });
+			let page = {
+				page:1,
+				pageSize:10
+			}
+			this.requestData(page)
+					this.setState({
+							modalVisible:flag,
+					});
+			}
+			lookModal=record=>{
+					this.setState({
+							modalVisible:true,
+							record:record,
+					});
+		}
+		//弹窗14 详细数据
+    Modal14 = ()=>{
+        if(this.state.modalVisible14)
+            return(
+              <Modal14
+                record={this.state.record14}
+                visible={this.state.modalVisible14}
+                setVisible={this.setModalvisible14}
+              />
+            );
     }
-    lookModal=record=>{
-        this.setState({
-            modalVisible:true,
-            record:record,
-        });
-    }
+		setModalvisible14=(flag)=>{
+			this.setState({
+					modalVisible14:flag,
+			});
+		}
+		lookModal14=record=>{
+				let record14 = record;
+				record14.testSetName = this.props.record.testSetName
+				record14.nickName = this.props.record.nickName
+
+				this.setState({
+						modalVisible14:true,
+						record14:record14,
+				});
+		}
 
     /*表单验证
       Form.useForm是是 React Hooks 的实现，只能用于函数组件
@@ -3023,13 +4834,13 @@ class Modal9 extends Component{
               >
                   <div>
                       <div>
-                          <span className={"span1"}>用户名{this.props.record.nickName}</span>
+                          <span className={"span1"}>用户名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{this.props.record.nickName}</span>
                       </div>
                       <div>
-                          <span className={"span1"}>测试类型 {this.props.record.testType}</span>
+                          <span className={"span1"}>测试类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{this.props.record.testTypeName}</span>
                       </div>
                       <div>
-                          这里有一个表，后面做
+												<div id="figure1" style={{ width: '100%', height: 500 }}></div>
                       </div>
                   </div>
                   <div>
@@ -3050,11 +4861,12 @@ class Modal9 extends Component{
 
               </Modal>
               {this.Modal()}
+              {this.Modal14()}
           </div>
         )
     }
 }
-//测试次数
+//历史测试数据 测试次数
 class Modal8 extends Component{
     //初始化
     constructor(props) {
@@ -3219,11 +5031,6 @@ class Modal8 extends Component{
         },
         selectedRowKeys:[],
         data:[
-            {
-                key:1,
-                patientName:"test",
-                testNumber: "test",
-            }
         ],
         record:{
             loginName:"",
@@ -3253,10 +5060,14 @@ class Modal8 extends Component{
         });
     }
     lookModal9=record=>{
-        this.setState({
-            modalVisible9:true,
-            record9:record,
-        });
+			let record9 = record;
+			record9.testSetName = this.props.record.testSetName
+			record9.nickName = this.props.record.nickName
+			//record9.eupregnaTestHisId = this.props.record.eupregnaTestHisId
+			this.setState({
+					modalVisible9:true,
+					record9:record,
+			});
     }
     //弹窗6
     //测试问题数据弹窗
@@ -3298,7 +5109,7 @@ class Modal8 extends Component{
                           <div>
                               <span className={"span1"}>用户名&nbsp;&nbsp;&nbsp;&nbsp;{this.props.record.nickName}&nbsp;&nbsp;&nbsp;&nbsp;</span>
                           </div>
-                          <p>时间 {this.props.record.startDate+'-'+this.props.record.endDate}</p>
+                          <p>时间 {this.props.record.startDate}&nbsp;&nbsp;-&nbsp;&nbsp;{this.props.record.endDate}</p>
                       </div>
                       <div style={{heigh:"100%"}}>
                           <Table
@@ -3483,11 +5294,6 @@ class Modal7 extends Component{
         },
         selectedRowKeys:[],
         data:[
-            {
-                key:1,
-                patientName:"test",
-                testNumber: "test",
-            }
         ],
         record:{
             loginName:"",
@@ -3499,53 +5305,6 @@ class Modal7 extends Component{
     };
 
     //弹窗函数
-    //弹窗1
-    //测试试剂数据
-    Modal = ()=>{
-        if(this.state.modalVisible)
-            return(
-              <Modal1
-                record={this.state.record}
-                visible={this.state.modalVisible}
-                setVisible={this.setModalvisible}
-              />
-            );
-    }
-    setModalvisible=(flag)=>{
-        this.setState({
-            modalVisible:flag,
-        });
-    }
-    lookModal=record=>{
-        console.log('?')
-        this.setState({
-            modalVisible:true,
-            record:record,
-        });
-    }
-    //弹窗6
-    //测试问题数据弹窗
-    Modal6 = ()=>{
-        if(this.state.modalVisible6)
-            return(
-              <Modal6
-                record={this.state.record6}
-                visible={this.state.modalVisible6}
-                setVisible={this.setModalvisible6}
-              />
-            );
-    }
-    setModalvisible6=(flag)=>{
-        this.setState({
-            modalVisible6:flag,
-        });
-    }
-    lookModal6=record=>{
-        this.setState({
-            modalVisible6:true,
-            record6:record,
-        });
-    }
     //弹窗8
     //测试次数弹窗
     Modal8 = ()=>{
@@ -3564,10 +5323,13 @@ class Modal7 extends Component{
         });
     }
     lookModal8=record=>{
-        this.setState({
-            modalVisible8:true,
-            record8:record,
-        });
+			let record8 = record;
+			record8.testSetName = this.props.record.testSetName
+			record8.nickName = this.props.record.nickName
+			this.setState({
+					modalVisible8:true,
+					record8:record,
+			});
     }
     //弹窗10
     //测试次数弹窗
@@ -3794,7 +5556,7 @@ class Modal6 extends Component{
                         ////console.log("请求错误！",response);
                         message.error("添加失败！")
                     }else{
-                        form.resetFields();
+                        //form.resetFields();
                         ////console.log("添加成功：",response);
                         //Object.assign(this.props.record,this.state.input);
                         this.props.setVisible(false);
@@ -3963,7 +5725,7 @@ class Modal5 extends Component{
               let data={};
               let myInput=Object.keys(this.state.input);
               for(let ii=0;ii<myInput.length;ii++){
-                  if(this.state.input[myInput[ii]]!==""){
+                  if(this.state.input[myInput[ii]]!==""&&this.state.input[myInput[ii]]!==null){
                       data[myInput[ii]]=this.state.input[myInput[ii]];
                   }
               }
@@ -3977,7 +5739,7 @@ class Modal5 extends Component{
                     if(response.data.code!==1004){
                         console.log("请求错误！",response);
                     }else{
-                        form.resetFields();
+                        //form.resetFields();
                         console.log("修改成功：",response);
                         //Object.assign(this.props.record,this.state.input);
                         message.success('修改成功')
@@ -4000,6 +5762,22 @@ class Modal5 extends Component{
             input:Object.assign(this.state.input,source),
         })
     }
+		rangePickerOnChange=(value, dateString,valueName)=>{
+			console.log('Selected Time: ', value);
+			//console.log('Formatted Selected Time: ', dateString);
+			let input = {};
+			let state = {};
+			Object.assign(input, this.state.input)
+			Object.assign(state, this.state)
+			if(valueName==='manBirthday'||valueName==='womanBirthday'||valueName==='preferTestTime'){
+				input[valueName]=dateString;
+			}else{
+				input[valueName]=dateString+' 00:00:00';
+			}
+			state.input = input
+			state[valueName] = value
+			this.setState(state)
+	}
     //表格行选择
     onSelectChange = row => {
         console.log('所选择行',row)
@@ -4115,11 +5893,6 @@ class Modal5 extends Component{
         },
         selectedRowKeys:[],
         data:[
-            {
-                key:1,
-                patientName:"test",
-                testNumber: "test",
-            }
         ],
         record:{
             loginName:"",
@@ -4209,7 +5982,8 @@ class Modal5 extends Component{
                                              },
                                          ]}
                               >
-                                  <DatePicker showTime onChange={this.rangePickerOnChange} onOk={this.rangePickerOnOk} value={this.state.planTime}/>
+                                  <DatePicker showTime onChange={(value, dateString)=>
+																		{this.rangePickerOnChange(value, dateString,'planTime')}}  onOk={this.rangePickerOnOk} value={this.state.planTime}/>
                               </Form.Item>
                               <Form.Item label="超时时间"
                                          name={"timeout"}
@@ -4282,9 +6056,11 @@ class Modal4 extends Component{
                 .then((response)=>{
                     if(response.data.code!==1002){
                         console.log("请求错误！",response);
+												message.error(response.data.msg)
                     }else{
-                        form.resetFields();
+                        //form.resetFields();
                         console.log("修改成功：",response);
+												message.success(response.data.msg);
                         //Object.assign(this.props.record,this.state.input);
                         this.props.setVisible(false);
                     }
@@ -4784,11 +6560,6 @@ class Modal3 extends Component{
         },
         selectedRowKeys:[],
         data:[
-            {
-                key:1,
-                patientName:"test",
-                testNumber: "test",
-            }
         ],
         record:{
             loginName:"",
@@ -4932,11 +6703,13 @@ class Modal2 extends Component{
               //console.log("request:",data);
               ajax(url,data,'POST')
                 .then((response)=>{
-                    if(response.data.code!==1000){
+                    if(response.data.code!==2104){
                         console.log("请求错误！",response);
+												message.error(response.data.msg)
                     }else{
-                        form.resetFields();
+                        ////form.resetFields();
                         console.log("发送成功：",response);
+												message.success(response.data.msg)
                         //Object.assign(this.props.record,this.state.input);
                         this.props.setVisible(false);
                     }
@@ -5039,7 +6812,7 @@ class Modal2 extends Component{
                           >
                               <Select placeholder="请选择激活状态 "
                                       onChange={this.selectChange}
-                                      className="input1"
+                                      style={{width:'100%'}}
                                       value={this.state.input.eventContent}
                               >
                                   <Option title="eventContent" value="has_bleeding">来月经</Option>
@@ -5191,7 +6964,7 @@ class Modal1 extends Component{
             },
         },
         {
-            title:'结果',
+            title:'测试结果',
             dataIndex:'result',
             width:150,
             align:'center',
@@ -5286,69 +7059,659 @@ class Modal1 extends Component{
             page:1,
             pageSize:10
         }
-        this.requestData2(page).then(this.requestData1(page))
+        this.requestData1(page)
         //时间格式转换
         // let testTime=this.props.record.testTime;
         // let mymoment = moment(testTime,'YYYY-MM-DD HH:mm:ss');
         // this.state.testTime=mymoment;
     }
+		componentDidMount = ()=>{
+			//this.requestData3()
+		}
     //函数部分
     requestData1=(page)=>{
-        let data={
-            ...page,
-        }
-        console.log("request:",data);
-        console.log('req2')
-        ajax("/user/test/data/detail/plan/list/"
-          +this.props.record.clientId+'/'+this.props.record.testTypeId, {},'GET')
-          .then((response)=>{
-              if(response.data.data===null){
-                  message.error("查询失败！")
-              }else{
-                  let data=response.data.data.info;
-                  let paginationProps={...this.state.paginationProps};
-                  addKey(data);
-                  paginationProps.total=response.data.data.total;
-                  paginationProps.current=page.page;
-                  paginationProps.pageSize=page.pageSize;
-                  console.log("request1 data:",response);
-                  this.setState({
-                      data1:data,
-                      paginationProps:paginationProps,
-                  });
-              }
+			let url = "/user/test/data/detail/plan/list/" 
+			+this.props.record.clientId+'/'+this.props.record.testTypeId
+			//精液液化
+			if(this.props.record.testTypeCode==='sperm'){
+				console.log('this')
+				url = '/user/test/data/semen/test/list/'
+					+this.props.record.eupregnaTestTypeId
+					this.columns1 = [
+						{
+								title: '序号',
+								dataIndex: 'key',
+								width:150,
+						},
+						{
+								title: '开始时间',
+								dataIndex: 'startDate',
+								width:150,
+								sorter: {
+										compare: (a, b) => a.paperName - b.paperName,
+										multiple: 3,
+								},
+						},
+						{
+								title: '结束时间',
+								dataIndex: 'endDate',
+								width: 150,
+								sorter: {
+										compare: (a, b) => a.planTime - b.planTime,
+										multiple: 3,
+								},
+						},
+						{
+								title:'测试状态',
+								dataIndex:'testStatus',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.timeout - b.timeout,
+										multiple: 3,
+								},
+						},
+						{
+								title:'测试结果',
+								dataIndex:'result',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.testStatus - b.testStatus,
+										multiple: 3,
+								},
+						},
+						{
+							title:'是否完成',
+							dataIndex:'finishFlag',
+							width:150,
+							align:'center',
+							sorter: {
+									compare: (a, b) => a.testStatus - b.testStatus,
+									multiple: 3,
+							},
+							render:(text)=>{
+									if(text===false){
+										return(<span>否</span>)
+									}else if(text===true){
+										return(<span>是</span>)
+									}else{
+										return(<span></span>)
+									}
+							}
+					  },
+						{
+								title:'是否取消',
+								dataIndex:'abortFlag',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.testStatus - b.testStatus,
+										multiple: 3,
+								},
+								render:(text)=>{
+									if(text===false){
+										return(<span>否</span>)
+									}else if(text===true){
+										return(<span>是</span>)
+									}else{
+										return(<span></span>)
+									}
+								}
+						},
+						{
+							title:'用药类型',
+							dataIndex:'takeDrugType',
+							width:150,
+							align:'center',
+							sorter: {
+									compare: (a, b) => a.testStatus - b.testStatus,
+									multiple: 3,
+							},
+					  },
+						{
+							title:'用药日期',
+							dataIndex:'takeDrugDate',
+							width:150,
+							align:'center',
+							sorter: {
+									compare: (a, b) => a.testStatus - b.testStatus,
+									multiple: 3,
+							},
+					  },
+						{
+							title:'用药描述',
+							dataIndex:'takeDrugDesc',
+							width:150,
+							align:'center',
+							sorter: {
+									compare: (a, b) => a.testStatus - b.testStatus,
+									multiple: 3,
+							},
+					  },
+						{
+								title:'操作',
+								dataIndex:'patient_createTime',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.patient_name - b.patient_name,
+										multiple: 3,
+								},
+								render:(text,record)=>(
+										<Space>
+												<Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal13(record)}}>详细数据</Button>
+												<Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal5(record)}}>日志</Button>
+										</Space>
+								),
+						},
+				];
+			}
+			//生精能力
+			if(this.props.record.testTypeCode==='male_fsh'){
+				url = '/user/test/data/male/fsh/list/'
+					+this.props.record.eupregnaTestTypeId
+					this.columns1 = [
+						{
+								title: '序号',
+								dataIndex: 'key',
+								width:150,
+						},
+						{
+								title: '试剂',
+								dataIndex: 'paperName',
+								width:150,
+								sorter: {
+										compare: (a, b) => a.paperName - b.paperName,
+										multiple: 3,
+								},
+						},
+						{
+								title: '测试日期',
+								dataIndex: 'testTime',
+								width: 150,
+								sorter: {
+										compare: (a, b) => a.testTime - b.testTime,
+										multiple: 3,
+								},
+						},
+						{
+								title: '计划日期',
+								dataIndex: 'planTime',
+								width: 150,
+								sorter: {
+										compare: (a, b) => a.planTime - b.planTime,
+										multiple: 3,
+								},
+						},
+						{
+								title:'数值',
+								dataIndex:'value',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.value - b.value,
+										multiple: 3,
+								},
+						},
+						{
+								title:'GOD',
+								dataIndex:'tgod',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.tgod - b.tgod,
+										multiple: 3,
+								},
+						},
+						{
+								title:'批号',
+								dataIndex:'bathNumber',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.bathNumber - b.bathNumber,
+										multiple: 3,
+								},
+						},
+						{
+								title:'设备号',
+								dataIndex:'deviceNo',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.deviceNo - b.deviceNo,
+										multiple: 3,
+								},
+						},
+						// {
+						// 		title:'测试结论',
+						// 		dataIndex:'testResult',
+						// 		width:150,
+						// 		align:'center',
+						// 		sorter: {
+						// 				compare: (a, b) => a.result - b.result,
+						// 				multiple: 3,
+						// 		},
+						// },
+						{
+								title:'测试图片',
+								dataIndex:'testPicPathAli',
+								width:150,
+								align:'center',
+								render: (text) =>
+									//   ////console.log("record的内容",record)
+									//<img src={text} width="100px" alt=""/>
+									<Image src={text} width="100px" alt=""/>
+						},
+						{
+								title:'C线图片',
+								dataIndex:'testCLinePicPathAli',
+								width:150,
+								align:'center',
+								render: (text) =>
+									//   ////console.log("record的内容",record)
+									//<img src={text} width="100px" alt=""/>
+									<Image src={text} width="100px" alt=""/>
+						},
+						{
+								title:'C线GOD',
+								dataIndex:'cgod',
+								width:150,
+								align:'center',
+								sorter: {
+										compare: (a, b) => a.cgod - b.cgod,
+										multiple: 3,
+								},
+						},
+						// {
+						// 		title:'FSH/LH',
+						// 		dataIndex:'fshLh',
+						// 		width:150,
+						// 		align:'center',
+						// 		sorter: {
+						// 				compare: (a, b) => a.fshLh - b.fshLh,
+						// 				multiple: 3,
+						// 		},
+						// },
+						// {
+						// 		title:'LH/FSH',
+						// 		dataIndex:'lhFsh',
+						// 		width:150,
+						// 		align:'center',
+						// 		sorter: {
+						// 				compare: (a, b) => a.lhFsh - b.lhFsh,
+						// 				multiple: 3,
+						// 		},
+						// },
+						// {
+						// 		title:'操作',
+						// 		width:150,
+						// 		align:'center',
+						// 		render:(text,record)=>(
+						// 			<Space>
+						// 					<Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal(record)}}>修改数据</Button>
+						// 			</Space>
+						// 		),
+						// },
+				];
+			}
+			let data={
+					...page,
+			}
+			console.log("request1:",data);
+			ajax(url, {},'GET')
+				.then((response)=>{
+					console.log("res1",response)
+						if(response.data.code!==1000){
+								message.error("查询失败！")
+						}else if(response.data.data===null){
 
-          });
+						}
+						else{
+							let data=response.data.data.info
+							if(data===undefined){
+								data=response.data.data
+							}
+							let paginationProps={...this.state.paginationProps};
+							addKey(data);
+							paginationProps.total=response.data.data.total;
+							paginationProps.current=page.page;
+							paginationProps.pageSize=page.pageSize;
+							console.log("request1 data:",response);
+							this.setState({
+									data1:data,
+									paginationProps:paginationProps,
+							});
+						}
+						//精液液化
+						if(this.props.record.testTypeCode==='sperm'){
+							this.setState({
+								display2:'none',
+								display3:'none'
+							})
+							this.requestData3(page)
+						}
+						//生精能力
+						else if(this.props.record.testTypeCode==='male_fsh'){
+							this.setState({
+								display2:'none',
+								display3:'none'
+							})
+							this.requestData3(page)
+						}else{
+							this.requestData2(page)
+						}
+				});
     }
     requestData2=(page)=>{
-       let data={
-            ...page,
-        }
-        console.log("request:",data);
-        console.log("???")
-        let Promis = ajax("/user/test/data/detail/list/"
-          +this.props.record.clientId+'/'+this.props.record.testTypeId, {},'GET')
-          .then((response)=>{
-              if(response.data.data===null){
-                  message.error("查询失败！")
-                  console.log('error',response)
-              }else{
-                  //console.log(response)
-                  let data=response.data.data.info;
-                  let paginationProps={...this.state.paginationProps};
-                  addKey(data);
-                  paginationProps.total=response.data.data.total;
-                  paginationProps.current=page.page;
-                  paginationProps.pageSize=page.pageSize;
-                  console.log("data:",response);
-                  this.setState({
-                      data2:data,
-                      paginationProps:paginationProps,
-                  });
-              }
-          });
-        return Promis;
+			let data={
+					...page,
+			}
+			console.log("request2:",data);
+			console.log("???")
+			ajax("/user/test/data/detail/list/"
+				+this.props.record.clientId+'/'+this.props.record.testTypeId, {},'GET')
+				.then((response)=>{
+						if(response.data.data===null){
+								message.error("查询失败！")
+								console.log('error',response)
+						}else{
+								//console.log(response)
+								let data=response.data.data.info;
+								let paginationProps={...this.state.paginationProps};
+								addKey(data);
+								paginationProps.total=response.data.data.total;
+								paginationProps.current=page.page;
+								paginationProps.pageSize=page.pageSize;
+								console.log("data:",response);
+								this.setState({
+										data2:data,
+										paginationProps:paginationProps,
+								},()=>{
+									if(this.state.data2.length===0){
+
+									}else{
+										this.requestData3(page)
+									}
+								});
+						}
+
+				});
     }
+		requestData3=()=>{
+			 console.log("request3:");
+			 //卵巢功能评估
+			 if(this.props.record.testTypeCode==="egg_quality"){
+				ajax("/user/test/data/eggQualityCharts/"
+				+this.state.data2[0].eupregnaTestId, {},'GET')
+				.then((response)=>{
+						console.log(response)
+						if(response.data.data===null){
+								message.error("查询失败！")
+								console.log('error',response)
+						}else{
+							if(!response.data.data.isData){
+								message.info('无画图数据')
+								return 0
+							}
+								//console.log(response)
+								let data=response.data.data;
+								this.setState({
+								 data3:data,
+						 },()=>{
+							 console.log('data3:',this.state.data3.paperName)
+							 //画图
+							 let chartDom = document.getElementById('figure1');
+							 let myChart = echarts.init(chartDom);
+							 let option;
+				 
+							 option = {
+									 xAxis: {
+											 type: 'category',
+											 data: this.state.data3.xData,
+											 //boundaryGap: false,
+											//  "axisLabel":{
+											// 	 interval: 0
+											// 	 }
+									 },
+									 yAxis: {
+											 type: 'value'
+									 },
+									 tooltip: {
+										 trigger: 'axis'
+									 },
+									 legend: {
+										 data: this.state.data3.legend
+									 },
+									 // toolbox: {
+									 // 	show: true,
+									 // 	feature: {
+									 // 			dataZoom: {
+									 // 					yAxisIndex: 'none'
+									 // 			},
+									 // 			dataView: {readOnly: false},
+									 // 			magicType: {type: ['line', 'bar']},
+									 // 			restore: {},
+									 // 			saveAsImage: {}
+									 // 	}
+									 // },
+									 series: [
+										 {
+											 name: this.state.data3.result[0].name,
+											 data: this.state.data3.result[0].data,
+											 type: 'line'
+									 		},
+											{
+												name: this.state.data3.result[1].name,
+												data: this.state.data3.result[1].data,
+												type: 'line'
+											},
+											{
+												name: this.state.data3.result[2].name,
+												data: this.state.data3.result[2].data,
+												type: 'line'
+											},
+									]
+							 };
+				 
+							 option && myChart.setOption(option);
+						 });
+
+						}
+				});
+			 }
+			 //精液液化
+			 else if(this.props.record.testTypeCode==="sperm"){
+				 //精液液化 用户名：77777777773
+
+				ajax("/user/test/data/canvasSemenCharts/"
+				+this.props.record.eupregnaTestTypeId, {},'GET')
+				.then((response)=>{
+						console.log(response)
+						if(response.data.data===null){
+								message.error("查询失败！")
+								console.log('error',response)
+						}else{
+							if(!response.data.data.isData){
+								message.info('无画图数据')
+								return 0
+							}
+							//console.log(response)
+							let data=response.data.data;
+							this.setState({
+								data3:data,
+						 },()=>{
+							 console.log('data3:',this.state.data3.paperName)
+							 //画图
+							 let chartDom = document.getElementById('figure1');
+							 let myChart = echarts.init(chartDom);
+							 let option;
+				 
+							 option = {
+									 xAxis: {
+											 type: 'category',
+											 data: this.state.data3.xData,
+											 //boundaryGap: false,
+											//  "axisLabel":{
+											// 	 interval: 0
+												 
+											// 	 }
+									 },
+									 yAxis: {
+											 type: 'value'
+									 },
+									 tooltip: {
+										 trigger: 'axis'
+									 },
+									 legend:{data: ['精液液化']},
+									 series: [{
+										//name: this.state.data3.paperName[0],
+										name: '精液液化',
+										data: this.state.data3.data,
+										type: 'line'
+									 }]
+							 };
+				 
+							 option && myChart.setOption(option);
+						 });
+
+						}
+				});
+			 }
+			 //生精能力
+			 else if(this.props.record.testTypeCode==="male_fsh"){
+				//生精功能 用户名：Rabbit
+				//tested
+				console.log('圣经')
+			 ajax("/user/test/data/canvasMaleFshCharts/"
+			 +this.props.record.eupregnaTestTypeId, {},'GET')
+			 .then((response)=>{
+					 console.log(response)
+					 if(response.data.data===null){
+							 message.error("查询失败！")
+							 console.log('error',response)
+					 }else{
+						 if(!response.data.data.isData){
+							 message.info('无画图数据')
+							 return 0
+						 }
+						 //console.log(response)
+						 let data=response.data.data;
+						 if(data.paperName===undefined){
+							data.paperName = ['tmp']
+						 }
+						 this.setState({
+							 data3:data,
+						},()=>{
+							console.log('data3:',this.state.data3.paperName)
+							//画图
+							let chartDom = document.getElementById('figure1');
+							let myChart = echarts.init(chartDom);
+							let option;
+				
+							option = {
+									xAxis: {
+											type: 'category',
+											data: this.state.data3.xData,
+											//boundaryGap: false,
+											// "axisLabel":{
+											// 	interval: 0
+												
+											// 	}
+									},
+									yAxis: {
+											type: 'value'
+									},
+									tooltip: {
+										trigger: 'axis'
+									},
+									legend: {
+										data: [this.state.data3.paperName[0]]
+									},
+									series: [{
+											name: this.state.data3.paperName[0],
+											data: this.state.data3.data,
+											type: 'line'
+									}]
+							};
+				
+							option && myChart.setOption(option);
+						});
+
+					 }
+			 });
+			}else{
+				 //其他图表绘制（寻找黄金优孕期、早期妊娠确认、早期胚胎检测）
+				 //tested
+				ajax("/user/test/data/canvasCharts/"
+				+this.state.data2[0].eupregnaTestId, {},'GET')
+				.then((response)=>{
+						console.log(response)
+						if(response.data.data===null){
+								message.error("查询失败！")
+								console.log('error',response)
+						}else{
+							if(!response.data.data.isData){
+								message.info('无画图数据')
+								return 0
+							}
+							//console.log(response)
+							let data=response.data.data;
+							this.setState({
+								data3:data,
+						 },()=>{
+							 console.log('data3:',this.state.data3.paperName)
+							 //画图
+							 let chartDom = document.getElementById('figure1');
+							 let myChart = echarts.init(chartDom);
+							 let option;
+				 
+							 option = {
+									 xAxis: {
+											 type: 'category',
+											 data: this.state.data3.xData,
+											 boundaryGap: true,
+											//  "axisLabel":{
+											// 	 interval: 0
+												 
+											// 	 }
+									 },
+									 yAxis: {
+											 type: 'value'
+									 },
+									 tooltip: {
+										 trigger: 'axis'
+									 },
+									 legend: {
+										 data: [this.state.data3.paperName[0]]
+									 },
+									 // toolbox: {
+									 // 	show: true,
+									 // 	feature: {
+									 // 			dataZoom: {
+									 // 					yAxisIndex: 'none'
+									 // 			},
+									 // 			dataView: {readOnly: false},
+									 // 			magicType: {type: ['line', 'bar']},
+									 // 			restore: {},
+									 // 			saveAsImage: {}
+									 // 	}
+									 // },
+									 series: [{
+											 name: this.state.data3.paperName[0],
+											 data: this.state.data3.data,
+											 type: 'line'
+									 }]
+							 };
+				 
+							 option && myChart.setOption(option);
+						 });
+
+						}
+				});
+			 }
+	 }
     //弹窗关闭函数
     handleCancel= ()=>{
         this.props.setVisible(false);
@@ -5377,7 +7740,7 @@ class Modal1 extends Component{
                         ////console.log("请求错误！",response);
                         message.error("添加失败！")
                     }else{
-                        form.resetFields();
+                        //form.resetFields();
                         ////console.log("添加成功：",response);
                         //Object.assign(this.props.record,this.state.input);
                         this.props.setVisible(false);
@@ -5439,6 +7802,13 @@ class Modal1 extends Component{
             );
     }
     setModalvisible=(flag)=>{
+			if(flag===false){
+				let page = {
+					page:1,
+					pageSize:10
+				}
+				this.requestData1(page)
+			}
         this.setState({
             modalVisible:flag,
         });
@@ -5494,6 +7864,13 @@ class Modal1 extends Component{
         }
     }
     setModalvisible5=(flag)=>{
+			if(flag===false){
+				let page = {
+					page:1,
+					pageSize:10
+				}
+				this.requestData1(page)
+			}
         this.setState({
             modalVisible5:flag,
         });
@@ -5508,6 +7885,36 @@ class Modal1 extends Component{
             record5:record5,
         });
     }
+		//弹窗13
+    //精液液化 详细数据
+    Modal13 = ()=>{
+			if(this.state.modalVisible13)
+			{
+					return(
+						<Modal13
+							record={this.state.record13}
+							visible={this.state.modalVisible13}
+							setVisible={this.setModalvisible13}
+						/>
+					);
+			}
+	}
+	setModalvisible13=(flag)=>{
+			this.setState({
+					modalVisible13:flag,
+			});
+	}
+	lookModal13=record=>{
+			let record13 = record;
+			record13.testSetName = this.props.record.testSetName
+			record13.nickName = this.props.record.nickName
+			record13.testTypeName = this.props.record.testTypeName
+
+			this.setState({
+					modalVisible13:true,
+					record13:record13,
+			});
+	}
     /*表单验证
       Form.useForm是是 React Hooks 的实现，只能用于函数组件
       class组件中通过 React.createRef()来获取数据域*/
@@ -5532,12 +7939,12 @@ class Modal1 extends Component{
                           <span className={"span1"}>测试类型&nbsp; {this.props.record.testType}</span>
                       </div>
                       <div>
-                          这里有一个表，后面做
+												<div id="figure1" style={{ width: '100%', height: 500 }}></div>
                       </div>
                   </div>
 
-                  <div>
-                      <Button
+                  <div style = {this.state.style1}>
+                      <Button style = {{display:this.state.display2}}
                         type="primary"
                         icon={<PlusOutlined  className="icon1" />}
                         onClick={this.lookModal}
@@ -5557,7 +7964,7 @@ class Modal1 extends Component{
                       </div>
                   </div>
 
-                  <div>
+                  <div style = {{display:this.state.display3}}>
                       <div>
                           <span className={"span1"}>测试数据</span>
                       </div>
@@ -5576,6 +7983,7 @@ class Modal1 extends Component{
               </Modal>
               {this.Modal()}
               {this.Modal5()}
+              {this.Modal13()}
           </div>
         )
     }
@@ -5592,7 +8000,7 @@ export default class UserManagement extends Component {
     //常量数据部分
     columns = [
         {
-            title:'用户名',
+            title:'用户昵称',
             dataIndex:'nickName',
             width:150,
             align:'center',
@@ -5657,13 +8065,14 @@ export default class UserManagement extends Component {
         {
             title:'操作',
             dataIndex:'operation',
-            width:300,
+            width:400,
             align:'center',
             render:(text,record)=>(
               <Space>
                   <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.testData(record)}}>测试数据</Button>
                   <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal7(record)}}>历史测试数据</Button>
                   <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal2(record)}}>发送事件</Button>
+                  <Button size="small" style={{color:'black',background:'white'}} onClick={()=>{this.lookModal12(record)}}>修改用户信息</Button>
               </Space>
             ),
         },
@@ -5909,11 +8318,6 @@ export default class UserManagement extends Component {
         },
         selectedRowKeys:[],
         data:[
-            {
-                key:1,
-                loginAccount:"test",
-                loginNmae:"test",
-            }
         ],
 
         //表格2数据
@@ -5994,6 +8398,30 @@ export default class UserManagement extends Component {
             record7:record,
         });
     }
+        // //弹窗12
+    //修改用户信息
+    Modal12 = ()=>{
+        if(this.state.modalVisible12)
+            return(
+              <Modal12
+                record={this.state.record12}
+                visible={this.state.modalVisible12}
+                setVisible={this.setModalvisible12}
+              />
+            );
+    }
+    setModalvisible12=(flag)=>{
+        this.setState({
+            modalVisible12:flag,
+        });
+    }
+    lookModal12=record=>{
+        this.setState({
+            modalVisible12:true,
+            record12:record,
+        });
+    }
+
 
     render() {
         const { selectedRowKeys } = this.state;
@@ -6053,6 +8481,7 @@ export default class UserManagement extends Component {
               {this.Modal3()}
               {this.Modal2()}
               {this.Modal7()}
+              {this.Modal12()}
           </div>
         )
     }
