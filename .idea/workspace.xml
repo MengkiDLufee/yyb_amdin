@@ -2,16 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="默认的">
+      <change afterPath="$PROJECT_DIR$/src/api/basic/common.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/api/basic/projectTypeInterface.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/api/basic/testSetInterface.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/api/basic/testTypeInterface.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compenents/leftnav/index.less" beforeDir="false" afterPath="$PROJECT_DIR$/src/compenents/leftnav/index.less" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/compenents/midcontent/index.less" beforeDir="false" afterPath="$PROJECT_DIR$/src/compenents/midcontent/index.less" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/admin/index.less" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/admin/index.less" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentJudgeParams.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/reagentType.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testSet.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,6 +72,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\react\yyb_amdin\src\api\basic" />
       <recent name="E:\react\yyb_amdin\src\compenents" />
     </key>
   </component>
@@ -208,6 +206,10 @@
       <workItem from="1620975808308" duration="5222000" />
       <workItem from="1621253019773" duration="5015000" />
       <workItem from="1621320739251" duration="6489000" />
+      <workItem from="1622118585863" duration="17924000" />
+      <workItem from="1622523359247" duration="4946000" />
+      <workItem from="1622964723532" duration="2280000" />
+      <workItem from="1623203309891" duration="6157000" />
     </task>
     <servers />
   </component>
