@@ -22,8 +22,8 @@ export function exportFile (url,data) {
     .then( res => {
       console.log(res)
       // 创建下载的链接
-      const url = window.URL.createObjectURL(new Blob([res.data],{
-        type: 'application/vnd.ms-excel;charset=utf-8'// 设置该文件的mime类型，这里对应的mime类型对应为.xlsx格式   
+      const url = window.URL.createObjectURL(new Blob ([res.data],{
+        type: 'application/vnd.ms-excel;charset=utf-8'// 设置该文件的mime类型，这里对应的mime类型对应为.xlsx格式
       }));
           const link = document.createElement('a');
           link.href = url;
@@ -221,3 +221,4 @@ export function missTestHome(data) {
 export function testUserPeriodHome(data) {
   return ajax('/allUser/curCycTestUserList',data,'POST')
 }
+
