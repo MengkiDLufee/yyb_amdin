@@ -61,6 +61,30 @@ export function exportFile (url,data) {
 //     });
 // }
 
+/**
+ * 4.设备管理模块
+ */
+//4.1 设备信息（含搜索功能）
+export function devList(data) {
+  return ajax('/device/manage/info/list',data,'POST')
+}
+//4.4 修改设备信息
+export function devModify(data) {
+  return ajax('/device/manage/info/modify',data,'POST')
+}
+//4.5 添加设备信息
+export function devAdd(data) {
+  return ajax('/device/manage/info/add',data,'POST')
+}
+//4.6 查询设备的历史使用人员
+export function devHistoryUser(data) {
+  return ajax(`/device/manage/history/user/list/${data.deviceId}/${data.page}/${data.pageSize}`,{},'GET')
+}
+//4.7 删除设备
+export function devDelete(deviceId) {
+  return ajax(`/device/manage/info/remove/${deviceId}`,{},'GET')
+}
+
 /*
 5.实验管理模块
 */

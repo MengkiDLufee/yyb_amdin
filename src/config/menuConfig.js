@@ -258,6 +258,11 @@ const menuLsit =[
                 icon:'home', 
             },
             {
+                title:'职位管理',
+                key:'/system/position',
+                icon:'home', 
+            },
+            {
                 title:'登录日志',
                 key:'/system/loginlog',
                 icon:'home', 

@@ -57,6 +57,7 @@ const ServiceManagement = lazy(() => import('../../pages/serviceSystem/serviceMa
 const User = lazy(() => import('../../pages/system/user'));
 const Role = lazy(() => import('../../pages/system/role'));
 const Partment = lazy(() => import('../../pages/system/partment'));
+const Position = lazy(() => import('../../pages/system/position'));
 const LoginLog = lazy(() => import('../../pages/system/loginLog'));
 const WorkLog = lazy(() => import('../../pages/system/workLog'));
 const { Content } = Layout;
@@ -116,6 +117,7 @@ export default class Midcontent extends Component {
               <Route path="/system/user" component={User} />
               <Route path="/system/role" component={Role} />
               <Route path="/system/partment" component={Partment} />
+              <Route path="/system/position" component={Position} />
               <Route path="/system/loginlog" component={LoginLog} />
               <Route path="/system/worklog" component={WorkLog} />
               <Redirect to="/home" />
