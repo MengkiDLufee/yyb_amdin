@@ -1,16 +1,10 @@
 import React, { Component } from 'react'
 import {Table, Button, Input, Space, Modal, Form, message, DatePicker, Select} from 'antd';
 import { Radio } from 'antd';
-//import { Switch } from 'antd';
 import moment from 'moment';
 
 import {ReloadOutlined,
     SearchOutlined ,
-//    PlusOutlined,
-//    CloudUploadOutlined,
-//    CloudDownloadOutlined,
-//    CheckCircleOutlined,
-//    CloseCircleTwoTone
 } from '@ant-design/icons'
 import './index.less'
 //import { Row, Col } from 'antd';
@@ -20,7 +14,7 @@ import {exportFile} from "../../api";
 
 const { TextArea } = Input;
 const { Option } = Select;
-const { Moment } = moment;
+// const { Moment } = moment;
 
 // class PatientTable extends Component{
 //     columns = [

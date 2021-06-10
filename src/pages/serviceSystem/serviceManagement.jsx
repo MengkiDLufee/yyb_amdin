@@ -2,14 +2,10 @@ import React, { Component } from 'react'
 import {Table, Button, Input, Space, Modal, Form, Image, DatePicker} from 'antd';
 //import { DatePicker} from 'antd';
 import { Upload, message } from 'antd';
-import {LoadingOutlined, PlusOutlined, UploadOutlined} from '@ant-design/icons';
+import {PlusOutlined, UploadOutlined} from '@ant-design/icons';
 //import { InboxOutlined } from '@ant-design/icons';
 import {ReloadOutlined,
     SearchOutlined ,
-    // CloudUploadOutlined,
-    // CloudDownloadOutlined,
-    // CheckCircleOutlined,
-    // CloseCircleTwoTone
 } from '@ant-design/icons'
 import './index.less'
 //import { Row, Col } from 'antd';
@@ -17,71 +13,72 @@ import ajax from "../../api/ajax";
 import addKey from "../../api/addKey";
 import {exportFile} from "../../api";
 //const { Dragger } = Upload;
-import {baseUrl} from "../../api/ajax";
-import axios from "axios";
+// import {baseUrl} from "../../api/ajax";
+// import axios from "axios";
 const { TextArea } = Input;
+const baseUrl = 'http://java.xixibackup.me:8080'
 
-class Avatar extends React.Component {
-    state = {
-        loading: false,
-    };
+// class Avatar extends React.Component {
+//     state = {
+//         loading: false,
+//     };
 
-    handleChange = info => {
-        if (info.file.status === 'uploading') {
-            this.setState({ loading: true });
-            return;
-        }
-        if (info.file.status === 'done') {
-            // Get this url from response in real world.
-            this.getBase64(info.file.originFileObj, imageUrl =>
-                this.setState({
-                    imageUrl,
-                    loading: false,
-                }),
-            );
-        }
-    };
+//     handleChange = info => {
+//         if (info.file.status === 'uploading') {
+//             this.setState({ loading: true });
+//             return;
+//         }
+//         if (info.file.status === 'done') {
+//             // Get this url from response in real world.
+//             this.getBase64(info.file.originFileObj, imageUrl =>
+//                 this.setState({
+//                     imageUrl,
+//                     loading: false,
+//                 }),
+//             );
+//         }
+//     };
 
-    beforeUpload(file) {
-        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-        if (!isJpgOrPng) {
-            message.error('You can only upload JPG/PNG file!');
-        }
-        const isLt2M = file.size / 1024 / 1024 < 2;
-        if (!isLt2M) {
-            message.error('Image must smaller than 2MB!');
-        }
-        return isJpgOrPng && isLt2M;
-    }
-    getBase64(img, callback) {
-        const reader = new FileReader();
-        reader.addEventListener('load', () => callback(reader.result));
-        reader.readAsDataURL(img);
-    }
+//     beforeUpload(file) {
+//         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+//         if (!isJpgOrPng) {
+//             message.error('You can only upload JPG/PNG file!');
+//         }
+//         const isLt2M = file.size / 1024 / 1024 < 2;
+//         if (!isLt2M) {
+//             message.error('Image must smaller than 2MB!');
+//         }
+//         return isJpgOrPng && isLt2M;
+//     }
+//     getBase64(img, callback) {
+//         const reader = new FileReader();
+//         reader.addEventListener('load', () => callback(reader.result));
+//         reader.readAsDataURL(img);
+//     }
 
-    render() {
-        const { loading, imageUrl } = this.state;
-        const uploadButton = (
-            <div>
-                {loading ? <LoadingOutlined /> : <PlusOutlined />}
-                <div style={{ marginTop: 8 }}>Upload</div>
-            </div>
-        );
-        return (
-            <Upload
-                name="avatar"
-                listType="picture-card"
-                className="avatar-uploader"
-                showUploadList={false}
-                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                beforeUpload={this.beforeUpload}
-                onChange={this.handleChange}
-            >
-                {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-            </Upload>
-        );
-    }
-}
+//     render() {
+//         const { loading, imageUrl } = this.state;
+//         const uploadButton = (
+//             <div>
+//                 {loading ? <LoadingOutlined /> : <PlusOutlined />}
+//                 <div style={{ marginTop: 8 }}>Upload</div>
+//             </div>
+//         );
+//         return (
+//             <Upload
+//                 name="avatar"
+//                 listType="picture-card"
+//                 className="avatar-uploader"
+//                 showUploadList={false}
+//                 action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+//                 beforeUpload={this.beforeUpload}
+//                 onChange={this.handleChange}
+//             >
+//                 {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+//             </Upload>
+//         );
+//     }
+// }
 
 // class ChatRecordingTable extends Component{
 //     columns = [

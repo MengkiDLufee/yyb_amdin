@@ -3721,9 +3721,9 @@ class Modal6 extends Component{
     }
     //函数部分
     requestData=(page)=>{
-        let data={
-            ...page,
-        }
+        // let data={
+        //     ...page,
+        // }
         //console.log("request:",data);
         ajax("/user/test/data/error/paper/list/"
           +this.props.record.testTypeId,{},'GET')
