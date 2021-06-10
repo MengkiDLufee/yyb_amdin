@@ -8,6 +8,7 @@ export default class Home extends Component {
         
         console.log(data);
         console.log(localStorage.getItem('acount_yyb'),localStorage.getItem('password_yyb'));
+        console.log(localStorage.getItem('check'),localStorage.getItem('autoLogin'));
         return (
             <div
                 style={{

@@ -25,23 +25,12 @@ export default class Admin extends Component {
     user_name: 'eupregna',
     logout: false
   };
-  menu_user = (
-    <Menu>
-      <Menu.Item>
-        <span href="" rel="noopener noreferrer">个人中心</span>
-      </Menu.Item>
-      <Menu.Item>
-        <span href="" rel="noopener noreferrer">修改密码</span>
-      </Menu.Item>
-      <Menu.Item>
-        <span href="" rel="noopener noreferrer" id='logout' >退出</span>
-      </Menu.Item>
-    </Menu>
-  )
+
   
     
   logout = () => {
-    console.log('退出');
+    // console.log('退出');
+    localStorage.setItem('autoLogin', false)
     this.setState({
       logout:true
     })
@@ -130,7 +119,7 @@ export default class Admin extends Component {
               toggle={this.toggle}
               getTitle={this.getTitle}
               getTitleRight={this.getTitleRight}
-              menu_user={this.menu_user}
+              logout={this.logout.bind(this)}
               user_name={user_name  || this.state.user_name}
             />
             {/* 内容部分二级路由配置 */}

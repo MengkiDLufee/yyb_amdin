@@ -53,34 +53,69 @@ class Login extends Component {
             })
     }
     state = {
-        check: localStorage.getItem('check') || false
+        check: localStorage.getItem('check') === 'true' ? true : false,
+        autoLogin: localStorage.getItem('autoLogin') === 'true' ? true : false
     }
     form = React.createRef()
 
     componentDidMount() {
-        console.log(localStorage.getItem('acount_yyb'), localStorage.getItem('password_yyb'));
+        // console.log(localStorage.getItem('acount_yyb'), localStorage.getItem('password_yyb'));
+        // console.log(localStorage.getItem('check'), localStorage.getItem('autoLogin'));
+
         // const form =React.createRef()
         const account = localStorage.getItem('acount_yyb')
         const password = localStorage.getItem('password_yyb')
+        const check = localStorage.getItem('check')
+        const autoLogin = localStorage.getItem('autoLogin')
         const form = this.form.current
+        if (account !== null && password !== null && autoLogin=== 'true') {
+            let params = {
+                account,
+                password
+            }
+            reqLogin(params)
+                    .then(
+                        res => {
+                            // console.log(res)
+                            if (res.data.code === 1102) {
+                                message.success('登陆成功！')
+                                sessionStorage.setItem('token', res.data.data.token);
+                                this.props.history.replace('/home')//路由跳转
+                            } else {
+                                message.warning(res.data.msg)
+                            }
+
+
+                        }
+                    )
+        }
         if (form) {
-            if (account !== null && password !== null) {
+            if (account !== null && password !== null && check === 'true') {
                 form.setFieldsValue({
                     username: localStorage.getItem('acount_yyb'),
                     password: localStorage.getItem('password_yyb')
                 })
-                console.log(this.form);
+                // console.log(this.form);
             }
         }
-        console.log(form);
+        // console.log(form);
     }
 
 
     checkChange = () => {
-        localStorage.setItem('check', !this.state.check)
+        let check = this.state.check
+        localStorage.setItem('check', !check)
         this.setState({
-            check: !this.state.check
-        })
+            check: !check
+        }, () => { console.log(this.state.check, localStorage.getItem('check')) })
+    }
+    autoLoginChange = () => {
+        localStorage.setItem('autoLogin', !this.state.autoLogin)
+        localStorage.setItem('check', true)
+        this.setState({
+            check:true,
+            autoLogin: !this.state.autoLogin
+        },() => { console.log(this.state.autoLogin, localStorage.getItem('autoLogin')) })
     }
 
     render() {
@@ -105,8 +140,6 @@ class Login extends Component {
                         name="normal_login"
                         className="login-form"
                         initialValues={{ remember: true }}
-                        // onFinish={this.onFinish}
-                        // onFinishFailed={this.onFail}
                         ref={this.form}
                     >
                         <Form.Item
@@ -128,14 +161,20 @@ class Login extends Component {
                                 type="password" placeholder="密码"
                             />
                         </Form.Item>
-                        <Form.Item
-                            name="remember"
-                            noStyle
-                        >
+                        <Form.Item style={{ display: 'flex', justifyContent: 'center' }} >
+
                             <Checkbox
                                 checked={this.state.check}
                                 onChange={this.checkChange}
                             >记住密码</Checkbox>
+
+                            <Checkbox
+                                checked={this.state.autoLogin}
+                                onChange={this.autoLoginChange}
+                                style={{ float: 'right' }}
+                            >自动登录</Checkbox>
+
+
                         </Form.Item>
 
                         <Form.Item>

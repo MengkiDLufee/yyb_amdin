@@ -1,6 +1,6 @@
 //内容部分顶部栏
 import React, { Component } from 'react'
-import { Layout, Dropdown } from 'antd';
+import { Layout, Dropdown, Menu } from 'antd';
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
@@ -14,14 +14,33 @@ import './index.less'
 const { Header } = Layout;
 
 export default class Topbar extends Component {
+  menu_user = (
+    <Menu>
+      <Menu.Item>
+        <span href="" rel="noopener noreferrer">个人中心</span>
+      </Menu.Item>
+      <Menu.Item>
+        <span href="" rel="noopener noreferrer">修改密码</span>
+      </Menu.Item>
+      <Menu.Item>
+        <span href="" rel="noopener noreferrer"
+          id='logout'
+          onClick={this.props.logout}
+        >退出</span>
+      </Menu.Item>
+    </Menu>
+  )
+  logout = () => {
+    console.log('logout');
+  }
   render() {
     const {
-      collapsed ,
-      toggle ,
-      getTitle ,
-      getTitleRight ,
-      menu_user,
-      user_name 
+      collapsed,
+      toggle,
+      getTitle,
+      getTitleRight,
+      user_name,
+      logout
     } = this.props
     return (
       <Header className="site-layout-background">
@@ -34,25 +53,40 @@ export default class Topbar extends Component {
             })
             }
             <div className="top-right"  >
-                <Dropdown overlay={menu_user} >
-                  <span onClick={e => e.preventDefault()} >
-                    欢迎，{user_name}
-                    <DownOutlined  id="DownOutlined" />
-                  </span>
-                </Dropdown>
-                <EllipsisOutlined rotate="90" id="EllipsisOutlined" />
+              <Dropdown overlay={
+                <Menu>
+                  <Menu.Item>
+                    <span href="" rel="noopener noreferrer">个人中心</span>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <span href="" rel="noopener noreferrer">修改密码</span>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <div
+                      id='logout'
+                      onClick={logout}
+                    >退出</div>
+                  </Menu.Item>
+                </Menu>
+              } >
+                <span onClick={e => e.preventDefault()} >
+                  欢迎，{user_name}
+                  <DownOutlined id="DownOutlined" />
+                </span>
+              </Dropdown>
+              <EllipsisOutlined rotate="90" id="EllipsisOutlined" />
             </div>
           </div>
         </div>
         {/* 顶部下方 */}
         <div className="header-bottom">
-            <span>
-              <MinusOutlined rotate="90" id="MinusOutlined" />
-              <span>{getTitle()}</span>
-            </span>
-            <span className="right-title">
-              {getTitleRight()}
-            </span>
+          <span>
+            <MinusOutlined rotate="90" id="MinusOutlined" />
+            <span>{getTitle()}</span>
+          </span>
+          <span className="right-title">
+            {getTitleRight()}
+          </span>
         </div>
       </Header>
     )
