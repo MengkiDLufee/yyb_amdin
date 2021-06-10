@@ -20,7 +20,7 @@ import {exportFile} from "../../api";
 
 const { TextArea } = Input;
 const { Option } = Select;
-const { Moment } = moment;
+// const { Moment } = moment;
 
 // class PatientTable extends Component{
 //     columns = [
