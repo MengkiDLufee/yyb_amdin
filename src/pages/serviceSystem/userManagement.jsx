@@ -6392,7 +6392,7 @@ class Modal3 extends Component{
     {
       title: '测试次数',
       dataIndex: 'testCount',
-      width:150,
+      width:100,
     },
     {
       title: '末次测试状态',
@@ -6631,7 +6631,7 @@ class Modal3 extends Component{
         visible={this.props.visible}
         onCancel={this.handleCancel}
         footer={null}
-        width={1000}
+        width={1200}
         >
           <div style={{height:'100%',margin:'3px'}}>
             {/*<Button*/}
