@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Row, Col, Select, Space,Modal,Form} from 'antd';
+import {Table, Button, Input, Row, Col, Select, Space, Modal, Form, Popconfirm} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import httpRequest from "../../http";
+import {loadDataProjectType,deleteDataProjectType,modifyDataProjectType,addDataProjectType} from "../../api/basic/projectTypeInterface"
+import {loadDataTestType} from "../../api/basic/testTypeInterface";
+import {addDataTestSet, deleteDataTestSet, loadDataTestSet, modifyDataTestSet} from "../../api/basic/testSetInterface";
 
 const { Option } = Select;
 
@@ -85,13 +88,21 @@ export default class ProjectType extends Component {
             render: (text, record) => (
                 <Space size="middle">
                     <Button style={{color:'black',background:'white'}} onClick={()=>{this.handleModify(record)}}>修改</Button>
-                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
-                    onClick={()=>{this.handleDelete(record)}}>删除</Button>
+                    <Popconfirm title="确定删除？"
+                                onConfirm={()=>{this.handleDelete(record)}}
+                                onCancel={()=>{}}
+                                okText="确定"
+                                cancelText="取消"
+                    >
+                        <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                                //onClick={()=>{this.handleDelete(record)}}
+                        >删除</Button>
+                    </Popconfirm>
+
                 </Space>
             ),
         },
     ];
-
 
     //初始页面请求数据
     componentDidMount() {
@@ -100,45 +111,48 @@ export default class ProjectType extends Component {
             pageSize:10,
         }
         //请求数据
-        httpRequest('post','/plan/list',params)
-            .then(response=>{
-                console.log(response.data.data)
-                if(response.data!==[]) {
-                    this.setState({
-                        data: response.data.data.info,
-                        total: response.data.data.total,
-                    })
-                    const tempData=[...this.state.data];
-                    for(let i=0;i<tempData.length;i++){
-                        tempData[i].key=i;
-                        if(tempData[i].planTypeCode==="normal"){
-                            tempData[i].planTypeCode='普通';
-                        }
-                        else{
-                            tempData[i].planTypeCode='起峰前';
-                        }
-                    }
-                    this.setState({
-                        data:tempData
-                    })
+        let promise=loadDataProjectType(params);
+        promise.then(resolved=>{
+            console.log("计划类型",resolved)
+            const tempData=resolved[0];
+            for(let i=0;i<tempData.length;i++) {
+                if (tempData[i].planTypeCode === "normal") {
+                    tempData[i].planTypeCode = '普通';
+                } else {
+                    tempData[i].planTypeCode = '起峰前';
                 }
-            }).catch(err => {
-            console.log(err);
+            }
+            this.setState({
+                data:tempData,
+                total:resolved[1],
+                currentPage:resolved[2]
+            })
+        },reason => {
+            console.error(reason)
         })
       //请求测试类型名称
-        httpRequest('post','/test/type/list',{})
-            .then(response=>{
-                console.log("请求测试类型",response)
-                if(response.data!==[]) {
-                    this.setState({
-                        testTypeGroup: response.data.data.info,
-                    })
-                    console.log("测试类型",this.state.testTypeGroup)
-
-                }
-            }).catch(err => {
-            console.log(err);
+        let p=loadDataTestType({});
+        p.then(resolved=>{
+            console.log("测试ceshi",resolved)
+            this.setState({
+                testTypeGroup: resolved,
+            })
+        },reason => {
+            console.error(reason)
         })
+        // httpRequest('post','/test/type/list',{})
+        //     .then(response=>{
+        //         console.log("请求测试类型",response)
+        //         if(response.data!==[]) {
+        //             this.setState({
+        //                 testTypeGroup: response.data.data.info,
+        //             })
+        //             console.log("测试类型",this.state.testTypeGroup)
+        //
+        //         }
+        //     }).catch(err => {
+        //     console.log(err);
+        // })
     }
 
     start = () => {
@@ -186,32 +200,24 @@ export default class ProjectType extends Component {
         }
         params.page=1;
         params.pageSize=this.state.pageSize;
-        console.log(params);
         //请求数据
-        httpRequest('post','/plan/list',params)
-            .then(response=>{
-                console.log(response.data.data)
-                if(response.data!==[]) {
-                    this.setState({
-                        data: response.data.data.info,
-                        total: response.data.data.total,
-                    })
-                    const tempData=[...this.state.data];
-                    for(let i=0;i<tempData.length;i++){
-                        tempData[i].key=i;
-                        if(tempData[i].planTypeCode==="normal"){
-                            tempData[i].planTypeCode='普通';
-                        }
-                        else{
-                            tempData[i].planTypeCode='起峰前';
-                        }
-                    }
-                    this.setState({
-                        data:tempData
-                    })
+        let promise=loadDataProjectType(params);
+        promise.then(resolved=>{
+            const tempData=resolved[0];
+            for(let i=0;i<tempData.length;i++) {
+                if (tempData[i].planTypeCode === "normal") {
+                    tempData[i].planTypeCode = '普通';
+                } else {
+                    tempData[i].planTypeCode = '起峰前';
                 }
-            }).catch(err => {
-            console.log(err);
+            }
+            this.setState({
+                data:tempData,
+                total:resolved[1],
+                currentPage:resolved[2]
+            })
+        },reason => {
+            console.error(reason)
         })
     }
 
@@ -222,46 +228,46 @@ export default class ProjectType extends Component {
             page:1,
             pageSize:10,
         }
-        //请求数据
-        httpRequest('post','/plan/list',params)
-            .then(response=>{
-                console.log(response.data.data)
-                if(response.data!==[]) {
-                    this.setState({
-                        data: response.data.data.info,
-                        total: response.data.data.total,
-                    })
-                    const tempData=[...this.state.data];
-                    for(let i=0;i<tempData.length;i++){
-                        tempData[i].key=i;
-                        if(tempData[i].planTypeCode==="normal"){
-                            tempData[i].planTypeCode='普通';
-                        }
-                        else{
-                            tempData[i].planTypeCode='起峰前';
-                        }
-                    }
-                    this.setState({
-                        data:tempData
-                    })
+        let promise=loadDataProjectType(params);
+        promise.then(resolved=>{
+            const tempData=resolved[0];
+            for(let i=0;i<tempData.length;i++) {
+                if (tempData[i].planTypeCode === "normal") {
+                    tempData[i].planTypeCode = '普通';
+                } else {
+                    tempData[i].planTypeCode = '起峰前';
                 }
-            }).catch(err => {
-            console.log(err);
+            }
+            this.setState({
+                data:tempData,
+                total:resolved[1],
+                currentPage:resolved[2]
+            })
+        },reason => {
+            console.error(reason)
         })
         //请求测试类型名称
-        let param={}
-        httpRequest('post','/test/type/list',param)
-            .then(response=>{
-                console.log(response.data.data)
-                if(response.data!==[]) {
-                    this.setState({
-                        testTypeGroup: response.data.data.info,
-                    })
-
-                }
-            }).catch(err => {
-            console.log(err);
+        let p=loadDataTestType({});
+        p.then(resolved=>{
+            console.log("测试ceshi",resolved)
+            this.setState({
+                testTypeGroup: resolved,
+            })
+        },reason => {
+            console.error(reason)
         })
+        // httpRequest('post','/test/type/list',param)
+        //     .then(response=>{
+        //         console.log(response.data.data)
+        //         if(response.data!==[]) {
+        //             this.setState({
+        //                 testTypeGroup: response.data.data.info,
+        //             })
+        //
+        //         }
+        //     }).catch(err => {
+        //     console.log(err);
+        // })
             this.setState({
                 //修改
                 currentItem:{
@@ -312,45 +318,24 @@ export default class ProjectType extends Component {
         let params={
             planTypeId:record.planTypeId,
         }
-        httpRequest('post','/plan/delete',params)
-            .then(response=>{
-                console.log(response)
-                if(response.data.code===1006){
-                    let params={
-                        page:this.state.currentPage,
-                        pageSize:this.state.pageSize,
-                    }
-                    httpRequest('post','/plan/list',params)
-                        .then(response=>{
-                            console.log(response.data.data)
-                            if(response.data!==[]) {
-                                this.setState({
-                                    data: response.data.data.info,
-                                    total: response.data.data.total,
-                                })
-                                const tempData=[...this.state.data];
-                                for(let i=0;i<tempData.length;i++){
-                                    tempData[i].key=this.state.currentPage*params.pageSize+i;
-                                    if(tempData[i].planTypeCode==="normal"){
-                                        tempData[i].planTypeCode='普通';
-                                    }
-                                    else{
-                                        tempData[i].planTypeCode='起峰前';
-                                    }
-                                }
-                                this.setState({
-                                    data:tempData
-                                })
-                            }
-                        }).catch(err => {
-                        console.log(err);
-                    })
+        let res=deleteDataProjectType(params,this.state.currentPage,this.state.pageSize,this.state.total)
+        res.then(resolved=>{
+            console.log("删除计划类型",resolved)
+            const tempData=resolved[0];
+            for(let i=0;i<tempData.length;i++) {
+                if (tempData[i].planTypeCode === "normal") {
+                    tempData[i].planTypeCode = '普通';
+                } else {
+                    tempData[i].planTypeCode = '起峰前';
                 }
-                else{
-                    alert("删除失败，请稍后再试")
-                }
-            }).catch(err => {
-            console.log(err);
+            }
+            this.setState({
+                data:tempData,
+                total:resolved[1],
+                currentPage:resolved[2],
+            })
+        },reason => {
+            console.error(reason)
         })
     }
 
@@ -371,8 +356,6 @@ export default class ProjectType extends Component {
                     this.setState({
                         loading: true,
                     });
-                    // values.planTypeCode=form_modify.getFieldsValue('planTypeCode');
-                    // console.log("lll",values.planTypeCode);
                     if(values.planTypeCode==="普通"){
                         values.planTypeCode="normal";
                     }
@@ -388,60 +371,37 @@ export default class ProjectType extends Component {
                         timeout:values.timeout
                     }
                     console.log("params",params)
-                    httpRequest('post','/plan/modify',params)
-                        .then(response=>{
-                            console.log(response)
-                            if(response.data.code===1004){
-                                let inital_param={
-                                    page:this.state.currentPage,
-                                    pageSize:this.state.pageSize,
+                    modifyDataProjectType(params,this.state.currentPage,this.state.pageSize)
+                        .then(resolved=>{
+                            const tempData=resolved;
+                            for(let i=0;i<tempData.length;i++) {
+                                if (tempData[i].planTypeCode === "normal") {
+                                    tempData[i].planTypeCode = '普通';
+                                } else {
+                                    tempData[i].planTypeCode = '起峰前';
                                 }
-                                httpRequest('post','/plan/list',inital_param)
-                                    .then(response=>{
-                                        console.log(response.data.data)
-                                        if(response.data!==[]) {
-                                            this.setState({
-                                                data: response.data.data.info,
-                                                total: response.data.data.total,
-                                            })
-                                            const tempData=[...this.state.data];
-                                            for(let i=0;i<tempData.length;i++){
-                                                tempData[i].key=this.state.currentPage*inital_param.pageSize+i;
-                                                if(tempData[i].planTypeCode==="normal"){
-                                                    tempData[i].planTypeCode='普通';
-                                                }
-                                                else{
-                                                    tempData[i].planTypeCode='起峰前';
-                                                }
-                                            }
-                                            this.setState({
-                                                data:tempData
-                                            })
-                                        }
-                                    }).catch(err => {
-                                    console.log(err);
-                                })
-                                setTimeout(() => {
-                                    form_modify.resetFields();
-                                    this.setState({
-                                        loading:false,
-                                        modifyVisible: false,
-                                        testTypeId:null,
-                                        currentItem:{
-                                            key: null,
-                                            planTypeId:null,//计划类型Id
-                                            planTypeCode:'',//计划类型code"normal"普通  "prelayegg" 起峰前
-                                            testTypeName:'',//测试类型名称
-                                            planTypeName:'',//计划类型名称
-                                            planTypeValue:null,//计划类型实际值
-                                            timeout:null,//超时时间
-                                        },
-                                    });
-                                }, 1000);
                             }
-                        }).catch(err => {
-                        console.log(err);
-                    })
+                            this.setState({
+                                data:tempData,
+                            })
+                            setTimeout(() => {
+                                form_modify.resetFields();
+                                this.setState({
+                                    loading:false,
+                                    modifyVisible: false,
+                                    testTypeId:null,
+                                    currentItem:{
+                                        key: null,
+                                        planTypeId:null,//计划类型Id
+                                        planTypeCode:'',//计划类型code"normal"普通  "prelayegg" 起峰前
+                                        testTypeName:'',//测试类型名称
+                                        planTypeName:'',//计划类型名称
+                                        planTypeValue:null,//计划类型实际值
+                                        timeout:null,//超时时间
+                                    },
+                                });
+                            }, 1000);
+                        })
                 })
                 .catch((info) => {
                     console.log('Validate Failed:', info);
@@ -461,62 +421,44 @@ export default class ProjectType extends Component {
                             planTypeValue:values.planTypeValue,
                             timeout:values.timeout
                         }
-                        httpRequest('post', '/plan/add', params)
-                            .then(response => {
-                                console.log(response)
-                                if (response.data.code === 1002) {
-                                    let cu_page=(parseInt(this.state.total)+1)/this.state.pageSize;
-                                    let inital_params={
-                                        page:Math.ceil(cu_page),
-                                        pageSize:this.state.pageSize,
-                                    }
-                                    httpRequest('post','/plan/list',inital_params)
-                                        .then(response=>{
-                                            console.log("初始化",response,inital_params)
-                                            if(response.data!==[]) {
-                                                this.setState({
-                                                    data: response.data.data.info,
-                                                    total: response.data.data.total,
-                                                })
-                                                const tempData=[...this.state.data];
-                                                for(let i=0;i<tempData.length;i++){
-                                                    tempData[i].key=i+this.state.pageSize*(inital_params.page-1);
-                                                    if(tempData[i].planTypeCode==="normal"){
-                                                        tempData[i].planTypeCode='普通';
-                                                    }
-                                                    else{
-                                                        tempData[i].planTypeCode='起峰前';
-                                                    }
-                                                }
-                                                this.setState({
-                                                    data:tempData,
-                                                    currentPage:inital_params.page
-                                                })
-                                            }
-                                        }).catch(err => {
-                                        console.log(err);
-                                    })
-                                    setTimeout(() => {
-                                        form.resetFields();
-                                        this.setState({
-                                            loading: false,
-                                            addVisible: false,
-                                            testTypeId:null,
-                                            currentItem:{
-                                                key: null,
-                                                planTypeId:null,//计划类型Id
-                                                planTypeCode:'',//计划类型code"normal"普通  "prelayegg" 起峰前
-                                                testTypeName:'',//测试类型名称
-                                                planTypeName:'',//计划类型名称
-                                                planTypeValue:null,//计划类型实际值
-                                                timeout:null,//超时时间
-                                            },
-                                        });
-                                    }, 1000);
+                    let cu_page=(parseInt(this.state.total)+1)/this.state.pageSize;
+                    let page=Math.ceil(cu_page)
+                    addDataProjectType(params,page,this.state.pageSize)
+                        .then(resolved=>{
+                            console.log(resolved)
+                            const tempData=resolved[0];
+                            for(let i=0;i<tempData.length;i++) {
+                                if (tempData[i].planTypeCode === "normal") {
+                                    tempData[i].planTypeCode = '普通';
+                                } else {
+                                    tempData[i].planTypeCode = '起峰前';
                                 }
-                            }).catch(err => {
-                            console.log(err);
-                        })
+                            }
+                            this.setState({
+                                data:tempData,
+                                total:resolved[1],
+                                currentPage:page
+                            })
+                            setTimeout(() => {
+                                form.resetFields();
+                                this.setState({
+                                    loading: false,
+                                    addVisible: false,
+                                    testTypeId:null,
+                                    currentItem:{
+                                        key: null,
+                                        planTypeId:null,//计划类型Id
+                                        planTypeCode:'',//计划类型code"normal"普通  "prelayegg" 起峰前
+                                        testTypeName:'',//测试类型名称
+                                        planTypeName:'',//计划类型名称
+                                        planTypeValue:null,//计划类型实际值
+                                        timeout:null,//超时时间
+                                    },
+                                });
+                                }, 1000);
+                        }).catch(err => {
+                        console.log(err);
+                    })
                     }
                 )
         }
@@ -565,11 +507,13 @@ export default class ProjectType extends Component {
 
     //选择框内容
     option(){
-        return(
-            this.state.testTypeGroup.map((item)=>{
-                return(<Option value={item.testTypeId}>{item.testTypeName}</Option>)
-            })
-        )
+        if(this.state.testTypeGroup){
+            return(
+                this.state.testTypeGroup.map((item)=>{
+                    return(<Option value={item.testTypeId}>{item.testTypeName}</Option>)
+                })
+            )
+        }
     }
 
     //表格分页
@@ -583,30 +527,23 @@ export default class ProjectType extends Component {
             page:page,
             pageSize:this.state.pageSize,
         }
-        httpRequest('post','/plan/list',params)
-            .then(response=>{
-                console.log(response.data.data)
-                if(response.data!==[]) {
-                    this.setState({
-                        data: response.data.data.info,
-                        total: response.data.data.total,
-                    })
-                    const tempData=[...this.state.data];
-                    for(let i=0;i<tempData.length;i++){
-                        tempData[i].key=i;
-                        if(tempData[i].planTypeCode==="normal"){
-                            tempData[i].planTypeCode='普通';
-                        }
-                        else{
-                            tempData[i].planTypeCode='起峰前';
-                        }
-                    }
-                    this.setState({
-                        data:tempData
-                    })
+        let promise=loadDataProjectType(params);
+        promise.then(resolved=>{
+            console.log(resolved)
+            const tempData=resolved[0];
+            for(let i=0;i<tempData.length;i++) {
+                if (tempData[i].planTypeCode === "normal") {
+                    tempData[i].planTypeCode = '普通';
+                } else {
+                    tempData[i].planTypeCode = '起峰前';
                 }
-            }).catch(err => {
-            console.log(err);
+            }
+            this.setState({
+                data:tempData,
+                total:resolved[1]
+            })
+        },reason => {
+            console.error(reason)
         })
     };
 

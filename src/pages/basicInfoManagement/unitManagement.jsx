@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Row, Col, Space, Modal, Form} from 'antd';
+import {Table, Button, Input, Row, Col, Space, Modal, Form, Popconfirm} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import httpRequest from "../../http";
 
@@ -79,8 +79,17 @@ export default class UnitManagement extends Component {
             render: (text, record) => (
                 <Space size="middle">
                        <Button style={{color:'black',background:'white'}} onClick={()=>{this.handleModify(record)}}>修改</Button>
-                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
-                    onClick={()=>{this.handleDelete(record)}}>删除</Button>
+                    <Popconfirm title="确定删除？"
+                                onConfirm={()=>{this.handleDelete(record)}}
+                                onCancel={()=>{}}
+                                okText="确定"
+                                cancelText="取消"
+                    >
+                        <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                                //onClick={()=>{this.handleDelete(record)}}
+                        >删除</Button>
+                    </Popconfirm>
+
                 </Space>
             ),
         },

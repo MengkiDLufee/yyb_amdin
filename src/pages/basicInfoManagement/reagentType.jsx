@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Table, Button, Input, Row, Col, Select, Space, Modal, Form, Checkbox, DatePicker} from 'antd';
+import {Table, Button, Input, Row, Col, Select, Space, Modal, Form, Checkbox, DatePicker, Popconfirm} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined,ExportOutlined} from "@ant-design/icons";
 import exportFile from "../../exportFile";
 import httpRequest from "../../http";
@@ -86,6 +86,8 @@ export default class ReagentType extends Component {
         paperFade:null,
         qualitative:null,
         docrop:null,
+
+        immutable:false,
     };
 
     columns = [
@@ -155,8 +157,17 @@ export default class ReagentType extends Component {
             render: (text, record) => (
                 <Space size="middle">
                     <Button style={{color:'black',background:'white'}} onClick={()=>{this.handleModify(record)}}>修改</Button>
-                    <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
-                            onClick={()=>{this.handleDelete(record)}}>删除</Button>
+                    <Popconfirm title="确定删除？"
+                                onConfirm={()=>{this.handleDelete(record)}}
+                                onCancel={()=>{}}
+                                okText="确定"
+                                cancelText="取消"
+                    >
+                        <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
+                                //onClick={()=>{this.handleDelete(record)}}
+                        >删除</Button>
+                    </Popconfirm>
+
                     <Button style={{color:'black',background:'white'}}
                             onClick={()=>{this.handleView(record)}}>查看标曲</Button>
                     <Button style={{backgroundColor:'#ec7259', color:'#FFFAFA'}}
@@ -216,12 +227,33 @@ export default class ReagentType extends Component {
             ),
         },
     ];
+
+    sampleDic=[];
 //初始页面请求数据
     componentDidMount() {
         let params={
             page:1,
             pageSize:10,
         }
+        //请求样本类型
+        httpRequest('post','/paper/sample/list',{})
+            .then(response=>{
+                console.log("请求样本类型",response)
+                if(response.data.data!==null) {
+                    let obj=response.data.data;
+                    obj.forEach(item=>{
+                        this.sampleDic[item.code]=item.name
+                    })
+                    this.setState({
+                        sampleTypeGroup: response.data.data,
+                    })
+
+
+                }
+            }).catch(err => {
+            console.log(err);
+        })
+
         httpRequest('post','/paper/list',params)
             .then(response=>{
                 console.log('试剂类型')
@@ -235,6 +267,7 @@ export default class ReagentType extends Component {
                     const tempData=[...this.state.data];
                     for(let i=0;i<tempData.length;i++){
                         tempData[i].key=i;
+                        tempData[i]["sampleType"]=this.sampleDic[tempData[i].sampleType];
                     }
                     this.setState({
                         data:tempData,
@@ -251,20 +284,7 @@ export default class ReagentType extends Component {
         })
 
 
-        //请求样本类型
-        httpRequest('post','/paper/sample/list',{})
-            .then(response=>{
-                console.log("请求样本类型",response)
-                if(response.data.data!==null) {
-                    this.setState({
-                        sampleTypeGroup: response.data.data,
-                    })
-                    console.log("样本类型",this.state.sampleTypeGroup)
 
-                }
-            }).catch(err => {
-            console.log(err);
-        })
 
         //请求判读方法
         httpRequest('post','/paper/judge/list',{})
@@ -1065,6 +1085,7 @@ export default class ReagentType extends Component {
                     }
                     this.setState({
                         dataView:tempData,
+                        immutable:true,
                     })
 
                 }
@@ -1081,7 +1102,83 @@ export default class ReagentType extends Component {
 
     //默认标曲
     handleDefault=(record)=>{
-        console.log("默认标曲")
+        console.log("默认标曲",record)
+        this.setState({
+            detailVisible:true,
+            immutable:false,
+            paperTypeId:record.paperTypeId
+        })
+        httpRequest('post','/paper/param/pro/default',{paperTypeId:record.paperTypeId})
+            .then(response=>{
+                console.log("默认标曲",response)
+                if(response.data.code===1000){
+                    let item=response.data.data;
+                    //console.log(this.form_detail)
+                    let form_detail=this.form_detail.current;
+                    if(form_detail){
+                        form_detail.setFieldsValue({
+                            paperTypeName:item.paperTypeName,
+                            bathNumber:item.bathNumber,
+                            paperTypeId:item.paperTypeId,
+                            description:item.description,
+                            line0r:item.line0r,
+                            line0l:item.line0l,
+                            linel:item.linel,
+                            liner:item.liner,
+                            line2l:item.line2l,
+                            line2r:item.line2r,
+                            lineWidth:item.lineWidth,
+                            lineLength:item.lineLength,
+                            linePx:item.linePx,
+                            linePy:item.linePy,
+                            topGod:item.topGod,
+                            lowerGod:item.lowerGod,
+                            lineN0:item.lineN0,
+                            lineN1:item.lineN1,
+                            lineN2:item.lineN2,
+                            lineN3:item.lineN3,
+                            lineN4:item.lineN4,
+                            lineN5:item.lineN5,
+                            lineN6:item.lineN6,
+                            lineN7:item.lineN7,
+                            lineN8:item.lineN8,
+                            lineGod0:item.lineGod0,
+                            lineGod1:item.lineGod1,
+                            lineGod2:item.lineGod2,
+                            lineGod3:item.lineGod3,
+                            lineGod4:item.lineGod4,
+                            lineGod5:item.lineGod5,
+                            lineGod6:item.lineGod6,
+                            lineGod7:item.lineGod7,
+                            lineGod8:item.lineGod8,
+                            lineWei:item.lineWei,
+                            lineShowtype:item.lineShowtype,
+                            lineMethod:item.lineMethod,
+                            lineJudgeMethod:item.lineJudgeMethod,
+                            crop1Px:item.crop1Px,
+                            crop1Py:item.crop1Py,
+                            crop1Width:item.crop1Width,
+                            crop1Height:item.crop1Height,
+                            qualitativeGod:item.qualitativeGod,
+                            qualitativeLGod:item.qualitativeLGod,
+                            reactiveTime:item.reactiveTime,
+                            organization:item.organization,
+                            madeTime:item.madeTime?moment(item.madeTime):undefined,
+                            qualitativeGod2:item.qualitativeGod2,
+                            qualitativeGod3:item.qualitativeGod3,
+                            qualitativeGod4:item.qualitativeGod4,
+                            qualitativeGod5:item.qualitativeGod5,
+                            qualitativeGod11:item.qualitativeGod11,
+                            qualitativeGod12:item.qualitativeGod12,
+                            qualitativeGod13:item.qualitativeGod13,
+                            paperFade:item.paperFade,
+                            doCrop:item.doCrop,
+                            qualitative:item.qualitative,
+                        })
+                }
+
+            }
+        })
     }
 
     //详情
@@ -1170,6 +1267,77 @@ export default class ReagentType extends Component {
         })
     }
 
+    //提交默认标曲的修改
+    handleSubmitDefault=()=>{
+        let form_detail=this.form_detail.current;
+        form_detail.validateFields()
+            .then(record=>{
+                console.log("提交默认标曲的修改",record)
+                let params={
+                    paperTypeId:this.state.paperTypeId,
+                    description:record.description,
+                    line0r:record.line0r,
+                    line0l:record.line0l,
+                    liner:record.liner,
+                    linel:record.linel,
+                    line2r:record.line2r,
+                    line2l:record.line2l,
+                    lineWidth:record.lineWidth,
+                    lineLength:record.lineLength,
+                    linePx:record.linePx,
+                    linePy:record.linePy,
+                    topGod:record.topGod,
+                    lowerGod:record.lowerGod,
+                    lineN0:record.lineN0,
+                    lineN1:record.lineN1,
+                    lineN2:record.lineN2,
+                    lineN3:record.lineN3,
+                    lineN4:record.lineN4,
+                    lineN5:record.lineN5,
+                    lineN6:record.lineN6,
+                    lineN7:record.lineN7,
+                    lineN8:record.lineN8,
+                    lineGod0:record.lineGod0,
+                    lineGod1:record.lineGod1,
+                    lineGod2:record.lineGod2,
+                    lineGod3:record.lineGod3,
+                    lineGod4:record.lineGod4,
+                    lineGod5:record.lineGod5,
+                    lineGod6:record.lineGod6,
+                    lineGod7:record.lineGod7,
+                    lineGod8:record.lineGod8,
+                    lineWei:record.lineWei,
+                    lineShowtype:record.lineShowtype,
+                    lineMethod:record.lineMethod,
+                    crop1Px:record.crop1Px,
+                    crop1Py:record.crop1Py,
+                    crop1Width:record.crop1Width,
+                    crop1Height:record.crop1Height,
+                    doCrop:record.doCrop,
+                    qualitative:record.qualitative,
+                    qualitativeGod:record.qualitativeGod,
+                    qualitativeLGod:record.qualitativeLGod,
+                    reactiveTime:record.reactiveTime,
+                    organization:record.organization,
+                    madeTime:record.madeTime,
+                    paperFade:record.paperFade,
+                    qualitativeGod2:record.qualitativeGod2,
+                    qualitativeGod3:record.qualitativeGod3,
+                    qualitativeGod4:record.qualitativeGod4,
+                    qualitativeGod5:record.qualitativeGod5,
+                    qualitativeGod11:record.qualitativeGod11,
+                }
+                httpRequest('post','/paper/param/pro/default/submit',params)
+                    .then(response=>{
+                        if(response.data.code===1002){
+                            this.setState({
+                                detailVisible:false,
+                            })
+                        }
+                    })
+            })
+    }
+
     form = React.createRef();
 
     render() {
@@ -1178,7 +1346,6 @@ export default class ReagentType extends Component {
             selectedRowKeys: selectedRowKeys,//指定选中项的 key 数组，需要和 onChange 进行配合
             onChange: this.onSelectChange,
         };
-        // const hasSelected = selectedRowKeys.length > 0;
 
         const formItemLayout = {
             labelCol: {
@@ -1698,6 +1865,12 @@ export default class ReagentType extends Component {
                     width={1400}
                     footer={[
                         <div style={{textAlign:"center"}}>
+
+                            <Button style={this.state.immutable?{display:'none'}:{display:'inline-block'}}
+                                    key="submit"
+                                    onClick={this.handleSubmitDefault}>
+                                提交
+                            </Button>
                             <Button key="back" onClick={this.handleCancel}>
                                 取消
                             </Button>,
@@ -1708,7 +1881,7 @@ export default class ReagentType extends Component {
                               name="view"
                               ref={this.form_detail}>
                             <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
-                                <Col span={8}>
+                                <Col span={6}>
                                     <Form.Item label="试剂类型"
                                                name="paperTypeName"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
@@ -1716,78 +1889,65 @@ export default class ReagentType extends Component {
                                         </Select>
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
-                                    <Form.Item label="批号"
-                                               name="bathNumber"
-                                               rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input placeholder="请输入批号"
-                                               disabled={true}/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={8}>
+                                <Col span={6}></Col>
+                                <Col span={6}>
                                     <Form.Item label="生产日期"
                                                name="madeTime"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
                                         <DatePicker onChange={this.dateOnChange}
                                                     placeholder="请选择生产日期 "
-                                                    disabled={true}/>
+                                                    disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
+                                <Col span={6}></Col>
                             </Row>
                             <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
-                                <Col span={1}></Col>
-                                <Col span={7}>
+                                <Col span={2}></Col>
+                                <Col span={4}>
                                     <Form.Item name="paperFade">
-                                        <Checkbox checked={this.state.paperFade}
-                                                  disabled={true}>
+                                        <Checkbox disabled={this.state.immutable}>
                                             能效已降低
                                         </Checkbox>
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
-                                    <Form.Item label="反应时间"
+                                <Col span={6}></Col>
+                                <Col span={6}>
+                                    <Form.Item label="反应时间(秒)"
                                                name="reactiveTime"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
                                         <Input placeholder="请输入反应时间"
-                                               disabled={true}/>
+                                               disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
-                                <Col span={8}>
-                                    <Form.Item label="所属单位"
-                                               name="organization"
-                                               rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input placeholder="请输入单位"
-                                               disabled={true}/>
-                                    </Form.Item>
-                                </Col>
+                                <Col span={6}></Col>
                             </Row>
                             <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
                                 <Col span={6}>
                                     <Form.Item label="LINE_WIDTH"
                                                name="lineWidth"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_LENGTH"
                                                name="lineLength"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_PX"
                                                name="linePx"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE_PY"
                                                name="linePy"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -1796,28 +1956,28 @@ export default class ReagentType extends Component {
                                     <Form.Item label="LINE0R"
                                                name="line0r"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINE0L"
                                                name="line0l"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINEL"
                                                name="linel"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input disabled={true}/>
+                                        <Input ddisabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="LINER"
                                                name="liner"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -1826,14 +1986,14 @@ export default class ReagentType extends Component {
                                     <Form.Item label="LINE2L"
                                                name="line2l"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
                                     <Form.Item label="LINE2R"
                                                name="line2r"
                                                rules={[{required:true,message:"必填项不能为空"}]}>
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
 
@@ -1841,8 +2001,7 @@ export default class ReagentType extends Component {
                             <Row justify="space-between" gutter="15" style={{display:"flex" }}  >
                                 <Col span={24}>
                                     <Form.Item name="qualitative">
-                                        <Checkbox disabled={true}
-                                                  checked={this.state.qualitative}>
+                                        <Checkbox disabled={this.state.immutable}>
                                             是定性
                                         </Checkbox>
                                     </Form.Item>
@@ -1853,19 +2012,23 @@ export default class ReagentType extends Component {
                                 <Col span={8}>
                                     <Form.Item label="定性阴性GOD值"
                                                name="qualitativeLGod">
-                                        <Input disabled={true}/>
+                                        <Input placeholder="请输入定性阴性GOD值"
+                                               disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={8}>
                                     <Form.Item label="定性阳性+GOD值"
                                                name="qualitativeGod">
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}
+                                               placeholder="请输入定性阳性+GOD值"/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={8}>
                                     <Form.Item label="定性弱阳性GOD值"
                                                name="qualitativeGod11">
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}
+                                               placeholder="请输入定性弱阳性GOD值"
+                                        />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -1996,35 +2159,34 @@ export default class ReagentType extends Component {
 
                             <Form.Item label="描述"
                                        name="description">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                             <Form.Item label="TOP_GOD"
                                        name="topGod">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                             <Form.Item label="LOWER_GOD"
                                        name="lowerGod">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                             <Form.Item label="LINE_WEI"
                                        name="lineWei">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                             <Form.Item label="LINE_SHOWTYPE"
                                        name="lineShowtype">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                             <Form.Item label="LINE_METHOD"
                                        name="lineMethod">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                             <Form.Item label="LINE_JUDGE_METHOD"
                                        name="lineJudgeMethod">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                             <Form.Item name="docrop">
-                                <Checkbox disabled={true}
-                                          checked={this.state.docrop}>
+                                <Checkbox disabled={this.state.immutable}>
                                     DO_CROP
                                 </Checkbox>
                             </Form.Item>
@@ -2032,43 +2194,43 @@ export default class ReagentType extends Component {
                                 <Col span={6}>
                                     <Form.Item label="CROP1_PX"
                                                name="CROP1_PX">
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="CROP1_PY"
                                                name="CROP1_PY">
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="CROP1_WIDTH"
                                                name="CROP1_WIDTH">
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                                 <Col span={6}>
                                     <Form.Item label="CROP1_HEIGHT"
                                                name="CROP1_HEIGHT">
-                                        <Input disabled={true}/>
+                                        <Input disabled={this.state.immutable}/>
                                     </Form.Item>
                                 </Col>
                             </Row>
                             <Form.Item label="定性阳性GOD值++"
                                        name="qualitativeGod2">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                             <Form.Item label="定性阳性GOD值+++"
                                        name="qualitativeGod3">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                             <Form.Item label="定性阳性GOD值++++"
                                        name="qualitativeGod4">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                             <Form.Item label="定性阳性GOD值+++++"
                                        name="qualitativeGod5">
-                                <Input disabled={true}/>
+                                <Input disabled={this.state.immutable}/>
                             </Form.Item>
                         </Form>
                     </div>
