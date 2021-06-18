@@ -33,7 +33,7 @@ import {
   getExpPlan, //实验计划
   exportFile, //导出
 } from "../../api/index"; //接口
-// import echarts from 'echarts/lib/echarts';
+import * as echarts from 'echarts';
 const { Option } = Select;
 // const init = echarts.init
 // var chartDom = document.getElementById('main');
@@ -588,14 +588,14 @@ export default class ExperimentData extends Component {
           this.setState({
             visible_add: false,
           });
-          this.loadData({page:1,pageSize:10})
+          this.loadData({ page: 1, pageSize: 10 })
           if (res.data.msg === "保存成功") {
             message.success('添加成功')
           } else {
             message.warning('添加失败')
           }
         });
-        
+
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
@@ -638,125 +638,60 @@ export default class ExperimentData extends Component {
   exp_result = (record) => {
 
     // console.log(record);
-    // let chartDom=document.getElementById('chart')
-    // let myChart = echarts.init(document.getElementById('chart'));
-    // let myChart
-    // let option
-    // let tgodData = []
-    // let cgodData = []
-  //   option = {
-  //     title: {
-  //         text: '折线图堆叠'
-  //     },
-  //     tooltip: {
-  //         trigger: 'axis'
-  //     },
-  //     legend: {
-  //         data: ['T-GOD', 'C-GOD']
-  //     },
-  //     grid: {
-  //         left: '3%',
-  //         right: '4%',
-  //         bottom: '3%',
-  //         containLabel: true
-  //     },
-  //     toolbox: {
-  //         feature: {
-  //             saveAsImage: {}
-  //         }
-  //     },
-  //     xAxis: {
-  //         type: 'category'
-  //     },
-  //     yAxis: {
-  //         type: 'value'
-  //     },
-  //     series: [
-  //         {
-  //             name: 'T-GOD',
-  //             type: 'line',
-  //             stack: '总量',
-  //             data: tgodData
-  //         },
-  //         {
-  //             name: 'C-GOD',
-  //             type: 'line',
-  //             stack: '总量',
-  //             data: cgodData
-  //         }
-  //     ]
-  // };
-//   option = {
-//     title: {
-//         text: '折线图堆叠'
-//     },
-//     tooltip: {
-//         trigger: 'axis'
-//     },
-//     legend: {
-//         data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
-//     },
-//     grid: {
-//         left: '3%',
-//         right: '4%',
-//         bottom: '3%',
-//         containLabel: true
-//     },
-//     toolbox: {
-//         feature: {
-//             saveAsImage: {}
-//         }
-//     },
-//     xAxis: {
-//         type: 'category',
-//         boundaryGap: false,
-//         data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-//     },
-//     yAxis: {
-//         type: 'value'
-//     },
-//     series: [
-//         {
-//             name: '邮件营销',
-//             type: 'line',
-//             stack: '总量',
-//             data: [120, 132, 101, 134, 90, 230, 210]
-//         },
-//         {
-//             name: '联盟广告',
-//             type: 'line',
-//             stack: '总量',
-//             data: [220, 182, 191, 234, 290, 330, 310]
-//         },
-//         {
-//             name: '视频广告',
-//             type: 'line',
-//             stack: '总量',
-//             data: [150, 232, 201, 154, 190, 330, 410]
-//         },
-//         {
-//             name: '直接访问',
-//             type: 'line',
-//             stack: '总量',
-//             data: [320, 332, 301, 334, 390, 330, 320]
-//         },
-//         {
-//             name: '搜索引擎',
-//             type: 'line',
-//             stack: '总量',
-//             data: [820, 932, 901, 934, 1290, 1330, 1320]
-//         }
-//     ]
-// };
-// option && myChart.setOption(option);
+
+
+
     getExpRes({ paperTestPlanId: record.paperTestPlanId }).then((res) => {
       console.log(res);
       let data_res = res.data ? res.data.data : [];
+      let chartDom = document.getElementById('chart')
+      let myChart = echarts.init(chartDom);
+      let option;
+      let tgodData = []
+      let cgodData = []
+      let xData = []
       data_res.forEach((item, index) => {
         item.key = index;
-        // tgodData.push(item.tgod)
-        // cgodData.push(item.cgod)
+        tgodData.push(item.tgod)
+        cgodData.push(item.cgod)
+        xData.push(item.concentrationValue)
       });
+      console.log(tgodData, cgodData,);
+      option = {
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: xData,
+        },
+        yAxis: {
+          type: 'value'
+        },
+        tooltip: {
+          trigger: 'axis'
+        },
+        legend: {
+          data: ['T-GOD', 'C-GOD']
+        },
+        series: [
+          {
+            name: 'T-GOD',
+            data: tgodData,
+            type: 'line'
+          },
+          {
+            name: 'C-GOD',
+            data: cgodData,
+            type: 'line'
+          }
+        ]
+      };
+
+      option && myChart.setOption(option);
       // option && myChart.setOption(option);
       this.setState({
         record,
@@ -1272,10 +1207,10 @@ export default class ExperimentData extends Component {
               <p>
                 试剂类型：
                 {this.state.paperType.map((paper) => {
-                if (paper.paperTypeId === record.type)
-                  return paper.paperTypeName;
-                else return null;
-              })}
+                  if (paper.paperTypeId === record.type)
+                    return paper.paperTypeName;
+                  else return null;
+                })}
               </p>
               <p>试剂卡反应时间(min)：{record.r_time}</p>
             </div>
@@ -1312,13 +1247,13 @@ export default class ExperimentData extends Component {
               <p>
                 试剂类型：
                 {this.state.paperType.map((paper) => {
-                if (paper.paperTypeId === record.type)
-                  return paper.paperTypeName;
-                else return null;
-              })}
+                  if (paper.paperTypeId === record.type)
+                    return paper.paperTypeName;
+                  else return null;
+                })}
               </p>
             </div>
-            <div id='chart' style={{width:'300px',height:'300px'}} ></div>
+            <div id='chart' style={{ width: '90%', height: '300px' }} ></div>
             <Table
               columns={this.columns_res}
               dataSource={data_res}
@@ -1345,7 +1280,7 @@ export default class ExperimentData extends Component {
               }}
             >
               导出
-          </Button>
+            </Button>
           </div>
         </Modal>
         {/* 实验结果中的实验详情弹窗 */}

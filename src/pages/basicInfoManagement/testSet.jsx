@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {Table, Button, Input, Row, Col , Space, Modal, Form,Popconfirm} from 'antd';
 import {SearchOutlined,PlusSquareOutlined,ReloadOutlined} from '@ant-design/icons';
-import httpRequest from "../../http";
+// import httpRequest from "../../http";
 import {loadDataTestSet,deleteDataTestSet,modifyDataTestSet,addDataTestSet} from "../../api/basic/testSetInterface"
 const { TextArea } = Input;
 

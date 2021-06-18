@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import {Table, Button, Input, Space, Modal, Form, Image, DatePicker} from 'antd';
 //import { DatePicker} from 'antd';
 import { Upload, message } from 'antd';
+
 import {PlusOutlined, UploadOutlined} from '@ant-design/icons';
 //import { InboxOutlined } from '@ant-design/icons';
 import {ReloadOutlined,
@@ -984,11 +985,6 @@ class Modal3 extends Component{
         },
         selectedRowKeys:[],
         data:[
-                {
-                key:1,
-                patientName:"test",
-                testNumber: "test",
-            }
         ],
         record:{
             loginName:"",
@@ -1257,11 +1253,6 @@ export default class ServiceManagement extends Component {
         },
         selectedRowKeys:[],
         data:[
-            {
-                key:1,
-                loginAccount:"test",
-                loginNmae:"test",
-            }
         ],
 
         //表格2数据
