@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import './index.less'
 
 
 export default class Home extends Component {
@@ -11,14 +12,7 @@ export default class Home extends Component {
         console.log(localStorage.getItem('check'),localStorage.getItem('autoLogin'));
         return (
             <div
-                style={{
-                    height: '100%',
-                    width: '100%',
-                    backgroundImage: `url(${require("../../assets/images/admin-bg.jpg")})`,
-                    backgroundSize: '100% 100%',
-                    backgroundRepeat: 'no-repeat',
-                    minHeight: '750px'
-                }}
+                className='home'
             >
             </div>
         )
