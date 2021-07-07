@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 import {Table, Button, Input, Row, Col, Select, Space, Modal, Form, Popconfirm} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
-import httpRequest from "../../http";
 import {loadDataProjectType,deleteDataProjectType,modifyDataProjectType,addDataProjectType} from "../../api/basic/projectTypeInterface"
 import {loadDataTestType} from "../../api/basic/testTypeInterface";
-import {addDataTestSet, deleteDataTestSet, loadDataTestSet, modifyDataTestSet} from "../../api/basic/testSetInterface";
 
 const { Option } = Select;
 
@@ -133,10 +131,11 @@ export default class ProjectType extends Component {
       //请求测试类型名称
         let p=loadDataTestType({});
         p.then(resolved=>{
-            console.log("测试ceshi",resolved)
-            this.setState({
-                testTypeGroup: resolved,
-            })
+            if(resolved){
+                this.setState({
+                    testTypeGroup: resolved[0],
+                })
+            }
         },reason => {
             console.error(reason)
         })
@@ -251,7 +250,7 @@ export default class ProjectType extends Component {
         p.then(resolved=>{
             console.log("测试ceshi",resolved)
             this.setState({
-                testTypeGroup: resolved,
+                testTypeGroup: resolved[0],
             })
         },reason => {
             console.error(reason)

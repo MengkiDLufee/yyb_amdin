@@ -7,7 +7,6 @@ export function loadData(url,params){
     var currentPage=1;
     return ajax(url,params,'POST')
         .then(response=>{
-            console.log("jiazai",response)
             if(response.data!==[]) {
                 const tempData=[...response.data.data.info];
                 for(let i=0;i<tempData.length;i++){
