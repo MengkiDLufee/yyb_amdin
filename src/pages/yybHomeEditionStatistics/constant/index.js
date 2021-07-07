@@ -1,0 +1,26 @@
+export const type = [
+  {
+    testTypeName:'sperm',
+    name:'精液液化能力'
+  },
+  {
+    testTypeName:'male_fsh',
+    name:'生精功能检测'
+  },
+  {
+    testTypeName:'egg_quality',
+    name:'卵巢功能评估'
+  },
+  {
+    testTypeName:'layegg',
+    name:'寻找黄金优孕期'
+  },
+  {
+    testTypeName:'pregnant',
+    name:'早期妊娠确认'
+  },
+  {
+    testTypeName:'embryo',
+    name:'早期胚胎发育监测'
+  }
+]

@@ -133,6 +133,11 @@ const menuLsit =[
                 icon:'home', 
             },
             {
+                title:'试剂测试版',
+                key:'/exp/reg_test',
+                icon:'home', 
+            },
+            {
                 title:'设备测试管理',
                 key:'/exp/dev_test',
                 icon:'home', 

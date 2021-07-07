@@ -1,7 +1,9 @@
 // 后台管理的路由组件
 import React, { Component } from 'react'
-import { Link} from 'react-router-dom'
-import { Layout, Menu } from 'antd';
+import { Link,Redirect } from 'react-router-dom'
+import { Layout, Menu, ConfigProvider } from 'antd';
+import zh_CN from 'antd/lib/locale-provider/zh_CN';
+import 'moment/locale/zh-cn';
 import {
   UserOutlined,
   UnorderedListOutlined,
@@ -15,25 +17,24 @@ import Foot from '../../compenents/foot'
 
 const { SubMenu } = Menu;
 
-const menu_user = (
-  <Menu>
-    <Menu.Item>
-      <span href="" rel="noopener noreferrer">个人中心</span>
-    </Menu.Item>
-    <Menu.Item>
-      <span href="" rel="noopener noreferrer">修改密码</span>
-    </Menu.Item>
-    <Menu.Item>
-      <span href="" rel="noopener noreferrer" >退出</span>
-    </Menu.Item>
-  </Menu>
-)
+
 export default class Admin extends Component {
   state = {
     collapsed: false,
     keys: [],
-    user_name:'eupregna',
+    user_name: 'eupregna',
+    logout: false
   };
+
+  
+    
+  logout = () => {
+    // console.log('退出');
+    localStorage.setItem('autoLogin', false)
+    this.setState({
+      logout:true
+    })
+  }
   //导航栏收缩扩张
   toggle = () => {
     this.setState({
@@ -100,27 +101,34 @@ export default class Admin extends Component {
   }
 
   render() {
+    let token = sessionStorage.getItem('token')
+    if (this.state.logout || !token) {
+      return <Redirect to='/login' />
+    }
+    const user_name = localStorage.getItem('acount_yyb')
     return (
-      <Layout className="layout-all">
-        {/* 左侧导航栏 */}
-       <Leftnav collapsed={this.state.collapsed} />
-       {/* 中间内容 */}
-        <Layout className="site-layout">
-          {/* 顶部 */}
-          <Topbar 
-            collapsed={this.state.collapsed} 
-            toggle={this.toggle} 
-            getTitle={this.getTitle}
-            getTitleRight={this.getTitleRight}  
-            menu_user={menu_user}
-            user_name={this.state.user_name}
-          />
-          {/* 内容部分二级路由配置 */}
-          <Midcontent/>
-          {/* 页脚 */}
-          <Foot/>
+      <ConfigProvider locale={zh_CN}>
+        <Layout className="layout-all">
+          {/* 左侧导航栏 */}
+          <Leftnav collapsed={this.state.collapsed} />
+          {/* 中间内容 */}
+          <Layout className="site-layout">
+            {/* 顶部 */}
+            <Topbar
+              collapsed={this.state.collapsed}
+              toggle={this.toggle}
+              getTitle={this.getTitle}
+              getTitleRight={this.getTitleRight}
+              logout={this.logout.bind(this)}
+              user_name={user_name  || this.state.user_name}
+            />
+            {/* 内容部分二级路由配置 */}
+            <Midcontent />
+            {/* 页脚 */}
+            <Foot />
+          </Layout>
         </Layout>
-      </Layout>
+      </ConfigProvider>
     )
   }
 }

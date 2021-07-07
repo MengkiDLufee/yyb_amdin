@@ -3,5 +3,80 @@
   padding: 24px;
   background-color: white;
   min-height: 800px;
-  overflow: scroll;
+  overflow: auto;
+}
+
+.mid-style::-webkit-scrollbar {
+  /* 隐藏chrome滚动条 */
+  display: none;
+}
+.mid-style{
+  /*隐藏滚动条IE*/
+  -ms-overflow-style:none;
+  /*火狐隐藏滚动条*/
+  overflow:-moz-scrollbars-none;
+}
+
+
+@media screen and (min-height: 100px){
+  .ant-table-thead > tr > th{
+    padding:10px 12px;
+  }
+  .ant-table-tbody > tr > td{
+    padding:4.5px 12px;
+    border:none;
+  }
+}
+
+@media screen and (min-height: 800px){
+  .ant-table-thead > tr > th{
+    padding:12px 12px;
+  }
+  .ant-table-tbody > tr > td{
+    padding:5px 12px;
+    border:none;
+  }
+}
+
+@media screen and (min-height: 900px){
+  .ant-table-thead > tr > th{
+    padding:14px 12px;
+  }
+  .ant-table-tbody > tr > td{
+    padding:9px 12px;
+    border:none;
+  }
+}
+
+@media screen and (min-height: 1000px){
+  .ant-table-thead > tr > th{
+    padding:18px 12px;
+  }
+  .ant-table-tbody > tr > td{
+    padding:14px 12px;
+    border:none;
+  }
+}
+
+@media screen and (min-height: 1050px){
+  .ant-table-thead > tr > th{
+    padding:22px 12px;
+  }
+  .ant-table-tbody > tr > td{
+    padding:16px 12px;
+    border:none;
+  }
+}
+
+@media screen and (min-height: 1200px){
+  .ant-table-wrapper{
+    margin-top:15px;
+  }
+  .ant-table-thead > tr > th{
+    padding:24px 12px;
+  }
+  .ant-table-tbody > tr > td{
+    padding:20px 12px;
+    border:none;
+  }
 }

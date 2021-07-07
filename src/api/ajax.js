@@ -1,8 +1,9 @@
-//能发送ajax异步函数请求的模块
-//封装axios库
-//函数的返回值是promise对象
-
-//利用promise统一处理请求错误
+/**
+ * 能发送ajax异步函数请求的模块
+ * 封装axios库
+ * 函数的返回值是promise对象
+ * 利用promise统一处理请求错误
+ */
 
 import axios from 'axios'
 import qs from 'qs'//将url中的参数转为对象;将对象转为url参数形式
@@ -10,8 +11,10 @@ import {
     message
 } from 'antd'
 
-// const baseUrl = 'http://java.xixibackup.me:8080'
+
 axios.defaults.baseURL = 'http://java.xixibackup.me:8080'
+// axios.defaults.baseURL = 'http://192.168.1.173:8080'
+// axios.defaults.baseURL = 'http://192.168.2.102:8080'
 
 
 /* 取消请求设置 */
@@ -80,6 +83,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
     response => {
         delayRepeatRequest(response.config); //在一个axios响应后再执行一下取消操作，把已经完成的请求从pendList中移除
+                                            //response中的config为上次请求的所有信息，即请求拦截中的config = 响应拦截中的config
 
         return response.status === 200 ? Promise.resolve(response) : Promise.reject(response); //状态码为200接口访问成功，其他抛出错误
     },

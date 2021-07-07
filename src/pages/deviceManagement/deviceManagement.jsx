@@ -79,6 +79,79 @@ function transformHistoryData(data) {
   return newData
 }
 
+const selectType = [
+  {
+    name: '正常',
+    value: 'device_normal'
+  },
+  {
+    name: '测试',
+    value: 'device_testing'
+  },
+  {
+    name: '优孕保',
+    value: 'eupregna'
+  },
+  {
+    name: '优孕保测试',
+    value: 'eupregna_testing'
+  },
+  {
+    name: '专业正常',
+    value: 'professional_normal'
+  },
+  {
+    name: '专业测试',
+    value: 'professional_testing'
+  },
+  {
+    name: '研究',
+    value: 'research'
+  },
+  {
+    name: '其他',
+    value: 'other'
+  },
+  {
+    name: '其他测试',
+    value: 'other_test'
+  }
+]
+const stateType = [
+  {
+    name: '未测试',
+    value: 'no_test'
+  },
+  {
+    name: '测试通过',
+    value: 'pass'
+  },
+  {
+    name: '测试未通过',
+    value: 'no_pass'
+  },
+  {
+    name: '返修',
+    value: 'repair'
+  },
+  {
+    name: '存在故障,完全无法使用',
+    value: 'use_no_testvalue'
+  },
+  {
+    name: '存在故障，可用但影响测试值',
+    value: 'professional_testing'
+  },
+  {
+    name: '存在故障，可临时用',
+    value: 'temporary_use'
+  },
+  {
+    name: '废弃',
+    value: 'discard'
+  }
+]
+
 
 export default class DeviceManagement extends Component {
 
@@ -309,7 +382,7 @@ export default class DeviceManagement extends Component {
   loadList = () => {
     devList({ page: 1, pageSize: 10 }).then(
       res => {
-        console.log(res)
+        // console.log(res)
         let data = transformData(res.data.data.info)
         let paginationProps = Object.assign(this.state.paginationProps, { total: res.data.data.total })
         this.setState({
@@ -325,18 +398,18 @@ export default class DeviceManagement extends Component {
   }
   //表格行选择
   onSelectChange = row => {
-    let newArr = [...new Set([...row,...this.state.selectedRowKeysAll])]//并集
+    let newArr = [...new Set([...row, ...this.state.selectedRowKeysAll])]//并集
     //setState为异步操作，若在this.setState函数外获取，则仍是赋值之前的值，没有改变
     this.setState({
-       selectedRowKeys: row,
-       selectedRowKeysAll:newArr 
-      })
-      console.log(row,newArr)
+      selectedRowKeys: row,
+      selectedRowKeysAll: newArr
+    })
+    // console.log(row, newArr)
   };
 
   //客户输入框
   devCodeChange = (e) => {
-    console.log(e.target.value)
+    // console.log(e.target.value)
     this.setState({
       input: Object.assign(this.state.input, { devCode: e.target.value }),
     })
@@ -351,7 +424,7 @@ export default class DeviceManagement extends Component {
   }
   //搜索
   search = () => {
-    console.log('搜索', this.state.input)
+    // console.log('搜索', this.state.input)
     let params = { page: 1, pageSize: 10 }
     let { devCode, active, type, state } = this.state.input
     if (devCode !== '') {
@@ -366,7 +439,7 @@ export default class DeviceManagement extends Component {
     if (state !== undefined) {
       params.status = state
     }
-    console.log(params)
+    // console.log(params)
     devList(params).then(
       res => {
         console.log(res)
@@ -381,7 +454,7 @@ export default class DeviceManagement extends Component {
   };
   //重置
   reset = () => {
-    console.log('重置')
+    // console.log('重置')
     let input = Object.assign(this.state.input, {
       devCode: '',
       active: undefined,
@@ -404,13 +477,13 @@ export default class DeviceManagement extends Component {
   };
   //点击添加完成
   handleOk_add = () => {
-    console.log('添加完成')
-    console.log(this.form)
+    // console.log('添加完成')
+    // console.log(this.form)
     let form = this.form.current;
     form.validateFields()//表单输入校验
       .then((values) => {
         form.resetFields();//清空表单内容
-        console.log(values)
+        // console.log(values)
         this.setState({
           visible_add: false
         })
@@ -476,12 +549,12 @@ export default class DeviceManagement extends Component {
     });
     let form = this.form.current;
     form.resetFields();//清空表单内容
-    console.log('添加关闭')
+    // console.log('添加关闭')
   };
 
   //导入
   importStatic = () => {
-    console.log('导入')
+    // console.log('导入')
     this.setState({
       visible_import: true,
     })
@@ -493,7 +566,7 @@ export default class DeviceManagement extends Component {
   }
   //导出已选择数据
   exportChoose = () => {
-    console.log('导出已选择数据', this.state.selectedRowKeysAll)
+    // console.log('导出已选择数据', this.state.selectedRowKeysAll)
     exportFile('/device/manage/info/export/choose', this.state.selectedRowKeysAll)
   };
   //按搜索条件导出
@@ -513,18 +586,20 @@ export default class DeviceManagement extends Component {
     if (state !== undefined) {
       params.status = state
     }
-    exportFile('/device/manage/info/export/condition',params)
+    exportFile('/device/manage/info/export/condition', params)
   };
   //修改
   modify = (record) => {
-    console.log('修改', record, this.state.modal)
+    // console.log('修改', record, this.state.modal)
     // console.log(this.form_modify.current)
     let modal = Object.assign(this.state.modal, { dev_id: record.deviceId })
     this.setState({
       visible_modify: true,
       modal,
     })
-    let form_modify = this.form_modify.current;
+    setTimeout(()=>{
+      let form_modify = this.form_modify.current;
+    console.log(form_modify)
     if (this.form_modify.current) {
       form_modify.setFieldsValue({
         dev_id: record.deviceId,
@@ -544,6 +619,7 @@ export default class DeviceManagement extends Component {
         remark: record.remark
       })
     }
+    },0)
 
   };
   //完成修改
@@ -553,7 +629,7 @@ export default class DeviceManagement extends Component {
     form.validateFields()//表单输入校验
       .then((values) => {
         // form.resetFields();
-        console.log(values)
+        // console.log(values)
         this.setState({
           visible_modify: false
         })
@@ -595,7 +671,7 @@ export default class DeviceManagement extends Component {
         if (values.type !== undefined) {
           params.target = values.type
         }
-        console.log(params)
+        // console.log(params)
         devModify(params).then(() => {
           this.loadList()//重载数据
           message.success('修改成功！')
@@ -611,12 +687,11 @@ export default class DeviceManagement extends Component {
     this.setState({
       visible_modify: false,
     })
-    console.log('修改弹窗关闭')
+    // console.log('修改弹窗关闭')
   };
   //修改弹窗中输入框变化
   modify_inputChange = (e) => {
-    let name = e.target.name;
-    console.log(name)
+
     this.setState({
       modal: Object.assign(this.state.modal, { [e.target.name]: e.target.value })
     })
@@ -632,7 +707,7 @@ export default class DeviceManagement extends Component {
   delete = (record) => {
     // console.log('删除',record)
     devDelete(record.deviceId).then(res => {
-      console.log(res)
+      // console.log(res)
       message.success('删除成功！')
       this.loadList()
     })
@@ -686,20 +761,20 @@ export default class DeviceManagement extends Component {
     if (state !== undefined) {
       params.status = state
     }
-    devList(params).then( res => {
-        // console.log(res)
-        let data = transformData(res.data.data.info)
-        let paginationProps = Object.assign(this.state.paginationProps, {
-          total: res.data.data.total,
-          current: pagination.current,
-          pageSize: pagination.pageSize,
-        })
-        this.setState({
-          data,
-          paginationProps,
-          selectedRowKeys: arr,
-        })
-      }
+    devList(params).then(res => {
+      // console.log(res)
+      let data = transformData(res.data.data.info)
+      let paginationProps = Object.assign(this.state.paginationProps, {
+        total: res.data.data.total,
+        current: pagination.current,
+        pageSize: pagination.pageSize,
+      })
+      this.setState({
+        data,
+        paginationProps,
+        selectedRowKeys: arr,
+      })
+    }
     )
   };
   //使用人员表格变化
@@ -715,7 +790,7 @@ export default class DeviceManagement extends Component {
       page: current,
       deviceId: this.state.modal.dev_id
     };
-    console.log(params)
+    // console.log(params)
     devHistoryUser(params).then(res => {
       let data_user = transformHistoryData(res.data.data.info)
       this.setState({
@@ -727,18 +802,7 @@ export default class DeviceManagement extends Component {
 
 
 
-  onFinish = (values) => {
-    console.log('Success:', values);
-    this.setState({
-      justify_modal: 0,
-    })
-  };
-  onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
-    this.setState({
-      justify_modal: 1,
-    })
-  };
+
 
 
 
@@ -750,7 +814,7 @@ export default class DeviceManagement extends Component {
       onChange: this.onSelectChange,
     };
     const { total, current, pageSize } = this.state.paginationProps
-    // const [form] = Form.useForm();
+
 
     return (
       <div style={{ height: "100%" }}>
@@ -779,15 +843,11 @@ export default class DeviceManagement extends Component {
               className="input1"
               value={this.state.input.type}
             >
-              <Option name="type" value="device_normal">正常</Option>
-              <Option name="type" value="device_testing">测试</Option>
-              <Option name="type" value="eupregna">优孕保</Option>
-              <Option name="type" value="eupregna_testing">优孕保测试</Option>
-              <Option name="type" value="professional_normal">专业正常</Option>
-              <Option name="type" value="professional_testing">专业测试</Option>
-              <Option name="type" value="research">研究</Option>
-              <Option name="type" value="other">其他</Option>
-              <Option name="type" value="other_test">其他测试</Option>
+              {
+                selectType.map((item, index) => {
+                  return <Option key={index} name="type" value={item.value}>{item.name}</Option>
+                })
+              }
             </Select>
             <Select
               placeholder="请选择状态 "
@@ -795,14 +855,11 @@ export default class DeviceManagement extends Component {
               className="input1"
               value={this.state.input.state}
             >
-              <Option name="state" value="no_test">未测试</Option>
-              <Option name="state" value="pass">测试通过</Option>
-              <Option name="state" value="no_pass">测试未通过</Option>
-              <Option name="state" value="repair">返修</Option>
-              <Option name="state" value="cannot_use">存在故障,完全无法使用</Option>
-              <Option name="state" value="use_no_testvalue">存在故障，可用但影响测试值</Option>
-              <Option name="state" value=" temporary_use">存在故障，可临时用</Option>
-              <Option name="state" value="discard">废弃</Option>
+              {
+                stateType.map((item, index) => {
+                  return <Option key={index} name="state" value={item.value}>{item.name}</Option>
+                })
+              }
             </Select>
 
             <Button
@@ -1036,7 +1093,7 @@ export default class DeviceManagement extends Component {
             </Form>
           </div>
         </Modal>
-        {/* 修改弹窗 */}i
+        {/* 修改弹窗 */}
         <Modal
           title="修改"
           centered
@@ -1045,10 +1102,10 @@ export default class DeviceManagement extends Component {
           okText="确定"
           onCancel={this.handleCancel_modify}
           cancelText="关闭"
-          forceRender={true}
+          // forceRender={true}
         >
-          <div className="ant-modal-body">
-            <div className="modal-body" style={{ height: "500px" }}>
+          <div className="ant-modal-body" style={{overflow:'auto'}}>
+            <div className="modal-body" style={{ height: "500px"}}>
               <Form
                 labelCol={{ span: 5 }}
                 wrapperCol={{ span: 16 }}

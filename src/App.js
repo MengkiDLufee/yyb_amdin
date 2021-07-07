@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { BrowserRouter,  Route ,Switch, Redirect } from 'react-router-dom'
-
+//组件汉化
 
 import Login from './pages/login/login.jsx'
 import Admin from './pages/admin/admin.jsx'
@@ -20,11 +20,12 @@ export default class App extends Component {
     
     return (
       <BrowserRouter>
-        <Switch>
-          <Route exact path='/login' component={Login} />
-          <Route path='/' component={Admin} />  
-          <Redirect exact from='/' to='/login'/>
-        </Switch>
+        
+          <Switch>
+            <Route exact path='/login' component={Login} />
+            <Route path='/' component={Admin} />  
+            <Redirect exact from='/' to='/login'/>
+          </Switch>
       </BrowserRouter>
     )
   }

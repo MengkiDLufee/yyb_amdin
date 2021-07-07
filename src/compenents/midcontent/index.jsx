@@ -33,6 +33,7 @@ const DeviceManagement = lazy(() => import('../../pages/deviceManagement/deviceM
 // 实验管理
 const ExperimentData = lazy(() => import('../../pages/experimentManagement/experimentData'));
 const Experimenter = lazy(() => import('../../pages/experimentManagement/experimenter'));
+const RegTest = lazy(() => import('../../pages/experimentManagement/regTest'));
 const DevTest = lazy(() => import('../../pages/experimentManagement/devTest'))
 // 优孕宝家庭版统计
 const TestData = lazy(() => import('../../pages/yybHomeEditionStatistics/testData'));
@@ -62,63 +63,66 @@ const { Content } = Layout;
 export default class Midcontent extends Component {
   render() {
     return (
-      <Content className="mid-style">
-        <Suspense fallback={<Spin tip="Loading..."></Spin>}>
-          <Switch>
-            <Route path="/home" exact component={Home} />
+      // <div className="outer">
+        <Content className="mid-style">
+          <Suspense fallback={<Spin tip="Loading..."></Spin>}>
+            <Switch>
+              <Route path="/home" exact component={Home} />
 
-            <Route path="/user" exact component={UserBasicInfoManagement} />
-            <Route path="/user/test" component={UserTestDataManagement} />
-            <Route path="/user/device" component={UserDeviceManagement} />
-            <Route path="/user/easemod/msg" component={UserMsg} />
-            <Route path="/user/msg" component={UserSMSmanagement} />
-            <Route path="/user/phone" component={UserMobileMsgManagement} />
-            <Route path="/user/code" component={VerificationSMSinquire} />
+              <Route path="/user" exact component={UserBasicInfoManagement} />
+              <Route path="/user/test" component={UserTestDataManagement} />
+              <Route path="/user/device" component={UserDeviceManagement} />
+              <Route path="/user/easemod/msg" component={UserMsg} />
+              <Route path="/user/msg" component={UserSMSmanagement} />
+              <Route path="/user/phone" component={UserMobileMsgManagement} />
+              <Route path="/user/code" component={VerificationSMSinquire} />
 
-            <Route path="/test" exact component={TestSet} />
-            <Route path="/test/type" component={TestType} />
-            <Route path="/reagent/type" component={ReagentType} />
-            <Route path="/reagent/params" component={ReagentJudgeParams} />
-            <Route path="/unit" component={UnitManagement} />
-            <Route path="/plan/type" component={ProjectType} />
+              <Route path="/test" exact component={TestSet} />
+              <Route path="/test/type" component={TestType} />
+              <Route path="/reagent/type" component={ReagentType} />
+              <Route path="/reagent/params" component={ReagentJudgeParams} />
+              <Route path="/unit" component={UnitManagement} />
+              <Route path="/plan/type" component={ProjectType} />
 
-            <Route path="/prof/test" component={ProfessionTestData} />
-            <Route path="/prof/account" component={AccountInfo} />
-            <Route path="/prof/patient" component={PatientInfo} />
+              <Route path="/prof/test" component={ProfessionTestData} />
+              <Route path="/prof/account" component={AccountInfo} />
+              <Route path="/prof/patient" component={PatientInfo} />
 
-            <Route path="/device" component={DeviceManagement} />
+              <Route path="/device" component={DeviceManagement} />
 
-            <Route path="/exp/data" component={ExperimentData} />
-            <Route path="/exp/member" component={Experimenter} />
-            <Route path="/exp/dev_test" component={DevTest} />
+              <Route path="/exp/data" component={ExperimentData} />
+              <Route path="/exp/member" component={Experimenter} />
+              <Route path="/exp/reg_test" component={RegTest} />
+              <Route path="/exp/dev_test" component={DevTest} />
 
-            <Route path="/home_e/test" component={TestData} />
-            <Route path="/home_e/test_real" component={ActualTest} />
-            <Route path="/home_e/miss" component={MissingTestThisPeriod} />
-            <Route path="/home_e/test_on" component={UserInTest} />
-            <Route path="/home_e/user_new" component={NewlyRegisteredUser} />
-            <Route path="/home_e/using_new" component={NewlyRegisteredUsingUser} />
-            <Route path="/home_e/med" component={UserMedication} />
-            <Route path="/home_e/user_all" component={AllUser} />
-            <Route path="/home_e/user_valid" component={ValidUser} />
-            <Route path="/home_e/user_miss" component={MissingTsetUser} />
-            <Route path="/home_e/user_period" component={TestUserThisPeriod} />
+              <Route path="/home_e/test" component={TestData} />
+              <Route path="/home_e/test_real" component={ActualTest} />
+              <Route path="/home_e/miss" component={MissingTestThisPeriod} />
+              <Route path="/home_e/test_on" component={UserInTest} />
+              <Route path="/home_e/user_new" component={NewlyRegisteredUser} />
+              <Route path="/home_e/using_new" component={NewlyRegisteredUsingUser} />
+              <Route path="/home_e/med" component={UserMedication} />
+              <Route path="/home_e/user_all" component={AllUser} />
+              <Route path="/home_e/user_valid" component={ValidUser} />
+              <Route path="/home_e/user_miss" component={MissingTsetUser} />
+              <Route path="/home_e/user_period" component={TestUserThisPeriod} />
 
-            <Route path="/pro_edition" component={YybProfessionEditionStatistics} />
+              <Route path="/pro_edition" component={YybProfessionEditionStatistics} />
 
-            <Route path="/serve/user" component={UserManagement} />
-            <Route path="/serve/device" component={DeviceManagement_Serve} />
-            <Route path="/service" component={ServiceManagement} />
+              <Route path="/serve/user" component={UserManagement} />
+              <Route path="/serve/device" component={DeviceManagement_Serve} />
+              <Route path="/service" component={ServiceManagement} />
 
-            <Route path="/system/user" component={User} />
-            <Route path="/system/role" component={Role} />
-            <Route path="/system/partment" component={Partment} />
-            <Route path="/system/loginlog" component={LoginLog} />
-            <Route path="/system/worklog" component={WorkLog} />
-            <Redirect to="/home" />
-          </Switch>
-        </Suspense>
-      </Content>
+              <Route path="/system/user" component={User} />
+              <Route path="/system/role" component={Role} />
+              <Route path="/system/partment" component={Partment} />
+              <Route path="/system/loginlog" component={LoginLog} />
+              <Route path="/system/worklog" component={WorkLog} />
+              <Redirect to="/home" />
+            </Switch>
+          </Suspense>
+        </Content>
+      // </div>
     )
   }
 }
