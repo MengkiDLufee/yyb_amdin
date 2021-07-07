@@ -2,13 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c99ddcfa-a6ca-4d43-a192-e89324e00748" name="默认的" comment="默认的">
-      <change afterPath="$PROJECT_DIR$/src/api/basic/unitManagementInterface.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/basic/common.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/basic/common.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/basic/testTypeInterface.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/basic/testTypeInterface.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/projectType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/testType.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/basicInfoManagement/unitManagement.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/http.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/http.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -213,6 +208,7 @@
       <workItem from="1623295385032" duration="1585000" />
       <workItem from="1623322388984" duration="2527000" />
       <workItem from="1623677855701" duration="1211000" />
+      <workItem from="1625649585724" duration="116000" />
     </task>
     <servers />
   </component>
