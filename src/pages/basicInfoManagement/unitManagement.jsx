@@ -2,9 +2,11 @@ import React, { Component } from 'react'
 import {Table, Button, Input, Row, Col, Space, Modal, Form, Popconfirm} from 'antd';
 import {PlusSquareOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import httpRequest from "../../http";
+import {loadDataUnitManagement,deleteDataUnitManagement,modifyDataUnitManagement,addDataUnitManagement} from "../../api/basic/unitManagementInterface"
+import {loadDataProjectType} from "../../api/basic/projectTypeInterface";
 
 
-//const data = [];
+
 
 export default class UnitManagement extends Component {
 
@@ -101,24 +103,16 @@ export default class UnitManagement extends Component {
             page:1,
             pageSize:this.state.pageSize,
         }
-        httpRequest('post','/unit/list',params)
-            .then(response=>{
-                console.log(response.data.data)
-                if(response.data!==[]) {
-                    this.setState({
-                        data: response.data.data.info,
-                        total: response.data.data.total,
-                    })
-                    const tempData=[...this.state.data];
-                    for(let i=0;i<tempData.length;i++){
-                        tempData[i].key=i;
-                    }
-                    this.setState({
-                        data:tempData
-                    })
-                }
-            }).catch(err => {
-            console.log(err);
+        //请求数据
+        let promise=loadDataUnitManagement(params);
+        promise.then(resolved=>{
+            this.setState({
+                data:resolved[0],
+                total:resolved[1],
+                currentPage:resolved[2]
+            })
+        },reason => {
+            console.error(reason)
         })
     }
 
@@ -149,7 +143,7 @@ export default class UnitManagement extends Component {
         }, 1000);
     };
 
- //添加展开modal
+    //添加展开modal
     handleAdd(){
         this.setState({
             addVisible:true,
@@ -164,57 +158,49 @@ export default class UnitManagement extends Component {
         }
         params.page=1;
         params.pageSize=this.state.pageSize;
-        console.log(params);
-        httpRequest('post','/unit/list',params)
-            .then(response=>{
-                console.log(response)
-                if(response.data!==[]){
-                    this.setState({
-                        data:response.data.data.info,
-                        total:response.data.data.total,
-                    })
-                }
-            }).catch(err => {
-            console.log(err);
+        let promise=loadDataUnitManagement(params);
+        promise.then(resolved=>{
+            this.setState({
+                data:resolved[0],
+                total:resolved[1],
+                currentPage:resolved[2]
+            })
+        },reason => {
+            console.error(reason)
         })
     }
 
-  //重置
+    //重置
     reset(){
         console.log("重置")
         let params={
             page:1,
             pageSize:this.state.pageSize,
         }
-        httpRequest('post','/unit/list',params)
-            .then(response=>{
-                console.log(response)
-                if(response.data!==[]){
-                    this.setState({
-                        data:response.data.data.info,
-                        total:response.data.data.total,
-                    })
-                }
-            }).catch(err => {
-            console.log(err);
-        })
+        let promise=loadDataUnitManagement(params);
+        promise.then(resolved=>{
             this.setState({
-                //data:data,
-                currentItem:{
-                   key: null,
-                    unitCode: '',
-                    organization:'',
-                    insertTime: '',
-
-                },
-                //搜索框
-                unitName:'',
-                currentPage:1,
-            });
-        console.log(this.state)
-
+                data:resolved[0],
+                total:resolved[1],
+                currentPage:resolved[2]
+            })
+        },reason => {
+            console.error(reason)
+        })
+        this.setState({
+            currentItem:{
+                key: null,
+                unitCode: '',
+                organization:'',
+                insertTime: '',
+            },
+            //搜索框
+            unitName:'',
+            currentPage:1,
+        });
     }
-     //修改展开modal
+
+    //修改展开modal
     handleModify=(record)=>{
         console.log('修改',record)
         this.setState({
@@ -232,51 +218,26 @@ export default class UnitManagement extends Component {
         }
     }
 
-
     //删除某一行
     handleDelete=(record)=>{
         console.log('删除',record)
         let params={
             unitId:record.unitId
         }
-        httpRequest('post','/unit/delete',params)
-            .then(response=>{
-                console.log(response)
-                if(response.data.code===1006){
-                    let params={
-                        page:this.state.currentPage,
-                        pageSize:this.state.pageSize,
-                    }
-                    httpRequest('post','/unit/list',params)
-                        .then(response=>{
-                            console.log(response.data.data)
-                            if(response.data!==[]) {
-                                this.setState({
-                                    data: response.data.data.info,
-                                    total: response.data.data.total,
-                                })
-                                const tempData=[...this.state.data];
-                                for(let i=0;i<tempData.length;i++){
-                                    tempData[i].key=this.state.currentPage*params.pageSize+i;
-                                }
-                                this.setState({
-                                    data:tempData
-                                })
-                            }
-                        }).catch(err => {
-                        console.log(err);
-                    })
-                }
-                else{
-                    alert("删除失败，请稍后再试")
-                }
-            }).catch(err => {
-            console.log(err);
+        let res=deleteDataUnitManagement(params,this.state.currentPage,this.state.pageSize,this.state.total)
+        res.then(resolved=>{
+            this.setState({
+                data:resolved[0],
+                total:resolved[1],
+                currentPage:resolved[2],
+            })
+        },reason => {
+            console.error(reason)
         })
     }
 
     //modal点击确认
-    handleOk = e => {
+    handleOk = () => {
         let form = this.form.current;
         let form_modify=this.form_modify.current;
         this.setState({
@@ -296,49 +257,27 @@ export default class UnitManagement extends Component {
                         unitCode:values.unitCode,
                         unitName:values.unitName,
                     }
-                    httpRequest('post','/unit/modify',params)
-                        .then(response=>{
-                            console.log(response)
-                            if(response.data.code===1004){
-                                let inital_param={
-                                    page:this.state.currentPage,
-                                    pageSize:this.state.pageSize,
-                                }
-                                httpRequest('post','/unit/list',inital_param)
-                                    .then(response=>{
-                                        console.log(response.data.data)
-                                        if(response.data!==[]) {
-                                            this.setState({
-                                                data: response.data.data.info,
-                                                total: response.data.data.total,
-                                            })
-                                            const tempData=[...this.state.data];
-                                            for(let i=0;i<tempData.length;i++){
-                                                tempData[i].key=this.state.currentPage*inital_param.pageSize+i;
-                                            }
-                                            this.setState({
-                                                data:tempData
-                                            })
-                                        }
-                                    }).catch(err => {
-                                    console.log(err);
-                                })
-                                setTimeout(() => {
-                                    form_modify.resetFields();
-                                    this.setState({
-                                        loading:false,
-                                        modifyVisible: false,
-                                        currentItem:{
-                                            key: null,
-                                            unitId:null,
-                                            unitCode:'',
-                                            unitName:'',
-                                            insertDate:'',
-                                        },
-                                    });
-                                }, 1000);
-                            }
-                        }).catch(err => {
+                    modifyDataUnitManagement(params,this.state.currentPage,this.state.pageSize)
+                        .then(resolved=>{
+                            this.setState({
+                                data:resolved,
+                            })
+                            setTimeout(() => {
+                                form.resetFields();
+                                this.setState({
+                                    loading: false,
+                                    addVisible: false,
+                                    currentItem:{
+                                        key: null,
+                                        unitId:null,
+                                        unitCode:'',
+                                        unitName:'',
+                                        insertDate:'',
+                                    },
+                                });
+                            }, 1000);
+                        })
+                        .catch(err => {
                         console.log(err);
                     })
                 })
@@ -357,54 +296,32 @@ export default class UnitManagement extends Component {
                             unitCode: values.unitCode,
                             unitName: values.unitName,
                         }
-                        httpRequest('post', '/unit/add', params)
-                            .then(response => {
-                                console.log(response)
-                                if (response.data.code === 1002) {
-                                    let cu_page=(parseInt(this.state.total)+1)/this.state.pageSize;
-                                    let inital_params={
-                                        page:Math.ceil(cu_page),
-                                        pageSize:this.state.pageSize,
-                                    }
-                                    httpRequest('post','/unit/list',inital_params)
-                                        .then(response=>{
-                                            console.log("初始化",response,inital_params)
-                                            if(response.data!==[]) {
-                                                this.setState({
-                                                    data: response.data.data.info,
-                                                    total: response.data.data.total,
-                                                })
-                                                const tempData=[...this.state.data];
-                                                for(let i=0;i<tempData.length;i++){
-                                                    tempData[i].key=i+this.state.pageSize*(inital_params.page-1);
-                                                }
-                                                this.setState({
-                                                    data:tempData,
-                                                    currentPage:inital_params.page
-                                                })
-                                            }
-                                        }).catch(err => {
-                                        console.log(err);
-                                    });
-                                    
-                                        setTimeout(() => {
-                                            form.resetFields();
-                                            this.setState({
-                                                loading: false,
-                                                addVisible: false,
-                                                currentItem:{
-                                                    key: null,
-                                                    unitId:null,
-                                                    unitCode:'',
-                                                    unitName:'',
-                                                    insertDate:'',
-                                                },
-                                            });
-                                        }, 1000);
-                                    
-
-                                }
-                            }).catch(err => {
+                    let cu_page=(parseInt(this.state.total)+1)/this.state.pageSize;
+                    let page=Math.ceil(cu_page)
+                    addDataUnitManagement(params,page,this.state.pageSize)
+                        .then(resolved=>{
+                            console.log(resolved)
+                            this.setState({
+                                data:resolved[0],
+                                total:resolved[1],
+                                currentPage:page
+                            })
+                            setTimeout(() => {
+                                form.resetFields();
+                                this.setState({
+                                    loading: false,
+                                    addVisible: false,
+                                    currentItem:{
+                                        key: null,
+                                        unitId:null,
+                                        unitCode:'',
+                                        unitName:'',
+                                        insertDate:'',
+                                    },
+                                });
+                                }, 1000);
+                        })
+                            .catch(err => {
                             console.log(err);
                         })
                     }
@@ -444,24 +361,19 @@ export default class UnitManagement extends Component {
     //表格分页
     onChange = page => {
         console.log("翻页",page);
-        this.setState({
-            currentPage: page,
-        });
-
         let params={
             page:page,
             pageSize:this.state.pageSize,
         }
-        httpRequest('post','/unit/list',params)
-            .then(response=>{
-                console.log(response.data.data.info)
-                if(response.data.data.info!==[]){
-                    this.setState({
-                        data:response.data.data.info,
-                    })
-                }
-            }).catch(err => {
-            console.log(err);
+        let promise=loadDataUnitManagement(params);
+        promise.then(resolved=>{
+            this.setState({
+                data:resolved[0],
+                total:resolved[1],
+                currentPage: page,
+            })
+        },reason => {
+            console.error(reason)
         })
     };
 

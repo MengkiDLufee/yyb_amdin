@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
-import { Table, Button, Input, Row, Col, Select, Space, Modal, Form, Popconfirm } from 'antd';
-import { PlusSquareOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
-// import httpRequest from "../../http";
-import { loadDataProjectType, deleteDataProjectType, modifyDataProjectType, addDataProjectType } from "../../api/basic/projectTypeInterface"
-import { loadDataTestType } from "../../api/basic/testTypeInterface";
-// import {addDataTestSet, deleteDataTestSet, loadDataTestSet, modifyDataTestSet} from "../../api/basic/testSetInterface";
+import {Table, Button, Input, Row, Col, Select, Space, Modal, Form, Popconfirm} from 'antd';
+import {PlusSquareOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
+import {loadDataProjectType,deleteDataProjectType,modifyDataProjectType,addDataProjectType} from "../../api/basic/projectTypeInterface"
+import {loadDataTestType} from "../../api/basic/testTypeInterface";
 
 const { Option } = Select;
 
@@ -130,14 +128,15 @@ export default class ProjectType extends Component {
         }, reason => {
             console.error(reason)
         })
-        //请求测试类型名称
-        let p = loadDataTestType({});
-        p.then(resolved => {
-            console.log("测试ceshi", resolved)
-            this.setState({
-                testTypeGroup: resolved,
-            })
-        }, reason => {
+      //请求测试类型名称
+        let p=loadDataTestType({});
+        p.then(resolved=>{
+            if(resolved){
+                this.setState({
+                    testTypeGroup: resolved[0],
+                })
+            }
+        },reason => {
             console.error(reason)
         })
         // httpRequest('post','/test/type/list',{})
@@ -251,7 +250,7 @@ export default class ProjectType extends Component {
         p.then(resolved => {
             console.log("测试ceshi", resolved)
             this.setState({
-                testTypeGroup: resolved,
+                testTypeGroup: resolved[0],
             })
         }, reason => {
             console.error(reason)
@@ -578,7 +577,7 @@ export default class ProjectType extends Component {
                         <Select placeholder="请选择测试类型"
                             onChange={this.handleChange}
                             value={this.state.testTypeId}
-                            
+
                         >
                             <Option value="normal">普通</Option>
                             <Option value="prelayegg">起峰前</Option>

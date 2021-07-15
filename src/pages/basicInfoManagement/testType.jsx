@@ -6,6 +6,7 @@ import ImportFile from "../../compenents/importfile";
 import axios from "axios";
 
 const { Option } = Select;
+
 function findKey (obj,value, compare = (a, b) => a === b) {  return Object.keys(obj).find(k => compare(obj[k], value))
 }
 
@@ -243,6 +244,7 @@ export default class TestType extends Component {
 
 
     ];
+
     //判读逻辑历史
     historycolumns=[
         {
@@ -320,6 +322,7 @@ export default class TestType extends Component {
             ),
         },
     ]
+
     //判读逻辑
     logicColumns=[
         {
@@ -339,6 +342,7 @@ export default class TestType extends Component {
             ),
         },
     ]
+
     //判读参数
     parametersColumns=[
         {
@@ -364,6 +368,7 @@ export default class TestType extends Component {
             ),
         },
     ]
+
     //判读提示语
     promptColumns=[
         {
@@ -437,7 +442,8 @@ export default class TestType extends Component {
 
         },
     ]
-//在翻页时存储已选中的表格项
+
+    //在翻页时存储已选中的表格项
     selectedStorage=[];
 
     //提示语字典
