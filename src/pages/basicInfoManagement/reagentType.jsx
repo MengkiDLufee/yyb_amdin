@@ -383,7 +383,7 @@ export default class ReagentType extends Component {
 
         console.log(paperTypeIdList)
         exportFile('/paper/export',{paperTypeIdList:paperTypeIdList},'试剂类型')
-
+        console.log({paperTypeIdList:paperTypeIdList})
     }
 
     //搜索
